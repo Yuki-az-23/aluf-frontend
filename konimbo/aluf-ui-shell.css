@@ -1,7 +1,15 @@
 /* Aluf UI Shell — css_before */
-/* Hide ALL Konimbo default UI when React mounts successfully.
-   #aluf-root is moved to <body> by JS, so we hide everything else. */
-body.aluf-loaded > *:not(#aluf-root):not(script):not(noscript):not(link):not(style) {
+/* Phase 1: Hide Konimbo content immediately (before React loads) to prevent flash.
+   Uses visibility so DOM is still scrapable. Added by MutationObserver in JS. */
+body.aluf-loading > *:not(#aluf-root):not(script):not(noscript):not(link):not(style):not(meta) {
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+/* Phase 2: Fully remove Konimbo content after React mounts. */
+body.aluf-loaded > *:not(#aluf-root):not(script):not(noscript):not(link):not(style):not(meta) {
   display: none !important;
 }
 /* Reset inherited styles inside our app root */

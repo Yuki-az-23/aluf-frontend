@@ -6,7 +6,7 @@
 setTimeout(function() {
   var root = document.getElementById('aluf-root');
   if (root && !root.querySelector('[data-aluf-app]')) {
-    document.body.classList.remove('aluf-loaded');
+    document.body.classList.remove('aluf-loaded', 'aluf-loading');
     root.innerHTML = '<div style="text-align:center;padding:40px;font-family:Heebo,sans-serif;">' +
       '<p style="font-size:18px;margin-bottom:16px;">שגיאה בטעינת האתר</p>' +
       '<a href="javascript:location.reload()" style="color:#FF6B00;font-weight:bold;">לחץ כאן לרענון</a></div>';
