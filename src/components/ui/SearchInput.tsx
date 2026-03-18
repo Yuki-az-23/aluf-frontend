@@ -14,7 +14,7 @@ export function SearchInput({ className }: SearchInputProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
-      window.location.href = `https://alufshop.konimbo.co.il/search?q=${encodeURIComponent(query.trim())}`;
+      window.location.href = `https://www.aluf.co.il/search?q=${encodeURIComponent(query.trim())}`;
     }
   };
 

@@ -8,6 +8,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Icon } from '@/components/ui/Icon';
 import { useLang } from '@/i18n';
 import { useCart } from '@/lib/CartContext';
+import logoSrc from '@/assets/logo.png';
 
 export function Header() {
   const { t } = useLang();
