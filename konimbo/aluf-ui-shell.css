@@ -1,13 +1,8 @@
 /* Aluf UI Shell — css_before */
-/* Hide Konimbo default UI when JS loads, show spinner */
-body.aluf-loaded > *:not(#aluf-root):not(script):not(noscript) {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  overflow: hidden !important;
-  clip: rect(0,0,0,0) !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
+/* Hide ALL Konimbo default UI when React mounts successfully.
+   #aluf-root is moved to <body> by JS, so we hide everything else. */
+body.aluf-loaded > *:not(#aluf-root):not(script):not(noscript):not(link):not(style) {
+  display: none !important;
 }
 #aluf-root {
   display: block !important;

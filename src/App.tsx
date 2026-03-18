@@ -24,14 +24,16 @@ function PageRouter() {
 
 export function App() {
   return (
-    <ThemeProvider>
-      <LangProvider>
-        <CartProvider>
-          <AppShell>
-            <PageRouter />
-          </AppShell>
-        </CartProvider>
-      </LangProvider>
-    </ThemeProvider>
+    <div data-aluf-app>
+      <ThemeProvider>
+        <LangProvider>
+          <CartProvider>
+            <AppShell>
+              <PageRouter />
+            </AppShell>
+          </CartProvider>
+        </LangProvider>
+      </ThemeProvider>
+    </div>
   );
 }
