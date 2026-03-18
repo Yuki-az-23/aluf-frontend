@@ -1,0 +1,19 @@
+<!-- Aluf UI Shell — foot_html_before -->
+<div id="aluf-root"></div>
+<script src="YOUR_CDN_URL/aluf-app.js"></script>
+<script>
+// Fallback: if React hasn't mounted after 10 seconds, show reload message
+setTimeout(function() {
+  var root = document.getElementById('aluf-root');
+  if (root && root.children.length === 0) {
+    root.innerHTML = '<div style="text-align:center;padding:40px;font-family:Heebo,sans-serif;">' +
+      '<p style="font-size:18px;margin-bottom:16px;">שגיאה בטעינת האתר</p>' +
+      '<a href="javascript:location.reload()" style="color:#FF6B00;font-weight:bold;">לחץ כאן לרענון</a></div>';
+  }
+}, 10000);
+</script>
+<noscript>
+  <div style="text-align:center;padding:40px;font-family:Heebo,sans-serif;">
+    <p>יש להפעיל JavaScript כדי לצפות באתר</p>
+  </div>
+</noscript>

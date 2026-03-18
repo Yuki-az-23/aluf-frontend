@@ -1,0 +1,28 @@
+/* Aluf UI Shell — css_before */
+/* Hide Konimbo default UI when JS loads, show spinner */
+body.aluf-loaded > *:not(#aluf-root):not(script):not(noscript) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0,0,0,0) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+#aluf-root {
+  display: block !important;
+}
+#aluf-root:empty::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin: 40vh auto;
+  border: 3px solid #e2e8f0;
+  border-top-color: #FF6B00;
+  border-radius: 50%;
+  animation: aluf-spin 0.6s linear infinite;
+}
+@keyframes aluf-spin {
+  to { transform: rotate(360deg); }
+}
