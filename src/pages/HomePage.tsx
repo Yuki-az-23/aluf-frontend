@@ -1,12 +1,11 @@
 import { Container } from '@/components/layout/Container';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { Carousel } from '@/components/ui/Carousel';
 import { Button } from '@/components/ui/Button';
-import { ProductCard } from '@/components/commerce/ProductCard';
 import { HeroBanner } from '@/components/commerce/HeroBanner';
 import { ServiceCard } from '@/components/commerce/ServiceCard';
 import { TierCard } from '@/components/commerce/TierCard';
 import { BlogCard } from '@/components/commerce/BlogCard';
+import { TabbedProducts } from '@/components/commerce/TabbedProducts';
 import { useLang } from '@/i18n';
 import { useStoreData } from '@/lib/StoreDataContext';
 import { services } from '@/data/services';
@@ -15,7 +14,7 @@ import { blogPosts } from '@/data/blog';
 
 export function HomePage() {
   const { t } = useLang();
-  const { products: featuredProducts, banners } = useStoreData();
+  const { banners } = useStoreData();
 
   return (
     <>
@@ -33,15 +32,11 @@ export function HomePage() {
         </Container>
       </section>
 
-      {/* Featured Products */}
+      {/* Featured Products — Tabbed by Tag */}
       <section className="py-12">
         <Container>
-          <SectionHeader title={t('products.title')} linkText={t('products.viewAll')} />
-          <Carousel slidesPerView={{ mobile: 2, desktop: 4 }} gap={24} showArrows>
-            {featuredProducts.map(p => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </Carousel>
+          <SectionHeader title={t('products.title')} />
+          <TabbedProducts />
         </Container>
       </section>
 

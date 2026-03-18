@@ -1,4 +1,4 @@
-import type { Product } from '@/data/products';
+import type { Product, ItemDetail } from '@/data/products';
 
 const BASE_URL = 'https://alufshop.konimbo.co.il';
 
@@ -13,9 +13,14 @@ export interface BannerData {
   mobile: BannerSlide[];
 }
 
-/** Scrape product data from Konimbo DOM before it's hidden */
-export function scrapeProducts(): Product[] {
-  const items = document.querySelectorAll('.layout_list_item.item');
+export interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+/** Parse product elements from a given container */
+export function parseProductElements(container: ParentNode, baseUrl: string = BASE_URL): Product[] {
+  const items = container.querySelectorAll('.layout_list_item.item');
   const products: Product[] = [];
 
   items.forEach((el) => {
@@ -51,12 +56,103 @@ export function scrapeProducts(): Product[] {
         price,
         originalPrice,
         inStock: true,
-        href: href.startsWith('http') ? href : (href ? BASE_URL + href.trim() : ''),
+        href: href.startsWith('http') ? href : (href ? baseUrl + href.trim() : ''),
       });
     }
   });
 
   return products;
+}
+
+/** Scrape product data from Konimbo DOM before it's hidden */
+export function scrapeProducts(): Product[] {
+  return parseProductElements(document);
+}
+
+/** Scrape item detail from a single product page DOM */
+export function scrapeItemDetail(): ItemDetail | null {
+  const titleEl = document.querySelector('h1, .item_title, .product-title');
+  const title = titleEl?.textContent?.trim() || '';
+  if (!title) return null;
+
+  const images: string[] = [];
+  const imgEls = document.querySelectorAll('.item_image img, .product-gallery img, .splide__slide img');
+  imgEls.forEach((img) => {
+    const src = img.getAttribute('src') || img.getAttribute('data-splide-lazy') || '';
+    if (src && !images.includes(src)) images.push(src);
+  });
+
+  const priceEl = document.querySelector('.price, .item_price');
+  const priceText = priceEl?.textContent?.replace(/[^\d.]/g, '') || '0';
+  const price = parseInt(priceText, 10) || 0;
+
+  const origPriceEl = document.querySelector('.origin_price, .item_origin_price');
+  const origText = origPriceEl?.textContent?.replace(/[^\d.]/g, '') || '';
+  const originalPrice = parseInt(origText, 10) || undefined;
+
+  const descEl = document.querySelector('.item_description, .product-description');
+  const descriptionHtml = descEl?.innerHTML?.trim() || '';
+
+  const specs: string[] = [];
+  const specEls = document.querySelectorAll('.item_specs li, .product-specs li');
+  specEls.forEach((li) => {
+    const text = li.textContent?.trim();
+    if (text) specs.push(text);
+  });
+
+  const outOfStockEl = document.querySelector('.out-of-stock');
+  const bodyText = document.body.textContent || '';
+  const inStock = !outOfStockEl && !bodyText.includes('אזל מהמלאי');
+
+  const metaId = document.querySelector('meta[name="item-id"]')?.getAttribute('content') || '';
+  const dataId = document.querySelector('[data-item-id]')?.getAttribute('data-item-id') || '';
+  const urlMatch = window.location.pathname.match(/\/items\/([^/?#]+)/);
+  const id = metaId || dataId || urlMatch?.[1] || '';
+
+  return {
+    id,
+    title,
+    images,
+    price,
+    originalPrice,
+    descriptionHtml,
+    specs,
+    inStock,
+  };
+}
+
+/** Scrape breadcrumb navigation */
+export function scrapeBreadcrumbs(): BreadcrumbItem[] {
+  const container = document.querySelector('.breadcrumb, .breadcrumbs, nav[aria-label="breadcrumb"]');
+  if (!container) return [];
+
+  const items: BreadcrumbItem[] = [];
+  const links = container.querySelectorAll('a, span, li');
+  const seen = new Set<string>();
+
+  links.forEach((el) => {
+    const label = el.textContent?.trim() || '';
+    if (!label || seen.has(label)) return;
+    seen.add(label);
+
+    const anchor = el.tagName === 'A' ? el : el.querySelector('a');
+    const href = anchor?.getAttribute('href') || undefined;
+
+    items.push({ label, href: href || undefined });
+  });
+
+  // Last item should have no href (current page)
+  if (items.length > 0) {
+    delete items[items.length - 1].href;
+  }
+
+  return items;
+}
+
+/** Scrape category page title */
+export function scrapeCategoryTitle(): string {
+  const el = document.querySelector('h1, .category_title, .page_title');
+  return el?.textContent?.trim() || '';
 }
 
 export interface KonimboCategory {

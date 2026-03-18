@@ -10,6 +10,17 @@ export interface Product {
   href?: string;
 }
 
+export interface ItemDetail {
+  id: string;
+  title: string;
+  images: string[];
+  price: number;
+  originalPrice?: number;
+  descriptionHtml: string;
+  specs: string[];
+  inStock: boolean;
+}
+
 export const featuredProducts: Product[] = [
   {
     id: '1',

@@ -1,17 +1,22 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import { scrapeProducts, scrapeCategories, scrapeCategoryGroups, scrapeBanners } from './lib/konimbo-scraper';
+import { scrapeProducts, scrapeCategories, scrapeCategoryGroups, scrapeBanners, scrapeItemDetail, scrapeBreadcrumbs, scrapeCategoryTitle } from './lib/konimbo-scraper';
+import { getPageType } from './lib/konimbo';
 import './theme/tokens.css';
 
 const root = document.getElementById('aluf-root');
 if (root) {
   // 1. Scrape Konimbo DOM data BEFORE hiding it
+  const pageType = getPageType();
   const scrapedData = {
     products: scrapeProducts(),
     categories: scrapeCategories(),
     categoryGroups: scrapeCategoryGroups(),
     banners: scrapeBanners(),
+    itemDetail: pageType === 'item' ? scrapeItemDetail() : null,
+    breadcrumbs: ['category', 'items', 'item'].includes(pageType) ? scrapeBreadcrumbs() : [],
+    pageTitle: ['category', 'items'].includes(pageType) ? scrapeCategoryTitle() : '',
   };
 
   // Store on window so StoreDataProvider can access it synchronously

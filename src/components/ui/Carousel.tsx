@@ -33,6 +33,28 @@ export function Carousel({
   const [activeIndex, setActiveIndex] = useState(0);
   const [totalSlides, setTotalSlides] = useState(0);
 
+  // Mouse drag-to-scroll support
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, scrollLeft: 0 });
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    const track = trackRef.current;
+    if (!track) return;
+    setIsDragging(true);
+    dragStart.current = { x: e.pageX, scrollLeft: track.scrollLeft };
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const track = trackRef.current;
+    if (!track) return;
+    e.preventDefault();
+    const dx = e.pageX - dragStart.current.x;
+    track.scrollLeft = dragStart.current.scrollLeft - dx;
+  };
+
+  const onMouseUp = () => setIsDragging(false);
+
   const getPerView = useCallback(() => {
     if (typeof slidesPerView === 'number') return slidesPerView;
     return window.innerWidth >= 768 ? slidesPerView.desktop : slidesPerView.mobile;
@@ -129,10 +151,16 @@ export function Carousel({
       <div
         ref={trackRef}
         className={cn('flex flex-nowrap overflow-x-auto no-scrollbar', cls)}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
         style={{
           gap,
-          scrollSnapType: 'x mandatory',
+          scrollSnapType: isDragging ? 'none' : 'x mandatory',
           WebkitOverflowScrolling: 'touch',
+          touchAction: 'pan-x',
+          cursor: isDragging ? 'grabbing' : 'grab',
         }}
       >
         {children}

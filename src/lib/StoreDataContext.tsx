@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import type { KonimboCategory, BannerData } from './konimbo-scraper';
-import type { Product } from '@/data/products';
+import type { KonimboCategory, BannerData, BreadcrumbItem } from './konimbo-scraper';
+import type { Product, ItemDetail } from '@/data/products';
 import { featuredProducts as fallbackProducts } from '@/data/products';
 
 interface StoreData {
@@ -8,6 +8,9 @@ interface StoreData {
   categories: KonimboCategory[];
   categoryGroups: { group: string; items: KonimboCategory[] }[];
   banners: BannerData;
+  itemDetail: ItemDetail | null;
+  breadcrumbs: BreadcrumbItem[];
+  pageTitle: string;
 }
 
 const StoreDataContext = createContext<StoreData>({
@@ -15,6 +18,9 @@ const StoreDataContext = createContext<StoreData>({
   categories: [],
   categoryGroups: [],
   banners: { desktop: [], mobile: [] },
+  itemDetail: null,
+  breadcrumbs: [],
+  pageTitle: '',
 });
 
 export function StoreDataProvider({ children }: { children: ReactNode }) {
@@ -27,6 +33,9 @@ export function StoreDataProvider({ children }: { children: ReactNode }) {
       categories: scraped?.categories || [],
       categoryGroups: scraped?.categoryGroups || [],
       banners: scraped?.banners || { desktop: [], mobile: [] },
+      itemDetail: scraped?.itemDetail || null,
+      breadcrumbs: scraped?.breadcrumbs || [],
+      pageTitle: scraped?.pageTitle || '',
     };
   }, []);
 
