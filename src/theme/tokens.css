@@ -1,3 +1,6 @@
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+
 :root {
   --aluf-primary: #FF6B00;
   --aluf-secondary: #a855f7;
