@@ -4,8 +4,18 @@
 body.aluf-loaded > *:not(#aluf-root):not(script):not(noscript):not(link):not(style) {
   display: none !important;
 }
+/* Reset inherited styles inside our app root */
 #aluf-root {
+  all: initial;
   display: block !important;
+  font-family: 'Heebo', sans-serif;
+  color: #1e293b;
+  line-height: 1.5;
+  direction: rtl;
+  -webkit-text-size-adjust: 100%;
+}
+#aluf-root *, #aluf-root *::before, #aluf-root *::after {
+  box-sizing: border-box;
 }
 #aluf-root:empty::after {
   content: '';

@@ -1,6 +1,7 @@
 import type { Config } from 'tailwindcss';
 
 export default {
+  important: '#aluf-root',
   content: ['./src/**/*.{ts,tsx}', './index.html'],
   darkMode: 'class',
   theme: {

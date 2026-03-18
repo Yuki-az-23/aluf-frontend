@@ -128,7 +128,7 @@ export function Carousel({
       <style>{`.${cls} > * { flex-shrink: 0; scroll-snap-align: start; } ${sizeCSS}`}</style>
       <div
         ref={trackRef}
-        className={cn('flex overflow-x-auto no-scrollbar', cls)}
+        className={cn('flex flex-nowrap overflow-x-auto no-scrollbar', cls)}
         style={{
           gap,
           scrollSnapType: 'x mandatory',
