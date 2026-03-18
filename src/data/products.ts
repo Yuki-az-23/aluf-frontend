@@ -21,6 +21,22 @@ export interface ItemDetail {
   inStock: boolean;
 }
 
+export interface BlogPostItem {
+  id: string;
+  title: string;
+  image: string;
+  excerpt: string;
+  date: string;
+  href: string;
+}
+
+export interface BlogPostDetail {
+  title: string;
+  image: string;
+  date: string;
+  contentHtml: string;
+}
+
 export const featuredProducts: Product[] = [
   {
     id: '1',

@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import { scrapeProducts, scrapeCategories, scrapeCategoryGroups, scrapeBanners, scrapeItemDetail, scrapeBreadcrumbs, scrapeCategoryTitle } from './lib/konimbo-scraper';
+import { scrapeProducts, scrapeCategories, scrapeCategoryGroups, scrapeBanners, scrapeItemDetail, scrapeBreadcrumbs, scrapeCategoryTitle, scrapeBlogPosts, scrapeBlogPostDetail } from './lib/konimbo-scraper';
 import { getPageType } from './lib/konimbo';
 import './theme/tokens.css';
 
@@ -15,8 +15,10 @@ if (root) {
     categoryGroups: scrapeCategoryGroups(),
     banners: scrapeBanners(),
     itemDetail: pageType === 'item' ? scrapeItemDetail() : null,
-    breadcrumbs: ['category', 'items', 'item'].includes(pageType) ? scrapeBreadcrumbs() : [],
-    pageTitle: ['category', 'items'].includes(pageType) ? scrapeCategoryTitle() : '',
+    breadcrumbs: ['category', 'items', 'item', 'blog', 'blogpost'].includes(pageType) ? scrapeBreadcrumbs() : [],
+    pageTitle: ['category', 'items', 'blog'].includes(pageType) ? scrapeCategoryTitle() : '',
+    blogPosts: pageType === 'blog' ? scrapeBlogPosts() : [],
+    blogPostDetail: pageType === 'blogpost' ? scrapeBlogPostDetail() : null,
   };
 
   // Store on window so StoreDataProvider can access it synchronously

@@ -9,6 +9,8 @@ import { ItemsGridPage } from '@/pages/ItemsGridPage';
 import { ItemPage } from '@/pages/ItemPage';
 import { CartPage } from '@/pages/CartPage';
 import { WorkshopPage } from '@/pages/WorkshopPage';
+import { BlogListPage } from '@/pages/BlogListPage';
+import { BlogPostPage } from '@/pages/BlogPostPage';
 import { getPageType } from '@/lib/konimbo';
 
 function PageRouter() {
@@ -19,6 +21,8 @@ function PageRouter() {
     case 'item': return <ItemPage />;
     case 'cart': return <CartPage />;
     case 'workshop': return <WorkshopPage />;
+    case 'blog': return <BlogListPage />;
+    case 'blogpost': return <BlogPostPage />;
     case 'home':
     default:
       return <HomePage />;

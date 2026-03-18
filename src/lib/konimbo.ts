@@ -30,7 +30,7 @@ export function isLoggedIn(): boolean {
 export function getPageType(): string {
   const meta = document.querySelector('meta[name="aluf-page"]');
   const type = meta?.getAttribute('content') || 'home';
-  if (!['home', 'category', 'items', 'item', 'cart', 'workshop'].includes(type)) {
+  if (!['home', 'category', 'items', 'item', 'cart', 'workshop', 'blog', 'blogpost'].includes(type)) {
     console.warn(`[aluf] Unknown page type: "${type}", defaulting to "home"`);
     return 'home';
   }

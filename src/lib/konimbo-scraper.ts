@@ -1,4 +1,4 @@
-import type { Product, ItemDetail } from '@/data/products';
+import type { Product, ItemDetail, BlogPostItem, BlogPostDetail } from '@/data/products';
 
 const BASE_URL = 'https://alufshop.konimbo.co.il';
 
@@ -220,6 +220,61 @@ export function scrapeCategoryGroups(): { group: string; items: KonimboCategory[
   });
 
   return groups;
+}
+
+/** Scrape blog post listings from Konimbo DOM (blog posts are items in a blog category) */
+export function scrapeBlogPosts(): BlogPostItem[] {
+  const posts: BlogPostItem[] = [];
+  // Blog posts use the same item structure as products
+  const items = document.querySelectorAll('.layout_list_item.item');
+
+  items.forEach((el) => {
+    const id = el.id?.replace('item_id_', '') || '';
+    if (!id) return;
+
+    const titleEl = el.querySelector('h4.title, .title');
+    const title = titleEl?.textContent?.trim() || '';
+
+    const imgEl = el.querySelector('img.img-responsive, img');
+    const image = imgEl?.getAttribute('src') || '';
+
+    // Blog posts may have a date element or excerpt
+    const dateEl = el.querySelector('.date, .item_date, .created_at');
+    const date = dateEl?.textContent?.trim() || '';
+
+    const excerptEl = el.querySelector('.description, .item_description, .excerpt');
+    const excerpt = excerptEl?.textContent?.trim() || '';
+
+    const linkEl = el.querySelector('a[href*="/items/"]');
+    let href = linkEl?.getAttribute('href') || '';
+    if (href && !href.startsWith('http')) {
+      href = BASE_URL + href.trim();
+    }
+
+    if (title) {
+      posts.push({ id, title, image, excerpt, date, href });
+    }
+  });
+
+  return posts;
+}
+
+/** Scrape a single blog post detail page */
+export function scrapeBlogPostDetail(): BlogPostDetail | null {
+  const titleEl = document.querySelector('h1, .item_title, .product-title');
+  const title = titleEl?.textContent?.trim() || '';
+  if (!title) return null;
+
+  const imgEl = document.querySelector('.item_image img, .product-gallery img, img.img-responsive');
+  const image = imgEl?.getAttribute('src') || '';
+
+  const dateEl = document.querySelector('.date, .item_date, .created_at');
+  const date = dateEl?.textContent?.trim() || '';
+
+  const contentEl = document.querySelector('.item_description, .product-description');
+  const contentHtml = contentEl?.innerHTML?.trim() || '';
+
+  return { title, image, date, contentHtml };
 }
 
 /** Scrape banner carousel slides from Konimbo Splide modules */
