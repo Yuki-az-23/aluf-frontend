@@ -124,10 +124,27 @@ export function Carousel({
   const scroll = (direction: 'prev' | 'next') => {
     const track = trackRef.current;
     if (!track) return;
+    const { scrollLeft, scrollWidth, clientWidth } = track;
+    const absScroll = Math.abs(scrollLeft);
     const isRtl = getComputedStyle(track).direction === 'rtl';
-    const delta = track.clientWidth;
-    const sign = direction === 'prev' ? -1 : 1;
-    track.scrollBy({ left: isRtl ? -sign * delta : sign * delta, behavior: 'smooth' });
+    const delta = clientWidth;
+
+    if (direction === 'next') {
+      // At the end → wrap to start
+      if (absScroll + clientWidth >= scrollWidth - 2) {
+        track.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        track.scrollBy({ left: isRtl ? -delta : delta, behavior: 'smooth' });
+      }
+    } else {
+      // At the start → wrap to end
+      if (absScroll <= 2) {
+        const endPos = scrollWidth - clientWidth;
+        track.scrollTo({ left: isRtl ? -endPos : endPos, behavior: 'smooth' });
+      } else {
+        track.scrollBy({ left: isRtl ? delta : -delta, behavior: 'smooth' });
+      }
+    }
   };
 
   // Build scoped CSS for slide widths
@@ -175,7 +192,7 @@ export function Carousel({
               'w-10 h-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-md',
               'flex items-center justify-center',
               'opacity-0 group-hover/carousel:opacity-100 transition-opacity',
-              !canScrollPrev && 'hidden',
+              !canScrollPrev && !canScrollNext && 'hidden',
             )}
             aria-label="Previous"
           >
@@ -188,7 +205,7 @@ export function Carousel({
               'w-10 h-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-md',
               'flex items-center justify-center',
               'opacity-0 group-hover/carousel:opacity-100 transition-opacity',
-              !canScrollNext && 'hidden',
+              !canScrollPrev && !canScrollNext && 'hidden',
             )}
             aria-label="Next"
           >

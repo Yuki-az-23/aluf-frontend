@@ -28,13 +28,29 @@ export function isLoggedIn(): boolean {
 }
 
 export function getPageType(): string {
+  // 1. Explicit meta tag (set via Konimbo admin)
   const meta = document.querySelector('meta[name="aluf-page"]');
-  const type = meta?.getAttribute('content') || 'home';
-  if (!['home', 'category', 'items', 'item', 'cart', 'workshop', 'blog', 'blogpost'].includes(type)) {
-    console.warn(`[aluf] Unknown page type: "${type}", defaulting to "home"`);
-    return 'home';
+  const metaType = meta?.getAttribute('content') || '';
+  if (metaType && ['home', 'category', 'items', 'item', 'cart', 'workshop', 'blog', 'blogpost'].includes(metaType)) {
+    return metaType;
   }
-  return type;
+
+  // 2. URL-based auto-detection fallback
+  const path = window.location.pathname;
+
+  if (/^\/items\//.test(path)) return 'item';
+  if (/^\/tags\//.test(path)) return 'items';
+  if (/^\/(cart|orders)(\/|$)/.test(path)) return 'cart';
+  if (/^\/632283-/.test(path)) return 'blog';
+
+  // 3. DOM-based detection for category vs item pages
+  if (document.getElementById('layout_x_item')) return 'item';
+  if (document.getElementById('layout_x_category')) return 'category';
+
+  // 4. Generic numeric-ID path pattern → likely a category
+  if (/^\/\d{5,}-/.test(path)) return 'category';
+
+  return 'home';
 }
 
 export function getPageData(): Record<string, string> {
