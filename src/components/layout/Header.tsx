@@ -8,7 +8,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Icon } from '@/components/ui/Icon';
 import { useLang } from '@/i18n';
 import { useCart } from '@/lib/CartContext';
-import logoSrc from '@/assets/logo.png';
+const logoSrc = 'https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/src/assets/logo.png';
 
 export function Header() {
   const { t } = useLang();
@@ -21,14 +21,12 @@ export function Header() {
         <Container>
           <div className="flex justify-between items-center h-20 gap-8">
             {/* Logo */}
-            <div className="flex-shrink-0 flex items-center gap-3">
-              <div className="h-10 w-10 bg-primary rounded-lg flex items-center justify-center">
-                <Icon name="deployed_code" className="text-white text-2xl" />
-              </div>
+            <a href="/" className="flex-shrink-0 flex items-center gap-3">
+              <img src={logoSrc} alt={t('site.name')} className="h-10 w-auto" />
               <span className="font-display font-bold text-2xl text-white hidden sm:block">
                 {t('site.name.prefix')} <span className="text-primary">{t('site.name.suffix')}</span>
               </span>
-            </div>
+            </a>
 
             {/* Search */}
             <div className="flex-grow max-w-3xl hidden md:block">
