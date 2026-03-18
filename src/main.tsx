@@ -1,18 +1,32 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { scrapeProducts, scrapeCategories, scrapeCategoryGroups } from './lib/konimbo-scraper';
 import './theme/tokens.css';
 
 const root = document.getElementById('aluf-root');
 if (root) {
-  // Move #aluf-root to be a direct child of <body> so CSS hiding works
+  // 1. Scrape Konimbo DOM data BEFORE hiding it
+  const scrapedData = {
+    products: scrapeProducts(),
+    categories: scrapeCategories(),
+    categoryGroups: scrapeCategoryGroups(),
+  };
+
+  // Store on window so StoreDataProvider can access it synchronously
+  (window as any).__ALUF_SCRAPED__ = scrapedData;
+
+  // 2. Move #aluf-root to be a direct child of <body>
   // (Konimbo injects it inside #wrapper, which our CSS would hide)
   if (root.parentElement !== document.body) {
     document.body.appendChild(root);
   }
 
+  // 3. NOW hide Konimbo content
+  document.body.classList.add('aluf-loaded');
+
+  // 4. Mount React
   try {
-    document.body.classList.add('aluf-loaded');
     createRoot(root).render(
       <StrictMode>
         <App />

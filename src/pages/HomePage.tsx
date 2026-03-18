@@ -7,13 +7,14 @@ import { ServiceCard } from '@/components/commerce/ServiceCard';
 import { TierCard } from '@/components/commerce/TierCard';
 import { BlogCard } from '@/components/commerce/BlogCard';
 import { useLang } from '@/i18n';
-import { featuredProducts } from '@/data/products';
+import { useStoreData } from '@/lib/StoreDataContext';
 import { services } from '@/data/services';
 import { gamingTiers } from '@/data/tiers';
 import { blogPosts } from '@/data/blog';
 
 export function HomePage() {
   const { t } = useLang();
+  const { products: featuredProducts } = useStoreData();
 
   return (
     <>

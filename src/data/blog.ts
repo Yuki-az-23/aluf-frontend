@@ -3,6 +3,7 @@ export interface BlogPost {
   date: string;
   image: string;
   excerpt: string;
+  href?: string;
 }
 
 export const blogPosts: BlogPost[] = [

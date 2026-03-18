@@ -41,7 +41,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
             <span>{t(item.labelKey)}</span>
           </a>
         ))}
-        <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary font-bold text-lg">
+        <a href="https://alufshop.konimbo.co.il" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary font-bold text-lg">
           <Icon name="local_offer" />
           <span>{t('nav.deals')}</span>
         </a>
@@ -53,10 +53,10 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
           <ThemeToggle />
         </div>
         <div className="flex gap-4">
-          <a href="#" className="flex-1 flex items-center justify-center gap-2 bg-white/5 py-3 rounded-xl">
+          <a href="https://alufshop.konimbo.co.il/login" className="flex-1 flex items-center justify-center gap-2 bg-white/5 py-3 rounded-xl">
             <Icon name="person" /> {t('header.login')}
           </a>
-          <a href="#" className="flex-1 flex items-center justify-center gap-2 bg-white/5 py-3 rounded-xl relative">
+          <a href="https://alufshop.konimbo.co.il/cart" className="flex-1 flex items-center justify-center gap-2 bg-white/5 py-3 rounded-xl relative">
             <Icon name="shopping_cart" /> {t('header.cart')}
             {cartCount > 0 && (
               <span className="bg-primary text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">{cartCount}</span>

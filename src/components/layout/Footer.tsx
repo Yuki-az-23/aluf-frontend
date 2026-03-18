@@ -2,6 +2,22 @@ import { Container } from './Container';
 import { Icon } from '@/components/ui/Icon';
 import { useLang } from '@/i18n';
 
+const BASE = 'https://alufshop.konimbo.co.il';
+
+const deptLinks = [
+  { key: 'desktops', href: BASE + '/636802-%D7%94%D7%A8%D7%9B%D7%91%D7%95%D7%AA-%D7%9E%D7%91%D7%99%D7%AA-%D7%90%D7%9C%D7%95%D7%A3-%D7%94%D7%9E%D7%97%D7%A9%D7%91%D7%99%D7%9D' },
+  { key: 'laptops', href: BASE + '/617567-%D7%9E%D7%97%D7%A9%D7%91%D7%99%D7%9D-%D7%A0%D7%99%D7%99%D7%93%D7%99%D7%9D-%D7%92%D7%99%D7%99%D7%9E%D7%99%D7%A0%D7%92' },
+  { key: 'components', href: BASE + '/613308-%D7%9E%D7%A2%D7%91%D7%93%D7%99-INTEL' },
+  { key: 'gamingGear', href: BASE + '/802813-%D7%94%D7%92%D7%94-%D7%9C%D7%A1%D7%99%D7%9E%D7%95%D7%9C%D7%98%D7%95%D7%A8' },
+];
+
+const serviceLinks = [
+  { key: 'tracking', href: BASE },
+  { key: 'returns', href: BASE },
+  { key: 'support', href: BASE },
+  { key: 'terms', href: BASE },
+];
+
 export function Footer() {
   const { t } = useLang();
   return (
@@ -20,8 +36,12 @@ export function Footer() {
             </div>
             <p className="text-gray-400 text-sm mb-6 leading-relaxed">{t('footer.description')}</p>
             <div className="flex gap-4 justify-end">
-              {['public', 'chat', 'mail'].map(icon => (
-                <a key={icon} href="#" className="w-8 h-8 rounded-full bg-slate-800 hover:bg-primary hover:text-white flex items-center justify-center transition text-gray-400 border border-gray-700">
+              {[
+                { icon: 'public', href: BASE },
+                { icon: 'chat', href: BASE },
+                { icon: 'mail', href: 'mailto:sales@aluf.co.il' },
+              ].map(({ icon, href }) => (
+                <a key={icon} href={href} className="w-8 h-8 rounded-full bg-slate-800 hover:bg-primary hover:text-white flex items-center justify-center transition text-gray-400 border border-gray-700">
                   <Icon name={icon} className="text-sm" />
                 </a>
               ))}
@@ -33,16 +53,16 @@ export function Footer() {
             <div>
               <h3 className="text-white font-bold mb-4 text-base">{t('footer.departments')}</h3>
               <ul className="space-y-2 text-sm text-gray-400">
-                {['desktops', 'laptops', 'components', 'gamingGear'].map(key => (
-                  <li key={key}><a className="hover:text-primary transition" href="#">{t(`footer.${key}`)}</a></li>
+                {deptLinks.map(({ key, href }) => (
+                  <li key={key}><a className="hover:text-primary transition" href={href}>{t(`footer.${key}`)}</a></li>
                 ))}
               </ul>
             </div>
             <div>
               <h3 className="text-white font-bold mb-4 text-base">{t('footer.customerService')}</h3>
               <ul className="space-y-2 text-sm text-gray-400">
-                {['tracking', 'returns', 'support', 'terms'].map(key => (
-                  <li key={key}><a className="hover:text-primary transition" href="#">{t(`footer.${key}`)}</a></li>
+                {serviceLinks.map(({ key, href }) => (
+                  <li key={key}><a className="hover:text-primary transition" href={href}>{t(`footer.${key}`)}</a></li>
                 ))}
               </ul>
             </div>
@@ -54,11 +74,11 @@ export function Footer() {
                   <Icon name="location_on" className="text-primary text-base mt-0.5" />
                 </li>
                 <li className="flex items-center gap-3 justify-end">
-                  <span dir="ltr">03-123-4567</span>
+                  <a href="tel:03-123-4567" className="hover:text-primary transition" dir="ltr">03-123-4567</a>
                   <Icon name="call" className="text-primary text-base" />
                 </li>
                 <li className="flex items-center gap-3 justify-end">
-                  <span>sales@aluf.co.il</span>
+                  <a href="mailto:sales@aluf.co.il" className="hover:text-primary transition">sales@aluf.co.il</a>
                   <Icon name="mail" className="text-primary text-base" />
                 </li>
               </ul>

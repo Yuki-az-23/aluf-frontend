@@ -1,6 +1,7 @@
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { LangProvider } from '@/i18n';
 import { CartProvider } from '@/lib/CartContext';
+import { StoreDataProvider } from '@/lib/StoreDataContext';
 import { AppShell } from '@/components/layout/AppShell';
 import { HomePage } from '@/pages/HomePage';
 import { CategoryPage } from '@/pages/CategoryPage';
@@ -27,11 +28,13 @@ export function App() {
     <div data-aluf-app>
       <ThemeProvider>
         <LangProvider>
-          <CartProvider>
-            <AppShell>
-              <PageRouter />
-            </AppShell>
-          </CartProvider>
+          <StoreDataProvider>
+            <CartProvider>
+              <AppShell>
+                <PageRouter />
+              </AppShell>
+            </CartProvider>
+          </StoreDataProvider>
         </LangProvider>
       </ThemeProvider>
     </div>

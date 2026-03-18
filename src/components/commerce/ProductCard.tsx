@@ -19,9 +19,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
       'bg-card-bg rounded-xl border border-border-light p-4 hover:shadow-tech-hover hover:border-primary transition-all group flex flex-col',
       className,
     )}>
-      <div className="relative">
+      <a href={product.href || '#'} className="block relative">
         {product.originalPrice && <Badge variant="sale" className="absolute top-2 right-2 z-10">SALE</Badge>}
-        <div className="aspect-square bg-gray-50 rounded-lg p-4 mb-4 overflow-hidden">
+        <div className="aspect-square bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4 overflow-hidden">
           <img
             src={product.image}
             alt={product.title}
@@ -29,9 +29,11 @@ export function ProductCard({ product, className }: ProductCardProps) {
             loading="lazy"
           />
         </div>
-      </div>
+      </a>
       <span className="text-xs text-primary font-bold mb-1">{product.category}</span>
-      <h3 className="font-bold text-sm mb-2 line-clamp-2 text-text-main">{product.title}</h3>
+      <a href={product.href || '#'} className="block">
+        <h3 className="font-bold text-sm mb-2 line-clamp-2 text-text-main">{product.title}</h3>
+      </a>
       <ul className="text-xs text-text-muted space-y-1 mb-4">
         {product.specs.map((spec, i) => (
           <li key={i} className="flex items-center gap-1">

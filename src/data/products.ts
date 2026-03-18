@@ -7,6 +7,7 @@ export interface Product {
   price: number;
   originalPrice?: number;
   inStock: boolean;
+  href?: string;
 }
 
 export const featuredProducts: Product[] = [

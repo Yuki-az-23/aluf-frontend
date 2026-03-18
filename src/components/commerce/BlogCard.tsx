@@ -8,7 +8,7 @@ interface BlogCardProps {
 export function BlogCard({ post }: BlogCardProps) {
   const { t } = useLang();
   return (
-    <a href="#" className="bg-card-bg rounded-xl border border-border-light overflow-hidden hover:shadow-tech-hover hover:border-primary transition-all group block">
+    <a href={post.href || 'https://alufshop.konimbo.co.il/632283-%D7%91%D7%9C%D7%95%D7%92'} className="bg-card-bg rounded-xl border border-border-light overflow-hidden hover:shadow-tech-hover hover:border-primary transition-all group block">
       <div className="aspect-video overflow-hidden">
         <img
           src={post.image}
