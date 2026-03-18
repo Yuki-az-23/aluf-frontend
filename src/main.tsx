@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import { scrapeProducts, scrapeCategories, scrapeCategoryGroups } from './lib/konimbo-scraper';
+import { scrapeProducts, scrapeCategories, scrapeCategoryGroups, scrapeBanners } from './lib/konimbo-scraper';
 import './theme/tokens.css';
 
 const root = document.getElementById('aluf-root');
@@ -11,6 +11,7 @@ if (root) {
     products: scrapeProducts(),
     categories: scrapeCategories(),
     categoryGroups: scrapeCategoryGroups(),
+    banners: scrapeBanners(),
   };
 
   // Store on window so StoreDataProvider can access it synchronously

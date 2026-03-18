@@ -2,6 +2,17 @@ import type { Product } from '@/data/products';
 
 const BASE_URL = 'https://alufshop.konimbo.co.il';
 
+export interface BannerSlide {
+  image: string;
+  href: string;
+  alt: string;
+}
+
+export interface BannerData {
+  desktop: BannerSlide[];
+  mobile: BannerSlide[];
+}
+
 /** Scrape product data from Konimbo DOM before it's hidden */
 export function scrapeProducts(): Product[] {
   const items = document.querySelectorAll('.layout_list_item.item');
@@ -113,4 +124,37 @@ export function scrapeCategoryGroups(): { group: string; items: KonimboCategory[
   });
 
   return groups;
+}
+
+/** Scrape banner carousel slides from Konimbo Splide modules */
+export function scrapeBanners(): BannerData {
+  function extractSlides(containerSelector: string): BannerSlide[] {
+    const slides: BannerSlide[] = [];
+    const els = document.querySelectorAll(
+      `${containerSelector} .splide__slide:not(.splide__slide--clone)`
+    );
+    els.forEach((slide) => {
+      const a = slide.querySelector('a[href]');
+      const img = slide.querySelector('img');
+      const href = a?.getAttribute('href') || '';
+      const image =
+        img?.getAttribute('src') ||
+        img?.getAttribute('data-splide-lazy') ||
+        '';
+      const alt = img?.getAttribute('alt') || '';
+      if (image) {
+        slides.push({
+          image,
+          href: href.startsWith('/') ? BASE_URL + href : href,
+          alt,
+        });
+      }
+    });
+    return slides;
+  }
+
+  return {
+    desktop: extractSlides('#module_233235_desktop'),
+    mobile: extractSlides('#module_233235_mobile'),
+  };
 }

@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import type { KonimboCategory } from './konimbo-scraper';
+import type { KonimboCategory, BannerData } from './konimbo-scraper';
 import type { Product } from '@/data/products';
 import { featuredProducts as fallbackProducts } from '@/data/products';
 
@@ -7,12 +7,14 @@ interface StoreData {
   products: Product[];
   categories: KonimboCategory[];
   categoryGroups: { group: string; items: KonimboCategory[] }[];
+  banners: BannerData;
 }
 
 const StoreDataContext = createContext<StoreData>({
   products: [],
   categories: [],
   categoryGroups: [],
+  banners: { desktop: [], mobile: [] },
 });
 
 export function StoreDataProvider({ children }: { children: ReactNode }) {
@@ -24,6 +26,7 @@ export function StoreDataProvider({ children }: { children: ReactNode }) {
       products: scraped?.products?.length ? scraped.products : fallbackProducts,
       categories: scraped?.categories || [],
       categoryGroups: scraped?.categoryGroups || [],
+      banners: scraped?.banners || { desktop: [], mobile: [] },
     };
   }, []);
 

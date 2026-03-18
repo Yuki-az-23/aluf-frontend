@@ -1,8 +1,9 @@
 import { Container } from '@/components/layout/Container';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { Carousel } from '@/components/ui/Carousel';
 import { Button } from '@/components/ui/Button';
-import { Icon } from '@/components/ui/Icon';
 import { ProductCard } from '@/components/commerce/ProductCard';
+import { HeroBanner } from '@/components/commerce/HeroBanner';
 import { ServiceCard } from '@/components/commerce/ServiceCard';
 import { TierCard } from '@/components/commerce/TierCard';
 import { BlogCard } from '@/components/commerce/BlogCard';
@@ -14,40 +15,12 @@ import { blogPosts } from '@/data/blog';
 
 export function HomePage() {
   const { t } = useLang();
-  const { products: featuredProducts } = useStoreData();
+  const { products: featuredProducts, banners } = useStoreData();
 
   return (
     <>
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-header-bg via-purple-900 to-header-bg text-white py-16 md:py-24">
-        <Container>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-6">
-                {t('hero.title')}
-              </h1>
-              <p className="text-lg text-gray-300 mb-8 leading-relaxed">
-                {t('hero.subtitle')}
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Button variant="primary" size="lg">
-                  <Icon name="storefront" />
-                  {t('hero.cta.shop')}
-                </Button>
-                <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-header-bg">
-                  <Icon name="build" />
-                  {t('hero.cta.services')}
-                </Button>
-              </div>
-            </div>
-            <div className="hidden md:flex items-center justify-center">
-              <div className="w-80 h-80 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center">
-                <Icon name="memory" className="text-[120px] text-primary/60" />
-              </div>
-            </div>
-          </div>
-        </Container>
-      </section>
+      {/* Hero Banner Carousel */}
+      <HeroBanner banners={banners} />
 
       {/* Services */}
       <section className="py-12">
@@ -64,11 +37,11 @@ export function HomePage() {
       <section className="py-12">
         <Container>
           <SectionHeader title={t('products.title')} linkText={t('products.viewAll')} />
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <Carousel slidesPerView={{ mobile: 2, desktop: 4 }} gap={24} showArrows>
             {featuredProducts.map(p => (
               <ProductCard key={p.id} product={p} />
             ))}
-          </div>
+          </Carousel>
         </Container>
       </section>
 
