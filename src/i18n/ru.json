@@ -45,7 +45,7 @@
   "footer.returns": "Возврат товара",
   "footer.support": "Обращение в поддержку",
   "footer.terms": "Условия использования",
-  "footer.copyright": "© 2024 Чемпион Компьютеров. Все права защищены.",
+  "footer.copyright": "© 2026 Чемпион Компьютеров. Все права защищены.",
   "footer.description": "Ведущий магазин компьютеров, гейминга и лабораторных услуг в Израиле. Новейшее оборудование, честные цены и бескомпромиссный сервис.",
   "price.currency": "₪",
   "stock.inStock": "В наличии",
@@ -54,5 +54,7 @@
   "a11y.openMenu": "Открыть меню",
   "a11y.closeMenu": "Закрыть меню",
   "a11y.toggleTheme": "Сменить тему",
-  "a11y.searchButton": "Поиск"
+  "a11y.searchButton": "Поиск",
+  "cart.couponPlaceholder": "Код купона",
+  "cart.applyCoupon": "Применить купон"
 }

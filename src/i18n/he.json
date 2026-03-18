@@ -45,7 +45,7 @@
   "footer.returns": "מדיניות החזרות",
   "footer.support": "פתיחת קריאת שירות",
   "footer.terms": "תקנון אתר",
-  "footer.copyright": "© 2024 אלוף המחשבים. כל הזכויות שמורות.",
+  "footer.copyright": "© 2026 אלוף המחשבים. כל הזכויות שמורות.",
   "footer.description": "החנות המובילה בישראל למחשבים, גיימינג ושירותי מעבדה. אצלנו תמצאו את החומרה הכי חדשה, מחירים הוגנים ושירות ללא פשרות.",
   "price.currency": "₪",
   "stock.inStock": "במלאי",
@@ -54,5 +54,7 @@
   "a11y.openMenu": "פתח תפריט",
   "a11y.closeMenu": "סגור תפריט",
   "a11y.toggleTheme": "החלף ערכת נושא",
-  "a11y.searchButton": "חיפוש"
+  "a11y.searchButton": "חיפוש",
+  "cart.couponPlaceholder": "קוד קופון",
+  "cart.applyCoupon": "החל קופון"
 }

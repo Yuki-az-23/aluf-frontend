@@ -45,7 +45,7 @@
   "footer.returns": "Return Policy",
   "footer.support": "Open Support Ticket",
   "footer.terms": "Terms of Service",
-  "footer.copyright": "© 2024 Champion of Computers. All rights reserved.",
+  "footer.copyright": "© 2026 Champion of Computers. All rights reserved.",
   "footer.description": "Israel's leading store for computers, gaming and lab services. Find the latest hardware, fair prices and uncompromising service.",
   "price.currency": "₪",
   "stock.inStock": "In Stock",
@@ -54,5 +54,7 @@
   "a11y.openMenu": "Open menu",
   "a11y.closeMenu": "Close menu",
   "a11y.toggleTheme": "Toggle theme",
-  "a11y.searchButton": "Search"
+  "a11y.searchButton": "Search",
+  "cart.couponPlaceholder": "Coupon code",
+  "cart.applyCoupon": "Apply Coupon"
 }
