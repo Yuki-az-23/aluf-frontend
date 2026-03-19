@@ -1,6 +1,7 @@
 import type { Product, ItemDetail, SpecRow, BlogPostItem, BlogPostDetail } from '@/data/products';
 
-const BASE_URL = 'https://alufshop.konimbo.co.il';
+// Resolve against the actual runtime origin so links work on any domain/subdomain
+const BASE_URL = typeof window !== 'undefined' ? window.location.origin : 'https://alufshop.konimbo.co.il';
 
 export interface BannerSlide {
   image: string;
