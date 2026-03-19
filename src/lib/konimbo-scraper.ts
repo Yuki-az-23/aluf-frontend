@@ -19,14 +19,20 @@ export interface BreadcrumbItem {
   href?: string;
 }
 
-/** Make a relative URL absolute pointing at Konimbo */
+/** Re-base any URL (relative or absolute) to the current runtime origin */
 function makeAbsolute(href: string): string {
   if (!href) return '';
-  if (href.startsWith('http')) return href;
-  if (href.startsWith('/')) return BASE_URL + href;
-  if (href.includes('www.aluf.co.il')) {
-    return href.replace(/https?:\/\/www\.aluf\.co\.il/, BASE_URL);
+  if (href.startsWith('http')) {
+    // DOM links may already be absolute with aluf.co.il or konimbo subdomain —
+    // strip to pathname so the link works on whatever domain is actually running
+    try {
+      const u = new URL(href);
+      return BASE_URL + u.pathname + u.search + u.hash;
+    } catch {
+      return href;
+    }
   }
+  if (href.startsWith('/')) return BASE_URL + href;
   return href;
 }
 

@@ -40,7 +40,7 @@ export function MainNav({ className }: MainNavProps) {
         </div>
       ))}
       <div className="border-r border-gray-700 h-6 mx-2" />
-      <a className="px-4 py-3 text-primary hover:text-white transition-colors flex items-center gap-2 cursor-pointer text-sm font-bold" href="https://alufshop.konimbo.co.il">
+      <a className="px-4 py-3 text-primary hover:text-white transition-colors flex items-center gap-2 cursor-pointer text-sm font-bold" href="/">
         <Icon name="local_offer" className="text-lg" />
         {t('nav.deals')}
       </a>
