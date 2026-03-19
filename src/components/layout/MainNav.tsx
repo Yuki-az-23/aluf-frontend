@@ -27,7 +27,7 @@ export function MainNav({ className }: MainNavProps) {
             <div className="absolute top-full right-0 mt-1 w-52 bg-header-bg border border-gray-700 rounded-xl shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 translate-y-1 group-hover:translate-y-0">
               {item.subItems.map(sub => (
                 <a
-                  key={sub.label}
+                  key={sub.href}
                   href={sub.href}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 first:rounded-t-xl last:rounded-b-xl transition-colors"
                 >
