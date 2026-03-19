@@ -13,7 +13,7 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
   if (featured) {
     return (
       <a href={href}
-        className="bg-card-bg rounded-xl border border-border-light overflow-hidden hover:shadow-tech-hover hover:border-primary transition-all group flex flex-col sm:flex-row lg:col-span-2 block">
+        className="bg-card-bg rounded-xl border border-border-light overflow-hidden hover:shadow-tech-hover hover:border-primary transition-all group flex flex-col sm:flex-row lg:col-span-2">
         <div className="sm:w-2/5 aspect-video sm:aspect-auto overflow-hidden flex-shrink-0">
           <img src={post.image} alt={post.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
