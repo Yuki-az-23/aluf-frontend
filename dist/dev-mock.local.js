@@ -133,40 +133,54 @@ const PRODUCTS = [
   },
 ];
 
-// ─── Item detail (item page) ───────────────────────────────────────────────
+// ─── Item detail — Lenovo V15 (https://www.aluf.co.il/items/8804152) ────────
 const ITEM_DETAIL = {
-  id: '7893524',
-  title: 'Solid F272P1 FHD IPS 27" Monitor — HDMI VGA רמקולים',
-  sku: 'F272P1',
+  id: '8804152',
+  title: 'Lenovo V15 מחשב נייד — AMD Athlon Silver 7120U | 8GB | 256GB NVMe | 15.6"',
+  sku: '82YY00BDIV',
   images: [
-    'https://placehold.co/800x800/1a1a2e/FF6B00?text=Monitor+Front',
-    'https://placehold.co/800x800/1a1a2e/FF6B00?text=Monitor+Side',
-    'https://placehold.co/800x800/1a1a2e/FF6B00?text=Monitor+Back',
+    'https://psref.lenovo.com/syspool/Sys/Image/Lenovo/Lenovo_V15_Gen_4/Lenovo_V15_Gen_4_CT1_01.png',
+    'https://psref.lenovo.com/syspool/Sys/Image/Lenovo/Lenovo_V15_Gen_4/Lenovo_V15_Gen_4_CT1_02.png',
+    'https://psref.lenovo.com/syspool/Sys/Image/Lenovo/Lenovo_V15_Gen_4/Lenovo_V15_Gen_4_CT1_03.png',
   ],
-  price: 899,
-  originalPrice: 1099,
-  descriptionHtml: '<p>מסך IPS איכותי 27 אינץ\' ברזולוציה Full HD, מתאים לעבודה, לימודים וגיימינג קל. כולל חיבורי HDMI ו-VGA, רמקולים מובנים, וזמן תגובה של 5ms.</p><p>מגיע עם אחריות יצרן 3 שנים.</p>',
+  price: 1599,
+  originalPrice: 1899,
+  descriptionHtml: `
+    <p>מחשב נייד <strong>Lenovo V15 Gen 4</strong> — אמין, שקט ויעיל לשימוש יומיומי בבית ובעבודה.</p>
+    <p>מופעל על ידי מעבד AMD Athlon Silver 7120U עם גרפיקת Radeon מובנית, 8GB RAM ו-256GB SSD מהיר — מציע ביצועים חלקים לגלישה, עבודה עם Office, ועריכת מסמכים.</p>
+    <ul>
+      <li>מסך FHD 15.6 אינץ' Anti-Glare בהיר ונוח לעיניים</li>
+      <li>מקלדת עברית/אנגלית מלאה עם NumPad</li>
+      <li>חיי סוללה של עד 7.5 שעות</li>
+      <li>Windows 11 Home מותקן ומורשה</li>
+    </ul>
+  `,
   specs: [
-    'גודל מסך: 27 אינץ\'',
-    'פאנל: IPS',
-    'רזולוציה: 1920×1080 FHD',
-    'זמן תגובה: 5ms',
-    'קצב רענון: 75Hz',
-    'חיבורים: HDMI + VGA',
-    'רמקולים מובנים: כן',
+    'AMD Athlon Silver 7120U (2 ליבות, עד 3.5GHz)',
+    '8GB DDR4 RAM',
+    '256GB NVMe SSD',
+    '15.6" FHD IPS Anti-Glare',
+    'AMD Radeon 610M גרפיקה',
+    'Windows 11 Home',
+    'מקלדת עברית + NumPad',
   ],
   specRows: [
-    { label: 'גודל מסך', value: '27 אינץ\'' },
-    { label: 'סוג פאנל', value: 'IPS' },
-    { label: 'רזולוציה', value: '1920×1080 Full HD' },
-    { label: 'קצב רענון', value: '75Hz' },
-    { label: 'זמן תגובה', value: '5ms GTG' },
-    { label: 'חיבורים', value: 'HDMI 1.4 / VGA' },
-    { label: 'רמקולים', value: '2×2W מובנים' },
-    { label: 'צבע', value: 'שחור' },
-    { label: 'אחריות', value: '3 שנים' },
+    { label: 'מעבד', value: 'AMD Athlon Silver 7120U — 2 ליבות, עד 3.5GHz' },
+    { label: 'זיכרון RAM', value: '8GB DDR4-3200MHz' },
+    { label: 'אחסון', value: '256GB M.2 NVMe SSD' },
+    { label: 'מסך', value: '15.6" FHD (1920×1080) IPS Anti-Glare' },
+    { label: 'כרטיס גרפי', value: 'AMD Radeon 610M (משולב)' },
+    { label: 'מצלמה', value: 'HD 720p' },
+    { label: 'חיבורים', value: 'USB 3.2 ×2, USB 2.0, HDMI 1.4, RJ-45, 3.5mm' },
+    { label: 'Wi-Fi', value: 'Wi-Fi 5 (802.11ac)' },
+    { label: 'Bluetooth', value: 'Bluetooth 5.1' },
+    { label: 'סוללה', value: '38Wh — עד 7.5 שעות' },
+    { label: 'מערכת הפעלה', value: 'Windows 11 Home' },
+    { label: 'משקל', value: '1.65 ק"ג' },
+    { label: 'צבע', value: 'Business Black' },
+    { label: 'אחריות', value: '1 שנה אחריות יצרן' },
   ],
-  relatedItems: PRODUCTS.slice(1, 5),
+  relatedItems: PRODUCTS.slice(0, 4),
   inStock: true,
 };
 
@@ -192,8 +206,8 @@ const CRUMBS_ITEMS = [
 
 const CRUMBS_ITEM = [
   { label: 'ראשי', href: '/' },
-  { label: 'ציוד הקפי', href: '/585876-ציוד-הקפי' },
-  { label: 'מסכים מחשב', href: '/616355-מסכים-מחשב' },
+  { label: 'מחשבים', href: '/596696-מחשבים' },
+  { label: 'מחשב נייד', href: '/617479-מחשב-נייד' },
   { label: ITEM_DETAIL.title },
 ];
 

@@ -28,6 +28,10 @@ export function isLoggedIn(): boolean {
 }
 
 export function getPageType(): string {
+  // 0. Dev mock override (set by public/dev-mock.local.js)
+  const devOverride = (window as any).__ALUF_DEV_PAGE_TYPE__ as string | undefined;
+  if (devOverride) return devOverride;
+
   // 1. Explicit meta tag (set via Konimbo admin)
   const meta = document.querySelector('meta[name="aluf-page"]');
   const metaType = meta?.getAttribute('content') || '';

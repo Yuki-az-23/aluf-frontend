@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { Icon } from '@/components/ui/Icon';
@@ -33,6 +33,22 @@ export function ItemPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [adding, setAdding] = useState(false);
   const [openQa, setOpenQa] = useState<number | null>(null);
+  const [zoomOpen, setZoomOpen] = useState(false);
+
+  const images = itemDetail?.images ?? [];
+  const prevImage = useCallback(() => setActiveImage(i => (i - 1 + images.length) % images.length), [images.length]);
+  const nextImage = useCallback(() => setActiveImage(i => (i + 1) % images.length), [images.length]);
+
+  useEffect(() => {
+    if (!zoomOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setZoomOpen(false);
+      if (e.key === 'ArrowLeft') nextImage();
+      if (e.key === 'ArrowRight') prevImage();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [zoomOpen, prevImage, nextImage]);
 
   if (!itemDetail) {
     return (
@@ -210,33 +226,44 @@ export function ItemPage() {
 
           {/* Image Gallery (end side) */}
           <div>
-            <div className="relative aspect-square bg-white rounded-xl overflow-hidden mb-3 border border-border-light">
+            {/* Main image — click to zoom */}
+            <div
+              className="relative aspect-square bg-white rounded-xl overflow-hidden mb-3 border border-border-light group cursor-zoom-in"
+              onClick={() => images.length > 0 && setZoomOpen(true)}
+            >
               {discount > 0 && (
                 <Badge variant="sale" className="absolute top-4 end-4 z-10">
                   -{discount}%
                 </Badge>
               )}
-              {itemDetail.images.length > 0 ? (
+              {images.length > 0 ? (
                 <img
-                  src={itemDetail.images[activeImage] || itemDetail.images[0]}
+                  src={images[activeImage] || images[0]}
                   alt={itemDetail.title}
-                  className="w-full h-full object-contain p-6"
+                  className="w-full h-full object-contain p-6 transition-transform duration-300 group-hover:scale-105"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-text-muted">
                   <Icon name="image" className="text-6xl" />
                 </div>
               )}
+              {/* Zoom hint */}
+              {images.length > 0 && (
+                <div className="absolute bottom-3 end-3 bg-black/40 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  <Icon name="zoom_in" className="text-base" />
+                </div>
+              )}
             </div>
+
             {/* Thumbnails */}
-            {itemDetail.images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto no-scrollbar">
-                {itemDetail.images.map((img, i) => (
+            {images.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                {images.map((img, i) => (
                   <button
                     key={i}
                     onClick={() => setActiveImage(i)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg border-2 overflow-hidden transition-colors ${
-                      i === activeImage ? 'border-primary' : 'border-border-light'
+                    className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg border-2 overflow-hidden transition-colors bg-white ${
+                      i === activeImage ? 'border-primary' : 'border-border-light hover:border-primary/50'
                     }`}
                   >
                     <img src={img} alt="" className="w-full h-full object-contain p-1" />
@@ -379,6 +406,66 @@ export function ItemPage() {
           {adding ? '...' : t('item.addToCart')}
         </Button>
       </div>
+
+      {/* ── Image Lightbox ── */}
+      {zoomOpen && images.length > 0 && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center"
+          onClick={() => setZoomOpen(false)}
+        >
+          {/* Close */}
+          <button
+            className="absolute top-4 end-4 text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition-colors"
+            onClick={() => setZoomOpen(false)}
+            aria-label="סגור"
+          >
+            <Icon name="close" className="text-2xl" />
+          </button>
+
+          {/* Prev */}
+          {images.length > 1 && (
+            <button
+              className="absolute start-4 top-1/2 -translate-y-1/2 text-white bg-white/10 hover:bg-white/20 rounded-full p-3 transition-colors"
+              onClick={(e) => { e.stopPropagation(); prevImage(); }}
+              aria-label="הקודם"
+            >
+              <Icon name="chevron_right" className="text-2xl" />
+            </button>
+          )}
+
+          {/* Image */}
+          <img
+            src={images[activeImage]}
+            alt={itemDetail.title}
+            className="max-w-[90vw] max-h-[90vh] object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Next */}
+          {images.length > 1 && (
+            <button
+              className="absolute end-4 top-1/2 -translate-y-1/2 text-white bg-white/10 hover:bg-white/20 rounded-full p-3 transition-colors"
+              onClick={(e) => { e.stopPropagation(); nextImage(); }}
+              aria-label="הבא"
+            >
+              <Icon name="chevron_left" className="text-2xl" />
+            </button>
+          )}
+
+          {/* Dots */}
+          {images.length > 1 && (
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
+              {images.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => { e.stopPropagation(); setActiveImage(i); }}
+                  className={`w-2 h-2 rounded-full transition-colors ${i === activeImage ? 'bg-white' : 'bg-white/40'}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 }
