@@ -156,6 +156,52 @@ function buildCartRowHtml(itemId: string, quantity: number, info: CartProductInf
   return tr.outerHTML;
 }
 
+export interface OrderItem {
+  item_id: string;
+  item_name: string;
+  price: number;
+  quantity: number;
+  item_image?: string;
+  item_category?: string;
+}
+
+/**
+ * Rebuild the Konimbo jStorage cart HTML from the current items array.
+ * Must be called whenever the cart changes (qty update or removal) so that
+ * Konimbo's checkout form reads the correct cart_content.
+ */
+export function syncCartToJStorage(items: OrderItem[]): void {
+  try {
+    const storeName = getStoreName();
+    const cartKey = 'cart_' + storeName;
+    let jStorage: Record<string, unknown> = { __jstorage_meta: { CRC32: {}, TTL: {} } };
+    try {
+      const raw = localStorage.getItem('jStorage');
+      if (raw) jStorage = JSON.parse(raw);
+    } catch {}
+
+    // Rebuild cart HTML from scratch for every item in the current cart
+    let cartHtml = '';
+    for (const item of items) {
+      cartHtml += buildCartRowHtml(item.item_id, item.quantity, {
+        title: item.item_name,
+        price: item.price,
+        image: item.item_image,
+      });
+    }
+    jStorage[cartKey] = cartHtml;
+
+    const meta = jStorage['__jstorage_meta'] as Record<string, Record<string, string>>;
+    if (meta?.['CRC32']) {
+      meta['CRC32'][cartKey] = '2.' + Math.floor(Math.random() * 10000000000);
+    }
+    localStorage.setItem('jStorage', JSON.stringify(jStorage));
+    localStorage.setItem('jStorage_update', String(+new Date()));
+  } catch (err) {
+    console.error('[aluf] syncCartToJStorage failed:', err);
+  }
+}
+
 export async function addToCart(
   itemId: string,
   quantity: number = 1,

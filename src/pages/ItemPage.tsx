@@ -34,10 +34,18 @@ export function ItemPage() {
   const [adding, setAdding] = useState(false);
   const [openQa, setOpenQa] = useState<number | null>(null);
   const [zoomOpen, setZoomOpen] = useState(false);
+  const [hoverZoom, setHoverZoom] = useState<{ mx: number; my: number; bgX: number; bgY: number } | null>(null);
 
   const images = itemDetail?.images ?? [];
   const prevImage = useCallback(() => setActiveImage(i => (i - 1 + images.length) % images.length), [images.length]);
   const nextImage = useCallback(() => setActiveImage(i => (i + 1) % images.length), [images.length]);
+
+  const handleImgMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const bgX = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) * 100;
+    const bgY = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height)) * 100;
+    setHoverZoom({ mx: e.clientX, my: e.clientY, bgX, bgY });
+  }, []);
 
   useEffect(() => {
     if (!zoomOpen) return;
@@ -139,34 +147,36 @@ export function ItemPage() {
                 )}
               </div>
 
-              {/* Upgrade options */}
-              <div className="mt-4 space-y-2">
-                <p className="text-xs font-bold text-text-muted">{t('item.upgrades')}</p>
-                <div className="flex items-center gap-2 text-sm text-text-main bg-card-bg rounded-lg px-3 py-2 border border-border-light">
-                  <input type="checkbox" id="upgrade-warranty" className="accent-primary" />
-                  <label htmlFor="upgrade-warranty" className="flex-1 cursor-pointer">
-                    {t('item.upgradeWarranty')}
-                  </label>
-                  <span className="font-bold text-primary">+₪199</span>
+              {/* Upgrade options — dev mock only until SKU mapping is implemented */}
+              {!!(window as any).__ALUF_DEV_PAGE_TYPE__ && (
+                <div className="mt-4 space-y-2">
+                  <p className="text-xs font-bold text-text-muted">{t('item.upgrades')}</p>
+                  <div className="flex items-center gap-2 text-sm text-text-main bg-card-bg rounded-lg px-3 py-2 border border-border-light">
+                    <input type="checkbox" id="upgrade-warranty" className="accent-primary" />
+                    <label htmlFor="upgrade-warranty" className="flex-1 cursor-pointer">
+                      {t('item.upgradeWarranty')}
+                    </label>
+                    <span className="font-bold text-primary">+₪199</span>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Add to cart + Buy now */}
-              <div className="flex flex-col gap-3 mt-5">
+              <div className="grid grid-cols-2 gap-2 mt-5">
                 <Button
-                  variant="primary"
-                  size="lg"
-                  className="w-full text-lg py-4 bg-primary hover:bg-primary/90"
+                  variant="secondary"
+                  size="md"
+                  className="w-full bg-brand-purple/80 hover:bg-brand-purple text-white border-0"
                   onClick={handleAddToCart}
                   disabled={!itemDetail.inStock || adding}
                 >
-                  <Icon name="shopping_cart" className={dir === 'rtl' ? 'ml-2' : 'mr-2'} />
+                  <Icon name="shopping_cart" className="text-base" />
                   {adding ? '...' : t('item.addToCart')}
                 </Button>
                 <Button
-                  variant="secondary"
-                  size="lg"
-                  className="w-full text-lg py-4 bg-brand-purple hover:bg-brand-purple/90 text-white border-0"
+                  variant="primary"
+                  size="md"
+                  className="w-full bg-primary/80 hover:bg-primary"
                   onClick={handleAddToCart}
                   disabled={!itemDetail.inStock || adding}
                 >
@@ -185,10 +195,16 @@ export function ItemPage() {
 
               {/* Trust badges */}
               <div className="flex items-center justify-around mt-4 pt-4 border-t border-border-light text-xs text-text-muted">
-                <span className="flex items-center gap-1">
-                  <Icon name="local_shipping" className="text-primary text-sm" />
-                  {t('stock.freeShipping')}
-                </span>
+                {itemDetail.price >= 500 && (
+                  <span className="relative group flex items-center gap-1 cursor-default">
+                    <Icon name="local_shipping" className="text-primary text-sm" />
+                    {t('stock.freeShipping')}
+                    {/* Tooltip */}
+                    <span className="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-800 text-white text-[10px] rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                      {t('item.freeShippingTooltip')}
+                    </span>
+                  </span>
+                )}
                 <span className="flex items-center gap-1">
                   <Icon name="store" className="text-primary text-sm" />
                   {t('item.readyToShip')}
@@ -226,9 +242,11 @@ export function ItemPage() {
 
           {/* Image Gallery (end side) */}
           <div>
-            {/* Main image — click to zoom */}
+            {/* Main image — hover to zoom (desktop), tap to lightbox (mobile) */}
             <div
-              className="relative aspect-square bg-white rounded-xl overflow-hidden mb-3 border border-border-light group cursor-zoom-in"
+              className="relative aspect-square bg-white rounded-xl overflow-hidden mb-3 border border-border-light md:cursor-crosshair"
+              onMouseMove={handleImgMouseMove}
+              onMouseLeave={() => setHoverZoom(null)}
               onClick={() => images.length > 0 && setZoomOpen(true)}
             >
               {discount > 0 && (
@@ -240,17 +258,11 @@ export function ItemPage() {
                 <img
                   src={images[activeImage] || images[0]}
                   alt={itemDetail.title}
-                  className="w-full h-full object-contain p-6 transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-contain p-6 pointer-events-none"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-text-muted">
                   <Icon name="image" className="text-6xl" />
-                </div>
-              )}
-              {/* Zoom hint */}
-              {images.length > 0 && (
-                <div className="absolute bottom-3 end-3 bg-black/40 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  <Icon name="zoom_in" className="text-base" />
                 </div>
               )}
             </div>
@@ -406,6 +418,33 @@ export function ItemPage() {
           {adding ? '...' : t('item.addToCart')}
         </Button>
       </div>
+
+      {/* ── Hover Zoom Panel (desktop only) ── */}
+      {hoverZoom && images.length > 0 && (() => {
+        const SIZE = 320;
+        const OFFSET = 20;
+        const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
+        const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
+        const left = hoverZoom.mx + OFFSET + SIZE > vw
+          ? hoverZoom.mx - SIZE - OFFSET
+          : hoverZoom.mx + OFFSET;
+        const top = Math.max(8, Math.min(hoverZoom.my - SIZE / 2, vh - SIZE - 8));
+        return (
+          <div
+            className="fixed pointer-events-none z-50 rounded-xl border-2 border-primary shadow-2xl bg-white hidden md:block"
+            style={{
+              width: SIZE,
+              height: SIZE,
+              left,
+              top,
+              backgroundImage: `url(${images[activeImage]})`,
+              backgroundSize: '400%',
+              backgroundPosition: `${hoverZoom.bgX}% ${hoverZoom.bgY}%`,
+              backgroundRepeat: 'no-repeat',
+            }}
+          />
+        );
+      })()}
 
       {/* ── Image Lightbox ── */}
       {zoomOpen && images.length > 0 && (

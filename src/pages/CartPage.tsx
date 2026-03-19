@@ -7,9 +7,113 @@ import { CouponInput } from '@/components/commerce/CouponInput';
 import { ProductCard } from '@/components/commerce/ProductCard';
 import { useStoreData } from '@/lib/StoreDataContext';
 import { useLang } from '@/i18n';
+import { syncCartToJStorage } from '@/lib/konimbo';
 
 const CHECKOUT_URL = '/orders/alufshop/new#secureHook';
 const VAT_RATE = 0.17;
+const LOGO_URL = 'https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/src/assets/logo.png';
+const SUPPORT_PHONE = '053-336-8084';
+
+function getTodayDate(): string {
+  const d = new Date();
+  return [
+    String(d.getDate()).padStart(2, '0'),
+    String(d.getMonth() + 1).padStart(2, '0'),
+    d.getFullYear(),
+  ].join('/');
+}
+
+function printCart(items: CartItem[], subtotal: number): void {
+  const vatIncluded = Math.round(subtotal * VAT_RATE);
+  const date = getTodayDate();
+
+  // Build rows — all values via textContent so no injection possible
+  const rowsHtml = items.map(item => {
+    const lineTotal = item.price * item.quantity;
+    // Use safe text interpolation (numbers and pre-validated strings from localStorage)
+    return `<tr>
+      <td>${escapeHtml(item.item_name)}</td>
+      <td style="text-align:center">${item.quantity}</td>
+      <td style="text-align:center">&#x20AA;${item.price.toLocaleString('he-IL')}</td>
+      <td style="text-align:center">&#x20AA;${lineTotal.toLocaleString('he-IL')}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>הצעת מחיר - אלוף המחשבים</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, Helvetica, sans-serif; padding: 30px; direction: rtl; color: #111; }
+    .header { text-align: center; padding-bottom: 24px; border-bottom: 3px solid #030213; margin-bottom: 28px; }
+    .header img { max-width: 200px; height: auto; margin-bottom: 12px; }
+    .header h1 { font-size: 26px; font-weight: 900; color: #030213; margin-bottom: 6px; }
+    .header .meta { font-size: 14px; color: #555; line-height: 1.8; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+    th { background: #030213; color: #fff; padding: 10px 12px; font-size: 14px; }
+    td { padding: 9px 12px; border-bottom: 1px solid #ddd; font-size: 14px; }
+    tr:nth-child(even) td { background: #f9f9f9; }
+    .summary { border-top: 2px solid #030213; padding-top: 16px; text-align: left; }
+    .summary-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 15px; }
+    .summary-row.total { font-size: 19px; font-weight: 900; border-top: 1px solid #ccc; margin-top: 8px; padding-top: 8px; color: #030213; }
+    .footer { margin-top: 32px; text-align: center; font-size: 12px; color: #888; border-top: 1px solid #eee; padding-top: 16px; }
+    @media print { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="${LOGO_URL}" alt="אלוף המחשבים">
+    <h1>הצעת מחיר</h1>
+    <div class="meta">
+      <div>תאריך: ${date}</div>
+      <div>שירות לקוחות: ${SUPPORT_PHONE}</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>מוצר</th>
+        <th style="text-align:center">כמות</th>
+        <th style="text-align:center">מחיר ליח'</th>
+        <th style="text-align:center">סה"כ</th>
+      </tr>
+    </thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>
+
+  <div class="summary">
+    <div class="summary-row"><span>סכום ביניים</span><span>&#x20AA;${subtotal.toLocaleString('he-IL')}</span></div>
+    <div class="summary-row"><span>מע"מ (17%)</span><span>&#x20AA;${vatIncluded.toLocaleString('he-IL')}</span></div>
+    <div class="summary-row"><span>משלוח</span><span style="color:#16a34a">חינם</span></div>
+    <div class="summary-row total"><span>סה"כ לתשלום</span><span>&#x20AA;${subtotal.toLocaleString('he-IL')}</span></div>
+  </div>
+
+  <div class="footer">
+    * המחירים כוללים מע"מ | התמונות להמחשה בלבד | החברה שומרת לעצמה את הזכות לשנות מחירים ללא הודעה מוקדמת
+  </div>
+
+  <script>setTimeout(function(){ window.print(); }, 400);<\/script>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank', 'width=820,height=680');
+  if (!win) return;
+  win.document.write(html);
+  win.document.close();
+}
+
+/** Minimal HTML escape for user-sourced strings written into the print window */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 interface CartItem {
   item_id: string;
@@ -33,6 +137,9 @@ function readCartItems(): CartItem[] {
 
 function persistCartItems(items: CartItem[]): void {
   localStorage.setItem('order_items', JSON.stringify(items));
+
+  // Rebuild jStorage cart HTML so Konimbo checkout reads the correct cart_content
+  syncCartToJStorage(items);
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
   const hostname = window.location.hostname;
@@ -213,6 +320,16 @@ export function CartPage() {
               {t('cart.checkout')}
               <Icon name="arrow_back" className="group-hover:-translate-x-1 transition-transform" />
             </Button>
+
+            {/* Print / PDF quote button */}
+            <button
+              type="button"
+              onClick={() => printCart(cartItems, subtotal)}
+              className="mt-3 w-full flex items-center justify-center gap-2 text-sm font-semibold text-text-muted border border-border-light rounded-xl py-2.5 hover:border-primary hover:text-primary transition-colors"
+            >
+              <Icon name="print" className="text-lg" />
+              {t('cart.printQuote')}
+            </button>
 
             {/* Trust badges */}
             <div className="mt-6 space-y-3">

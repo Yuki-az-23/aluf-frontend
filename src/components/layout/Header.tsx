@@ -51,7 +51,7 @@ export function Header() {
                   <Icon name="person" className="transition-colors" />
                   <span className="text-[10px] hidden sm:block font-medium">{t('header.login')}</span>
                 </button>
-                <button className="text-header-text-muted hover:text-header-text transition relative flex flex-col items-center gap-0.5 group">
+                <a href="/cart" className="text-header-text-muted hover:text-header-text transition relative flex flex-col items-center gap-0.5 group">
                   <div className="relative">
                     <Icon name="shopping_cart" className="group-hover:text-primary transition-colors" />
                     {cartCount > 0 && (
@@ -61,7 +61,7 @@ export function Header() {
                     )}
                   </div>
                   <span className="text-[10px] hidden sm:block font-medium">{t('header.cart')}</span>
-                </button>
+                </a>
               </div>
 
               <button
