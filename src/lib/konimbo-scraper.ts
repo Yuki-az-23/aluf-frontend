@@ -56,11 +56,14 @@ export function parseProductElements(container: ParentNode, baseUrl: string = BA
     const titleEl = el.querySelector('h4.title, .title a, .title, h4, .item_title');
     const title = titleEl?.textContent?.trim() || '';
 
-    // Image: try data-src (lazy) then src
+    // Image: try all lazy-load attrs before falling back to src
     const imgEl = el.querySelector('img');
     const image =
+      imgEl?.getAttribute('data-large') ||
       imgEl?.getAttribute('data-src') ||
+      imgEl?.getAttribute('data-original') ||
       imgEl?.getAttribute('data-splide-lazy') ||
+      imgEl?.getAttribute('data-lazy') ||
       imgEl?.getAttribute('src') || '';
 
     const priceEl = el.querySelector('.price .whole, .price, .item_price');
@@ -206,19 +209,29 @@ export function scrapeItemDetail(): ItemDetail | null {
   // Images — Konimbo main item image uses #main_photo; thumbnails use #additional_photos
   const images: string[] = [];
   
-  // 1. Main photo (exact Konimbo selector)
+  const pickSrc = (el: HTMLImageElement) =>
+    el.getAttribute('data-large') ||
+    el.getAttribute('data-src') ||
+    el.getAttribute('data-original') ||
+    el.getAttribute('data-splide-lazy') ||
+    el.getAttribute('data-lazy') ||
+    el.src || '';
+
+  // 1. Main photo — prefer data-large/data-src over src (Konimbo lazy-loads)
   const mainPhoto = document.querySelector('#main_photo') as HTMLImageElement | null;
-  if (mainPhoto?.src) images.push(mainPhoto.src);
-  
+  if (mainPhoto) {
+    const src = pickSrc(mainPhoto);
+    if (src && !src.includes('placeholder') && !src.includes('blank')) images.push(src);
+  }
+
   // 2. Additional thumbnails
   document.querySelectorAll('#additional_photos img, #more_photos img, .item_small_photos img').forEach((img) => {
-    const el = img as HTMLImageElement;
-    const src = el.getAttribute('data-large') || el.getAttribute('data-src') || el.src || '';
+    const src = pickSrc(img as HTMLImageElement);
     if (src && !src.includes('placeholder') && !src.includes('blank') && !images.includes(src)) {
       images.push(src);
     }
   });
-  
+
   // 3. Fallback to generic image selectors
   if (images.length === 0) {
     const imgSelectors = [
@@ -231,8 +244,7 @@ export function scrapeItemDetail(): ItemDetail | null {
     ];
     for (const sel of imgSelectors) {
       document.querySelectorAll(sel).forEach((img) => {
-        const el = img as HTMLImageElement;
-        const src = el.getAttribute('data-src') || el.getAttribute('data-splide-lazy') || el.src || '';
+        const src = pickSrc(img as HTMLImageElement);
         if (src && !src.includes('placeholder') && !src.includes('blank') && !images.includes(src)) {
           images.push(src);
         }

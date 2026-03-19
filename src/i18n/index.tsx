@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import he from './he.json';
 import en from './en.json';
 import ru from './ru.json';
@@ -35,6 +35,13 @@ export function LangProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = newLang;
     try { localStorage.setItem('aluf-lang', newLang); } catch {}
   }, []);
+
+  // Apply dir/lang to <html> on initial mount (Konimbo sets dir="rtl" by default)
+  useEffect(() => {
+    const dir = RTL_LANGS.includes(lang) ? 'rtl' : 'ltr';
+    document.documentElement.dir = dir;
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   const t = useCallback((key: string): string => {
     return locales[lang]?.[key] || locales.he[key] || key;

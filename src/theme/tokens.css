@@ -31,6 +31,11 @@ body {
   margin: 0;
 }
 
+/* Switch to Inter for Latin-script languages (EN / RU) */
+html[dir="ltr"] body {
+  font-family: 'Inter', sans-serif;
+}
+
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--aluf-page-bg); }
 ::-webkit-scrollbar-thumb { background: var(--aluf-border-accent); border-radius: 4px; }
