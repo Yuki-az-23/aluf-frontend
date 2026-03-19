@@ -12,7 +12,7 @@ const PAGE_SIZE = 16;
 
 export function ItemsGridPage() {
   const { t } = useLang();
-  const { products, breadcrumbs, pageTitle } = useStoreData();
+  const { products, breadcrumbs, pageTitle, categories } = useStoreData();
 
   const [filters, setFilters] = useState<FilterState>(() => {
     const prices = products.map(p => p.price);
@@ -46,34 +46,54 @@ export function ItemsGridPage() {
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row gap-8">
-        <FilterSidebar products={products} filters={filters} onChange={handleFilterChange} />
-
-        <div className="flex-1 min-w-0">
-          <SortBar
-            count={sorted.length}
-            sort={sort}
-            view={view}
-            onSortChange={handleSortChange}
-            onViewChange={setView}
-          />
-
-          {paged.length > 0 ? (
-            <div className={view === 'grid'
-              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-              : 'flex flex-col gap-4'
-            }>
-              {paged.map(p => (
-                <ProductCard key={p.id} product={p} />
+      {products.length === 0 ? (
+        /* Empty state: show category links while Konimbo lazy-loads products */
+        <div className="py-8">
+          <p className="text-center text-text-muted mb-8 text-lg">טוען מוצרים...</p>
+          {categories.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mt-6">
+              {categories.slice(0, 12).map(cat => (
+                <a
+                  key={cat.href}
+                  href={cat.href}
+                  className="bg-card-bg border border-border-light rounded-xl p-4 text-center hover:border-primary hover:shadow-tech transition-all text-sm font-medium text-text-main hover:text-primary"
+                >
+                  {cat.title}
+                </a>
               ))}
             </div>
-          ) : (
-            <p className="text-center text-text-muted py-16">{t('products.empty')}</p>
           )}
-
-          <Pagination page={page} totalPages={totalPages} onChange={setPage} />
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-col md:flex-row gap-8">
+          <FilterSidebar products={products} filters={filters} onChange={handleFilterChange} />
+
+          <div className="flex-1 min-w-0">
+            <SortBar
+              count={sorted.length}
+              sort={sort}
+              view={view}
+              onSortChange={handleSortChange}
+              onViewChange={setView}
+            />
+
+            {paged.length > 0 ? (
+              <div className={view === 'grid'
+                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
+                : 'flex flex-col gap-4'
+              }>
+                {paged.map(p => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-text-muted py-16">{t('products.empty')}</p>
+            )}
+
+            <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+          </div>
+        </div>
+      )}
     </Container>
   );
 }

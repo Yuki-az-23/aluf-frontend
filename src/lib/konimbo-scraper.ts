@@ -1,4 +1,4 @@
-import type { Product, ItemDetail, BlogPostItem, BlogPostDetail } from '@/data/products';
+import type { Product, ItemDetail, SpecRow, BlogPostItem, BlogPostDetail } from '@/data/products';
 
 const BASE_URL = 'https://alufshop.konimbo.co.il';
 
@@ -18,46 +18,79 @@ export interface BreadcrumbItem {
   href?: string;
 }
 
+/** Make a relative URL absolute pointing at Konimbo */
+function makeAbsolute(href: string): string {
+  if (!href) return '';
+  if (href.startsWith('http')) return href;
+  if (href.startsWith('/')) return BASE_URL + href;
+  if (href.includes('www.aluf.co.il')) {
+    return href.replace(/https?:\/\/www\.aluf\.co\.il/, BASE_URL);
+  }
+  return href;
+}
+
 /** Parse product elements from a given container */
 export function parseProductElements(container: ParentNode, baseUrl: string = BASE_URL): Product[] {
-  const items = container.querySelectorAll('.layout_list_item.item');
   const products: Product[] = [];
+  const seen = new Set<string>();
+
+  // Multiple selectors to handle different Konimbo page layouts
+  const selectors = [
+    '.layout_list_item.item',
+    '.layout_list_item',
+    '[id^="item_id_"]',
+    '.item[data-item-id]',
+  ];
+
+  let items: NodeListOf<Element> | null = null;
+  for (const sel of selectors) {
+    const found = container.querySelectorAll(sel);
+    if (found.length > 0) { items = found; break; }
+  }
+  if (!items) return products;
 
   items.forEach((el) => {
-    const id = el.id?.replace('item_id_', '') || '';
-    if (!id) return;
+    const id = (el.id?.replace('item_id_', '') || el.getAttribute('data-item-id') || '').trim();
+    if (!id || seen.has(id)) return;
 
-    const titleEl = el.querySelector('h4.title, .title');
+    const titleEl = el.querySelector('h4.title, .title a, .title, h4, .item_title');
     const title = titleEl?.textContent?.trim() || '';
 
-    const imgEl = el.querySelector('img.img-responsive');
-    const image = imgEl?.getAttribute('src') || '';
+    // Image: try data-src (lazy) then src
+    const imgEl = el.querySelector('img');
+    const image =
+      imgEl?.getAttribute('data-src') ||
+      imgEl?.getAttribute('data-splide-lazy') ||
+      imgEl?.getAttribute('src') || '';
 
-    const priceEl = el.querySelector('.price');
+    const priceEl = el.querySelector('.price .whole, .price, .item_price');
     const priceText = priceEl?.textContent?.replace(/[^\d.]/g, '') || '0';
     const price = parseInt(priceText, 10) || 0;
 
-    const origPriceEl = el.querySelector('.origin_price');
+    const origPriceEl = el.querySelector('.origin_price, .strikethrough_price');
     const origText = origPriceEl?.textContent?.replace(/[^\d.]/g, '') || '';
     const originalPrice = parseInt(origText, 10) || undefined;
 
     const category = el.getAttribute('data-category-title') || '';
 
-    const linkEl = el.querySelector('a[href*="/items/"]');
-    const href = linkEl?.getAttribute('href') || '';
+    // Find href for this product
+    const linkEl =
+      el.querySelector('a[href*="/items/"]') ||
+      el.querySelector('a.item_link') ||
+      el.querySelector('a[href]');
+    const rawHref = linkEl?.getAttribute('href') || '';
+    const href = makeAbsolute(rawHref);
+
+    // Specs from list items inside the product card
+    const specs: string[] = [];
+    el.querySelectorAll('.item_specs li, .specs li, .properties li').forEach((li) => {
+      const text = li.textContent?.trim();
+      if (text) specs.push(text);
+    });
 
     if (title && price > 0) {
-      products.push({
-        id,
-        title,
-        category,
-        image,
-        specs: [],
-        price,
-        originalPrice,
-        inStock: true,
-        href: href.startsWith('http') ? href : (href ? baseUrl + href.trim() : ''),
-      });
+      seen.add(id);
+      products.push({ id, title, category, image, specs, price, originalPrice, inStock: true, href });
     }
   });
 
@@ -69,61 +102,235 @@ export function scrapeProducts(): Product[] {
   return parseProductElements(document);
 }
 
+/** Parse spec rows as key-value pairs from Konimbo item detail page */
+function parseSpecRows(doc: Document): SpecRow[] {
+  const rows: SpecRow[] = [];
+
+  // Approach 1: Konimbo item_properties table — exact selector from live DOM
+  const tableSelectors = [
+    '#item_properties .item_properties_table tr',
+    '#item_properties table tr',
+    '.item_properties .item_properties_table tr',
+    '.item_properties table tr',
+    '.product-specs table tr',
+    '.item_specs table tr',
+    '.spec_table tr',
+    '.properties_table tr',
+  ];
+  for (const sel of tableSelectors) {
+    const trs = doc.querySelectorAll(sel);
+    if (trs.length > 0) {
+      trs.forEach((tr) => {
+        // Konimbo uses .property_name and .property_value classes
+        const nameEl = tr.querySelector('.property_name') || tr.querySelector('td:first-child, th:first-child');
+        const valueEl = tr.querySelector('.property_value') || tr.querySelector('td:last-child, th:last-child');
+        const label = nameEl?.textContent?.trim() || '';
+        const value = valueEl?.textContent?.trim() || '';
+        if (label && value && label !== value) rows.push({ label, value });
+      });
+      if (rows.length > 0) return rows;
+    }
+  }
+
+  // Approach 2: definition list (dl/dt/dd)
+  const dlSelectors = ['.item_properties dl', '.product-specs dl', '.item_specs dl'];
+  for (const sel of dlSelectors) {
+    const dl = doc.querySelector(sel);
+    if (dl) {
+      const dts = dl.querySelectorAll('dt');
+      dts.forEach((dt) => {
+        const label = dt.textContent?.trim() || '';
+        const dd = dt.nextElementSibling;
+        const value = dd?.textContent?.trim() || '';
+        if (label && value) rows.push({ label, value });
+      });
+      if (rows.length > 0) return rows;
+    }
+  }
+
+  // Approach 3: property rows with .property_name / .property_value structure
+  const propRows = doc.querySelectorAll('.item_properties .property, .item_property');
+  if (propRows.length > 0) {
+    propRows.forEach((row) => {
+      const label =
+        row.querySelector('.property_name, .label, .key')?.textContent?.trim() || '';
+      const value =
+        row.querySelector('.property_value, .value')?.textContent?.trim() || '';
+      if (label && value) rows.push({ label, value });
+    });
+    if (rows.length > 0) return rows;
+  }
+
+  // Approach 4: Try to find any two-column structure inside .item_properties
+  const propsContainer = doc.querySelector(
+    '.item_properties, .product-details table, .specs-list'
+  );
+  if (propsContainer) {
+    // Look for pairs of spans/divs side by side
+    const items = propsContainer.querySelectorAll('li, .row, .spec-row');
+    items.forEach((item) => {
+      const children = item.querySelectorAll('span, div, b, strong');
+      if (children.length >= 2) {
+        const label = children[0].textContent?.trim() || '';
+        const value = children[1].textContent?.trim() || '';
+        if (label && value && label !== value) rows.push({ label, value });
+      } else {
+        // Try splitting text by colon
+        const text = item.textContent?.trim() || '';
+        const colonIdx = text.indexOf(':');
+        if (colonIdx > 0) {
+          const label = text.slice(0, colonIdx).trim();
+          const value = text.slice(colonIdx + 1).trim();
+          if (label && value) rows.push({ label, value });
+        }
+      }
+    });
+  }
+
+  return rows;
+}
+
 /** Scrape item detail from a single product page DOM */
 export function scrapeItemDetail(): ItemDetail | null {
-  const titleEl = document.querySelector('h1, .item_title, .product-title');
+  // Title — Konimbo uses h1.item-name (from live DOM inspection)
+  const titleEl = document.querySelector(
+    'h1.item-name, h1.item_title, h1.item_name, h1.product-title, .item_title h1, h1'
+  );
   const title = titleEl?.textContent?.trim() || '';
   if (!title) return null;
 
-  const images: string[] = [];
-  const imgEls = document.querySelectorAll('.item_image img, .product-gallery img, .splide__slide img');
-  imgEls.forEach((img) => {
-    const src = img.getAttribute('src') || img.getAttribute('data-splide-lazy') || '';
-    if (src && !images.includes(src)) images.push(src);
-  });
+  // SKU — Konimbo uses .item-sku (from live DOM inspection)
+  const skuEl = document.querySelector('.item-sku, .item_number, .sku, [itemprop="sku"]');
+  const sku = skuEl?.textContent?.trim().replace(/מק"ט\s*:?\s*/i, '') || '';
 
-  const priceEl = document.querySelector('.price, .item_price');
+  // Images — Konimbo main item image uses #main_photo; thumbnails use #additional_photos
+  const images: string[] = [];
+  
+  // 1. Main photo (exact Konimbo selector)
+  const mainPhoto = document.querySelector('#main_photo') as HTMLImageElement | null;
+  if (mainPhoto?.src) images.push(mainPhoto.src);
+  
+  // 2. Additional thumbnails
+  document.querySelectorAll('#additional_photos img, #more_photos img, .item_small_photos img').forEach((img) => {
+    const el = img as HTMLImageElement;
+    const src = el.getAttribute('data-large') || el.getAttribute('data-src') || el.src || '';
+    if (src && !src.includes('placeholder') && !src.includes('blank') && !images.includes(src)) {
+      images.push(src);
+    }
+  });
+  
+  // 3. Fallback to generic image selectors
+  if (images.length === 0) {
+    const imgSelectors = [
+      '.item_image img',
+      '.product-gallery img',
+      '.splide__slide:not(.splide__slide--clone) img',
+      '.item_images img',
+      '#main_photo_container img',
+      '.item-image img',
+    ];
+    for (const sel of imgSelectors) {
+      document.querySelectorAll(sel).forEach((img) => {
+        const el = img as HTMLImageElement;
+        const src = el.getAttribute('data-src') || el.getAttribute('data-splide-lazy') || el.src || '';
+        if (src && !src.includes('placeholder') && !src.includes('blank') && !images.includes(src)) {
+          images.push(src);
+        }
+      });
+      if (images.length > 0) break;
+    }
+  }
+
+  // Price — Konimbo uses .item_price_value (from live DOM inspection)
+  const priceEl = document.querySelector(
+    '.item_price_value, #item_price_container .item_price_value, .item_price .price, .item_price, .price.main_price'
+  );
   const priceText = priceEl?.textContent?.replace(/[^\d.]/g, '') || '0';
   const price = parseInt(priceText, 10) || 0;
 
-  const origPriceEl = document.querySelector('.origin_price, .item_origin_price');
+  // Original price
+  const origPriceEl = document.querySelector(
+    '.origin_price, .item_origin_price, .strikethrough_price'
+  );
   const origText = origPriceEl?.textContent?.replace(/[^\d.]/g, '') || '';
   const originalPrice = parseInt(origText, 10) || undefined;
 
-  const descEl = document.querySelector('.item_description, .product-description');
+  // Description HTML
+  const descEl = document.querySelector(
+    '.item_description, .product-description, .item_body, .description'
+  );
   const descriptionHtml = descEl?.innerHTML?.trim() || '';
 
+  // Specs — flat list (backward compat)
   const specs: string[] = [];
-  const specEls = document.querySelectorAll('.item_specs li, .product-specs li');
-  specEls.forEach((li) => {
+  document.querySelectorAll('.item_specs li, .product-specs li, .properties li').forEach((li) => {
     const text = li.textContent?.trim();
     if (text) specs.push(text);
   });
 
-  const outOfStockEl = document.querySelector('.out-of-stock');
-  const bodyText = document.body.textContent || '';
-  const inStock = !outOfStockEl && !bodyText.includes('אזל מהמלאי');
+  // Spec rows — key/value pairs
+  const specRows = parseSpecRows(document);
 
+  // In stock
+  const outOfStockEl = document.querySelector('.out-of-stock, .out_of_stock');
+  const bodyText = document.body?.textContent || '';
+  const inStock = !outOfStockEl && !bodyText.includes('אזל מהמלאי') && !bodyText.includes('אין במלאי');
+
+  // ID from multiple sources
   const metaId = document.querySelector('meta[name="item-id"]')?.getAttribute('content') || '';
   const dataId = document.querySelector('[data-item-id]')?.getAttribute('data-item-id') || '';
   const urlMatch = window.location.pathname.match(/\/items\/([^/?#]+)/);
   const id = metaId || dataId || urlMatch?.[1] || '';
 
+  // Related items are scraped separately
   return {
     id,
     title,
+    sku: sku || undefined,
     images,
     price,
     originalPrice,
     descriptionHtml,
     specs,
+    specRows,
+    relatedItems: [],
     inStock,
   };
 }
 
+/** Scrape related products from item detail page */
+export function scrapeRelatedItems(): Product[] {
+  const selectors = [
+    '.related_items .layout_list_item',
+    '.related_products .layout_list_item',
+    '#related_items .item',
+    '.related-products .item',
+    '[data-module-type="related_items"] .layout_list_item',
+    '.module_related_items .layout_list_item',
+  ];
+
+  for (const sel of selectors) {
+    const container = document.querySelector(sel.split(' ')[0]);
+    if (container) {
+      const products = parseProductElements(container.parentElement || document);
+      if (products.length > 0) return products;
+    }
+    // Also try full selector directly
+    const direct = document.querySelectorAll(sel);
+    if (direct.length > 0) {
+      const fakeContainer = document.createElement('div');
+      direct.forEach((el) => fakeContainer.appendChild(el.cloneNode(true)));
+      const products = parseProductElements(fakeContainer);
+      if (products.length > 0) return products;
+    }
+  }
+
+  return [];
+}
+
 /** Scrape breadcrumb navigation */
 export function scrapeBreadcrumbs(): BreadcrumbItem[] {
-  const container = document.querySelector('.breadcrumb, .breadcrumbs, nav[aria-label="breadcrumb"]');
+  const container = document.querySelector('.breadcrumb, .breadcrumbs, nav[aria-label="breadcrumb"], .breadcrumb_path');
   if (!container) return [];
 
   const items: BreadcrumbItem[] = [];
@@ -138,7 +345,7 @@ export function scrapeBreadcrumbs(): BreadcrumbItem[] {
     const anchor = el.tagName === 'A' ? el : el.querySelector('a');
     const href = anchor?.getAttribute('href') || undefined;
 
-    items.push({ label, href: href || undefined });
+    items.push({ label, href: href ? makeAbsolute(href) : undefined });
   });
 
   // Last item should have no href (current page)
@@ -151,7 +358,7 @@ export function scrapeBreadcrumbs(): BreadcrumbItem[] {
 
 /** Scrape category page title */
 export function scrapeCategoryTitle(): string {
-  const el = document.querySelector('h1, .category_title, .page_title');
+  const el = document.querySelector('h1, .category_title, .page_title, .store_category_title');
   return el?.textContent?.trim() || '';
 }
 
@@ -165,21 +372,13 @@ export function scrapeCategories(): KonimboCategory[] {
   const cats: KonimboCategory[] = [];
   const seen = new Set<string>();
 
-  // Scrape from the store_categories nav
-  const links = document.querySelectorAll('.store_categories a[href]');
+  const links = document.querySelectorAll('.store_categories a[href], .category_menu a[href], .main_menu a[href]');
   links.forEach((a) => {
     const title = a.textContent?.trim() || '';
-    let href = a.getAttribute('href') || '';
+    const rawHref = a.getAttribute('href') || '';
     if (!title || seen.has(title)) return;
     seen.add(title);
-    // Make URLs absolute pointing to the test domain
-    if (href.startsWith('/')) {
-      href = BASE_URL + href;
-    } else if (href.includes('www.aluf.co.il')) {
-      href = href.replace('https://www.aluf.co.il', BASE_URL);
-      href = href.replace('http://www.aluf.co.il', BASE_URL);
-    }
-    cats.push({ title, href });
+    cats.push({ title, href: makeAbsolute(rawHref) });
   });
 
   return cats;
@@ -188,33 +387,28 @@ export function scrapeCategories(): KonimboCategory[] {
 /** Scrape category groups (top-level sections like "מחשבים נייחים", "מעבדים") */
 export function scrapeCategoryGroups(): { group: string; items: KonimboCategory[] }[] {
   const groups: { group: string; items: KonimboCategory[] }[] = [];
-  const groupEls = document.querySelectorAll('.store_categories .store_category_group_title');
+  const groupEls = document.querySelectorAll(
+    '.store_categories .store_category_group_title, .category_group_title'
+  );
 
   groupEls.forEach((groupEl) => {
     const groupName = groupEl.textContent?.trim() || '';
     if (!groupName) return;
 
-    // Get following sibling li elements until next group title
     const items: KonimboCategory[] = [];
     let sibling = groupEl.nextElementSibling;
     while (sibling && !sibling.classList.contains('store_category_group_title')) {
       const a = sibling.querySelector('a[href]');
       if (a) {
         const title = a.textContent?.trim() || '';
-        let href = a.getAttribute('href') || '';
-        if (href.startsWith('/')) href = BASE_URL + href;
-        else if (href.includes('www.aluf.co.il')) {
-          href = href.replace('https://www.aluf.co.il', BASE_URL);
-          href = href.replace('http://www.aluf.co.il', BASE_URL);
-        }
+        const href = makeAbsolute(a.getAttribute('href') || '');
         if (title) items.push({ title, href });
       }
       sibling = sibling.nextElementSibling;
     }
 
     if (items.length > 0) {
-      // Deduplicate
-      const existing = groups.find(g => g.group === groupName);
+      const existing = groups.find((g) => g.group === groupName);
       if (!existing) groups.push({ group: groupName, items });
     }
   });
@@ -222,10 +416,9 @@ export function scrapeCategoryGroups(): { group: string; items: KonimboCategory[
   return groups;
 }
 
-/** Scrape blog post listings from Konimbo DOM (blog posts are items in a blog category) */
+/** Scrape blog post listings from Konimbo DOM */
 export function scrapeBlogPosts(): BlogPostItem[] {
   const posts: BlogPostItem[] = [];
-  // Blog posts use the same item structure as products
   const items = document.querySelectorAll('.layout_list_item.item');
 
   items.forEach((el) => {
@@ -235,10 +428,9 @@ export function scrapeBlogPosts(): BlogPostItem[] {
     const titleEl = el.querySelector('h4.title, .title');
     const title = titleEl?.textContent?.trim() || '';
 
-    const imgEl = el.querySelector('img.img-responsive, img');
+    const imgEl = el.querySelector('img');
     const image = imgEl?.getAttribute('src') || '';
 
-    // Blog posts may have a date element or excerpt
     const dateEl = el.querySelector('.date, .item_date, .created_at');
     const date = dateEl?.textContent?.trim() || '';
 
@@ -246,10 +438,7 @@ export function scrapeBlogPosts(): BlogPostItem[] {
     const excerpt = excerptEl?.textContent?.trim() || '';
 
     const linkEl = el.querySelector('a[href*="/items/"]');
-    let href = linkEl?.getAttribute('href') || '';
-    if (href && !href.startsWith('http')) {
-      href = BASE_URL + href.trim();
-    }
+    const href = makeAbsolute(linkEl?.getAttribute('href') || '');
 
     if (title) {
       posts.push({ id, title, image, excerpt, date, href });
@@ -281,31 +470,39 @@ export function scrapeBlogPostDetail(): BlogPostDetail | null {
 export function scrapeBanners(): BannerData {
   function extractSlides(containerSelector: string): BannerSlide[] {
     const slides: BannerSlide[] = [];
-    const els = document.querySelectorAll(
-      `${containerSelector} .splide__slide:not(.splide__slide--clone)`
+    const container = document.querySelector(containerSelector);
+    if (!container) return slides;
+
+    const slideEls = container.querySelectorAll(
+      '.splide__slide:not(.splide__slide--clone)'
     );
-    els.forEach((slide) => {
+    slideEls.forEach((slide) => {
       const a = slide.querySelector('a[href]');
       const img = slide.querySelector('img');
-      const href = a?.getAttribute('href') || '';
+      const href = makeAbsolute(a?.getAttribute('href') || '');
       const image =
-        img?.getAttribute('src') ||
+        img?.getAttribute('data-src') ||
         img?.getAttribute('data-splide-lazy') ||
-        '';
+        img?.getAttribute('src') || '';
       const alt = img?.getAttribute('alt') || '';
       if (image) {
-        slides.push({
-          image,
-          href: href.startsWith('/') ? BASE_URL + href : href,
-          alt,
-        });
+        slides.push({ image, href, alt });
       }
     });
     return slides;
   }
 
+  const desktop = extractSlides('#module_233235_desktop') ||
+    extractSlides('.banner_slider') ||
+    extractSlides('[data-module-type="banner"] .splide');
+
+  const mobile = extractSlides('#module_233235_mobile');
+
+  // If no desktop slides found, try any splide on the page
+  const fallback = desktop.length === 0 ? extractSlides('.splide') : [];
+
   return {
-    desktop: extractSlides('#module_233235_desktop'),
-    mobile: extractSlides('#module_233235_mobile'),
+    desktop: desktop.length ? desktop : fallback,
+    mobile,
   };
 }

@@ -10,14 +10,22 @@ export interface Product {
   href?: string;
 }
 
+export interface SpecRow {
+  label: string;
+  value: string;
+}
+
 export interface ItemDetail {
   id: string;
   title: string;
+  sku?: string;
   images: string[];
   price: number;
   originalPrice?: number;
   descriptionHtml: string;
   specs: string[];
+  specRows: SpecRow[];
+  relatedItems: Product[];
   inStock: boolean;
 }
 
