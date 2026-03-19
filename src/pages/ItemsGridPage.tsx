@@ -1,14 +1,15 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ProductCard } from '@/components/commerce/ProductCard';
 import { FilterSidebar, applyFilters, type FilterState } from '@/components/commerce/FilterSidebar';
 import { SortBar, applySorting, type SortOption, type ViewMode } from '@/components/commerce/SortBar';
-import { Pagination } from '@/components/ui/Pagination';
 import { useStoreData } from '@/lib/StoreDataContext';
 import { useLang } from '@/i18n';
+import { getNextPageUrl, fetchMoreProducts } from '@/lib/konimbo-scraper';
+import type { Product } from '@/data/products';
 
-const PAGE_SIZE = 16;
+const STEP = 24;
 
 export function ItemsGridPage() {
   const { t } = useLang();
@@ -22,15 +23,52 @@ export function ItemsGridPage() {
   });
   const [sort, setSort] = useState<SortOption>('price-asc');
   const [view, setView] = useState<ViewMode>('grid');
-  const [page, setPage] = useState(1);
 
-  const filtered = useMemo(() => applyFilters(products, filters), [products, filters]);
+  // Extra products fetched from subsequent Konimbo pages
+  const [extraProducts, setExtraProducts] = useState<Product[]>([]);
+  const [nextPageUrl, setNextPageUrl] = useState<string | null>(() => getNextPageUrl());
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [showCount, setShowCount] = useState(STEP);
+
+  const allProducts = useMemo(() => [...products, ...extraProducts], [products, extraProducts]);
+  const filtered = useMemo(() => applyFilters(allProducts, filters), [allProducts, filters]);
   const sorted = useMemo(() => applySorting(filtered, sort), [filtered, sort]);
-  const totalPages = Math.ceil(sorted.length / PAGE_SIZE);
-  const paged = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const displayed = sorted.slice(0, showCount);
+  const hasMore = sorted.length > showCount || !!nextPageUrl;
 
-  const handleFilterChange = (f: FilterState) => { setFilters(f); setPage(1); };
-  const handleSortChange = (s: SortOption) => { setSort(s); setPage(1); };
+  const handleFilterChange = (f: FilterState) => { setFilters(f); setShowCount(STEP); };
+  const handleSortChange = (s: SortOption) => { setSort(s); setShowCount(STEP); };
+
+  const loadMore = useCallback(async () => {
+    if (loadingMore) return;
+    if (showCount < sorted.length) {
+      setShowCount(c => c + STEP);
+      return;
+    }
+    if (!nextPageUrl) return;
+    setLoadingMore(true);
+    const { products: more, nextUrl } = await fetchMoreProducts(nextPageUrl);
+    if (more.length > 0) {
+      setExtraProducts(prev => [...prev, ...more]);
+      setShowCount(c => c + more.length);
+    }
+    setNextPageUrl(nextUrl);
+    setLoadingMore(false);
+  }, [loadingMore, showCount, sorted.length, nextPageUrl]);
+
+  // IntersectionObserver sentinel at bottom of list
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!hasMore) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting) loadMore(); },
+      { rootMargin: '200px' }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [hasMore, loadMore]);
 
   const crumbs = breadcrumbs.length > 0
     ? breadcrumbs
@@ -47,7 +85,6 @@ export function ItemsGridPage() {
       )}
 
       {products.length === 0 ? (
-        /* Empty state: show category links while Konimbo lazy-loads products */
         <div className="py-8">
           <p className="text-center text-text-muted mb-8 text-lg">טוען מוצרים...</p>
           {categories.length > 0 && (
@@ -66,7 +103,7 @@ export function ItemsGridPage() {
         </div>
       ) : (
         <div className="flex flex-col md:flex-row gap-8">
-          <FilterSidebar products={products} filters={filters} onChange={handleFilterChange} />
+          <FilterSidebar products={allProducts} filters={filters} onChange={handleFilterChange} />
 
           <div className="flex-1 min-w-0">
             <SortBar
@@ -77,12 +114,12 @@ export function ItemsGridPage() {
               onViewChange={setView}
             />
 
-            {paged.length > 0 ? (
+            {displayed.length > 0 ? (
               <div className={view === 'grid'
                 ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
                 : 'flex flex-col gap-4'
               }>
-                {paged.map(p => (
+                {displayed.map(p => (
                   <ProductCard key={p.id} product={p} />
                 ))}
               </div>
@@ -90,7 +127,25 @@ export function ItemsGridPage() {
               <p className="text-center text-text-muted py-16">{t('products.empty')}</p>
             )}
 
-            <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+            {/* Infinite scroll sentinel */}
+            {hasMore && <div ref={sentinelRef} className="h-10" />}
+
+            {/* Loading indicator */}
+            {loadingMore && (
+              <p className="text-center text-text-muted py-4 text-sm">{t('products.loading') || 'טוען...'}</p>
+            )}
+
+            {/* Manual load more button as fallback */}
+            {hasMore && !loadingMore && (
+              <div className="flex justify-center mt-4">
+                <button
+                  onClick={loadMore}
+                  className="px-6 py-2.5 rounded-xl border border-primary text-primary font-bold text-sm hover:bg-primary hover:text-white transition-colors"
+                >
+                  {t('products.loadMore') || 'טען עוד'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

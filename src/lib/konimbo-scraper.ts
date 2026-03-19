@@ -116,7 +116,19 @@ export function scrapeProducts(): Product[] {
 function parseSpecRows(doc: Document): SpecRow[] {
   const rows: SpecRow[] = [];
 
-  // Approach 1: Konimbo item_properties table — exact selector from live DOM
+  // Approach 0: Konimbo #item_specifications — actual live DOM structure
+  // Each <li> has <b>label</b> <span class="he_false|he_true">value</span>
+  const konimboLis = doc.querySelectorAll('#item_specifications .specifications ul li');
+  if (konimboLis.length > 0) {
+    konimboLis.forEach((li) => {
+      const label = li.querySelector('b')?.textContent?.trim() || '';
+      const value = li.querySelector('span')?.textContent?.trim() || '';
+      if (label && value) rows.push({ label, value });
+    });
+    if (rows.length > 0) return rows;
+  }
+
+  // Approach 1: legacy/other Konimbo layouts — table-based
   const tableSelectors = [
     '#item_properties .item_properties_table tr',
     '#item_properties table tr',
@@ -203,86 +215,86 @@ function parseSpecRows(doc: Document): SpecRow[] {
 /** Scrape item detail from a single product page DOM */
 export function scrapeItemDetail(): ItemDetail | null {
   // Title — Konimbo uses h1.item-name (from live DOM inspection)
+  // Title — Konimbo uses #item_current_title h1 (span inside h1)
   const titleEl = document.querySelector(
-    'h1.item-name, h1.item_title, h1.item_name, h1.product-title, .item_title h1, h1'
+    '#item_current_title h1, #item_current_title h1 span, h1.item-name, h1.item_title, h1.item_name, h1.product-title, .item_title h1, h1'
   );
   const title = titleEl?.textContent?.trim() || '';
   if (!title) return null;
 
-  // SKU — Konimbo uses .item-sku (from live DOM inspection)
-  const skuEl = document.querySelector('.item-sku, .item_number, .sku, [itemprop="sku"]');
+  // SKU — Konimbo uses .code_item or .cataloge_number li span
+  const skuEl = document.querySelector('.code_item, .cataloge_number li span, .item-sku, .item_number, .sku, [itemprop="sku"]');
   const sku = skuEl?.textContent?.trim().replace(/מק"ט\s*:?\s*/i, '') || '';
 
-  // Images — Konimbo main item image uses #main_photo; thumbnails use #additional_photos
+  // Images — Konimbo uses #lightSlider ul: each <li data-src="fullsize"> contains <img src="large">
   const images: string[] = [];
-  
-  const pickSrc = (el: HTMLImageElement) =>
-    el.getAttribute('data-large') ||
-    el.getAttribute('data-src') ||
-    el.getAttribute('data-original') ||
-    el.getAttribute('data-splide-lazy') ||
-    el.getAttribute('data-lazy') ||
-    el.src || '';
 
-  // 1. Main photo — prefer data-large/data-src over src (Konimbo lazy-loads)
-  const mainPhoto = document.querySelector('#main_photo') as HTMLImageElement | null;
-  if (mainPhoto) {
-    const src = pickSrc(mainPhoto);
-    if (src && !src.includes('placeholder') && !src.includes('blank')) images.push(src);
+  const lightSliderItems = document.querySelectorAll('#lightSlider li');
+  if (lightSliderItems.length > 0) {
+    lightSliderItems.forEach((li) => {
+      // Prefer data-src on the <li> (extra_large quality), fall back to img src (large)
+      const src =
+        li.getAttribute('data-src') ||
+        (li.querySelector('img') as HTMLImageElement | null)?.src || '';
+      if (src && !src.includes('placeholder') && !src.includes('blank') && !images.includes(src)) {
+        images.push(src);
+      }
+    });
   }
 
-  // 2. Additional thumbnails
-  document.querySelectorAll('#additional_photos img, #more_photos img, .item_small_photos img').forEach((img) => {
-    const src = pickSrc(img as HTMLImageElement);
-    if (src && !src.includes('placeholder') && !src.includes('blank') && !images.includes(src)) {
-      images.push(src);
-    }
-  });
-
-  // 3. Fallback to generic image selectors
+  // Fallback: older Konimbo layouts (#main_photo, Splide, etc.)
   if (images.length === 0) {
-    const imgSelectors = [
-      '.item_image img',
-      '.product-gallery img',
-      '.splide__slide:not(.splide__slide--clone) img',
-      '.item_images img',
-      '#main_photo_container img',
-      '.item-image img',
-    ];
-    for (const sel of imgSelectors) {
-      document.querySelectorAll(sel).forEach((img) => {
-        const src = pickSrc(img as HTMLImageElement);
-        if (src && !src.includes('placeholder') && !src.includes('blank') && !images.includes(src)) {
-          images.push(src);
-        }
-      });
-      if (images.length > 0) break;
+    const pickSrc = (el: HTMLImageElement) =>
+      el.getAttribute('data-large') ||
+      el.getAttribute('data-src') ||
+      el.getAttribute('data-original') ||
+      el.getAttribute('data-splide-lazy') ||
+      el.getAttribute('data-lazy') ||
+      el.src || '';
+
+    const mainPhoto = document.querySelector('#main_photo') as HTMLImageElement | null;
+    if (mainPhoto) {
+      const src = pickSrc(mainPhoto);
+      if (src && !src.includes('placeholder') && !src.includes('blank')) images.push(src);
+    }
+    document.querySelectorAll('#additional_photos img, #more_photos img, .item_small_photos img').forEach((img) => {
+      const src = pickSrc(img as HTMLImageElement);
+      if (src && !src.includes('placeholder') && !src.includes('blank') && !images.includes(src)) images.push(src);
+    });
+    if (images.length === 0) {
+      for (const sel of ['.item_image img', '.product-gallery img', '.splide__slide:not(.splide__slide--clone) img', '.item_images img', '#main_photo_container img', '.item-image img']) {
+        document.querySelectorAll(sel).forEach((img) => {
+          const src = pickSrc(img as HTMLImageElement);
+          if (src && !src.includes('placeholder') && !src.includes('blank') && !images.includes(src)) images.push(src);
+        });
+        if (images.length > 0) break;
+      }
     }
   }
 
-  // Price — Konimbo uses .item_price_value (from live DOM inspection)
+  // Price — Konimbo uses #item_show_price .price_value with numeric `content` attribute
   const priceEl = document.querySelector(
-    '.item_price_value, #item_price_container .item_price_value, .item_price .price, .item_price, .price.main_price'
+    '#item_show_price .price_value, .item_price_value, #item_price_container .item_price_value, .item_price .price, .item_price, .price.main_price'
   );
-  const priceText = priceEl?.textContent?.replace(/[^\d.]/g, '') || '0';
-  const price = parseInt(priceText, 10) || 0;
+  const priceText = priceEl?.getAttribute('content') || priceEl?.textContent?.replace(/[^\d.]/g, '') || '0';
+  const price = parseFloat(priceText) || 0;
 
-  // Original price
+  // Original price — Konimbo uses .item_show_origin_price .origin_price_number
   const origPriceEl = document.querySelector(
-    '.origin_price, .item_origin_price, .strikethrough_price'
+    '.item_show_origin_price .origin_price_number, .origin_price, .item_origin_price, .strikethrough_price'
   );
   const origText = origPriceEl?.textContent?.replace(/[^\d.]/g, '') || '';
   const originalPrice = parseInt(origText, 10) || undefined;
 
-  // Description HTML
+  // Description HTML — Konimbo uses #item_content .desc
   const descEl = document.querySelector(
-    '.item_description, .product-description, .item_body, .description'
+    '#item_content .desc, .item_description, .product-description, .item_body, .description'
   );
   const descriptionHtml = descEl?.innerHTML?.trim() || '';
 
-  // Specs — flat list (backward compat)
+  // Specs — flat list from #item_specifications (also backward compat selectors)
   const specs: string[] = [];
-  document.querySelectorAll('.item_specs li, .product-specs li, .properties li').forEach((li) => {
+  document.querySelectorAll('#item_specifications .specifications ul li, .item_specs li, .product-specs li, .properties li').forEach((li) => {
     const text = li.textContent?.trim();
     if (text) specs.push(text);
   });
@@ -291,7 +303,7 @@ export function scrapeItemDetail(): ItemDetail | null {
   const specRows = parseSpecRows(document);
 
   // In stock
-  const outOfStockEl = document.querySelector('.out-of-stock, .out_of_stock');
+  const outOfStockEl = document.querySelector('.out-of-stock, .out_of_stock, .out_of_stock_button');
   const bodyText = document.body?.textContent || '';
   const inStock = !outOfStockEl && !bodyText.includes('אזל מהמלאי') && !bodyText.includes('אין במלאי');
 
@@ -319,6 +331,32 @@ export function scrapeItemDetail(): ItemDetail | null {
 
 /** Scrape related products from item detail page */
 export function scrapeRelatedItems(): Product[] {
+  // Konimbo "also bought" section — #item_also_buy .matchingCarousel
+  // Items are <tr> rows with <a href="/items/...">, <img>, <b> (title), <i> (price)
+  const alsoContainer = document.querySelector('#item_also_buy');
+  if (alsoContainer) {
+    const products: Product[] = [];
+    const seen = new Set<string>();
+    alsoContainer.querySelectorAll('tr').forEach((tr) => {
+      const linkEl = tr.querySelector('a[href*="/items/"]') as HTMLAnchorElement | null;
+      if (!linkEl) return;
+      const rawHref = linkEl.getAttribute('href') || '';
+      const href = makeAbsolute(rawHref);
+      const urlMatch = rawHref.match(/\/items\/([^/?#]+)/);
+      const id = urlMatch?.[1] || rawHref;
+      if (!id || seen.has(id)) return;
+      seen.add(id);
+      const title = tr.querySelector('b')?.textContent?.trim() || linkEl.textContent?.trim() || '';
+      const imgEl = tr.querySelector('img') as HTMLImageElement | null;
+      const image = imgEl?.getAttribute('src') || imgEl?.getAttribute('data-src') || '';
+      const priceText = tr.querySelector('i, .price, .item_price')?.textContent?.replace(/[^\d]/g, '') || '0';
+      const price = parseInt(priceText, 10) || 0;
+      if (title) products.push({ id, title, category: '', image, specs: [], price, inStock: true, href });
+    });
+    if (products.length > 0) return products;
+  }
+
+  // Fallback: legacy Konimbo layouts using .layout_list_item
   const selectors = [
     '.related_items .layout_list_item',
     '.related_products .layout_list_item',
@@ -334,7 +372,6 @@ export function scrapeRelatedItems(): Product[] {
       const products = parseProductElements(container.parentElement || document);
       if (products.length > 0) return products;
     }
-    // Also try full selector directly
     const direct = document.querySelectorAll(sel);
     if (direct.length > 0) {
       const fakeContainer = document.createElement('div');
@@ -349,23 +386,39 @@ export function scrapeRelatedItems(): Product[] {
 
 /** Scrape breadcrumb navigation */
 export function scrapeBreadcrumbs(): BreadcrumbItem[] {
-  const container = document.querySelector('.breadcrumb, .breadcrumbs, nav[aria-label="breadcrumb"], .breadcrumb_path');
+  const container = document.querySelector('#bread_crumbs, .breadcrumb, .breadcrumbs, nav[aria-label="breadcrumb"], .breadcrumb_path');
   if (!container) return [];
 
   const items: BreadcrumbItem[] = [];
-  const links = container.querySelectorAll('a, span, li');
   const seen = new Set<string>();
 
-  links.forEach((el) => {
-    const label = el.textContent?.trim() || '';
-    if (!label || seen.has(label)) return;
-    seen.add(label);
-
-    const anchor = el.tagName === 'A' ? el : el.querySelector('a');
-    const href = anchor?.getAttribute('href') || undefined;
-
-    items.push({ label, href: href ? makeAbsolute(href) : undefined });
-  });
+  // Prefer li-based breadcrumbs — avoids picking up separator spans
+  const lis = container.querySelectorAll('li');
+  if (lis.length > 0) {
+    lis.forEach((li) => {
+      const anchor = li.querySelector('a');
+      const label = (anchor?.textContent || li.textContent || '').trim();
+      // Skip separators (≤2 chars like >, /, », ·)
+      if (!label || label.length <= 2 || seen.has(label)) return;
+      seen.add(label);
+      const href = anchor?.getAttribute('href') || undefined;
+      items.push({ label, href: href ? makeAbsolute(href) : undefined });
+    });
+  } else {
+    // Fallback: anchors then any remaining non-linked text spans
+    container.querySelectorAll('a').forEach((a) => {
+      const label = a.textContent?.trim() || '';
+      if (!label || seen.has(label)) return;
+      seen.add(label);
+      items.push({ label, href: makeAbsolute(a.getAttribute('href') || '') });
+    });
+    container.querySelectorAll('span').forEach((span) => {
+      const label = span.textContent?.trim() || '';
+      if (!label || label.length <= 2 || seen.has(label)) return;
+      seen.add(label);
+      items.push({ label });
+    });
+  }
 
   // Last item should have no href (current page)
   if (items.length > 0) {
@@ -373,6 +426,34 @@ export function scrapeBreadcrumbs(): BreadcrumbItem[] {
   }
 
   return items;
+}
+
+/** Get the next pagination page URL from Konimbo DOM */
+export function getNextPageUrl(): string | null {
+  const sel = '.pagination a[rel="next"], .next_page a, a.pagination_next, .pagination .next a, .pages_navigation a[rel="next"]';
+  const nextLink = document.querySelector<HTMLAnchorElement>(sel);
+  return nextLink?.href || null;
+}
+
+/** Fetch a Konimbo category page and parse its products + next page link */
+export async function fetchMoreProducts(url: string): Promise<{ products: Product[]; nextUrl: string | null }> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return { products: [], nextUrl: null };
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const origin = new URL(url).origin;
+    const products = parseProductElements(doc, origin);
+    const nextSel = '.pagination a[rel="next"], .next_page a, a.pagination_next, .pagination .next a';
+    const nextLink = doc.querySelector<HTMLAnchorElement>(nextSel);
+    const nextHref = nextLink?.getAttribute('href') || null;
+    const nextUrl = nextHref
+      ? (nextHref.startsWith('http') ? nextHref : origin + (nextHref.startsWith('/') ? '' : '/') + nextHref)
+      : null;
+    return { products, nextUrl };
+  } catch {
+    return { products: [], nextUrl: null };
+  }
 }
 
 /** Scrape category page title */
