@@ -19,28 +19,31 @@ export function ProductCard({ product, className }: ProductCardProps) {
       'bg-card-bg rounded-xl border border-border-light p-4 hover:shadow-tech-hover hover:border-primary transition-all group flex flex-col',
       className,
     )}>
-      <a href={product.href || '#'} className="block relative mb-4">
+      <div className="block relative mb-4">
         {/* Badge: top-left in visual space (left-3 = visually right side in RTL) */}
         {product.originalPrice && (
           <Badge variant="sale" className="absolute top-2 left-3 z-10">מבצע!</Badge>
         )}
         <div className="aspect-square bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden relative">
-          <img
-            src={product.image}
-            alt={product.title}
-            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 p-4"
-            loading="lazy"
-          />
+          <a href={product.href || '#'} className="block w-full h-full">
+            <img
+              src={product.image}
+              alt={product.title}
+              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 p-4"
+              loading="lazy"
+            />
+          </a>
           {/* Add-to-cart overlay on image hover */}
           <button
-            onClick={e => { e.preventDefault(); addToCart(product.id); }}
-            className="absolute top-2 right-2 bg-primary text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+            type="button"
+            onClick={() => addToCart(product.id)}
+            className="absolute top-2 right-2 bg-primary text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white transition-opacity shadow-lg z-10"
             aria-label={t('products.addToCart')}
           >
             <Icon name="add_shopping_cart" className="text-lg" />
           </button>
         </div>
-      </a>
+      </div>
       <span className="text-xs text-primary font-bold mb-1">{product.category}</span>
       <a href={product.href || '#'} className="block">
         <h3 className="font-bold text-sm mb-2 line-clamp-2 text-text-main">{product.title}</h3>
@@ -65,6 +68,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           </span>
         </div>
         <button
+          type="button"
           onClick={() => addToCart(product.id)}
           className="bg-primary/10 hover:bg-primary text-primary hover:text-white p-2.5 rounded-lg transition-colors"
           aria-label={t('products.addToCart')}
