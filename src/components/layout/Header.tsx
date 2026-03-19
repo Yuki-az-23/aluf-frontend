@@ -17,13 +17,13 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-header-bg/95 backdrop-blur-md border-b border-gray-700 shadow-lg text-white">
+      <header className="sticky top-0 z-50 bg-header-bg/95 backdrop-blur-md border-b border-header-border shadow-md text-header-text">
         <Container>
           <div className="flex justify-between items-center h-20 gap-8">
             {/* Logo */}
             <a href="/" className="flex-shrink-0 flex items-center gap-3">
               <img src={logoSrc} alt={t('site.name')} className="h-10 w-auto" />
-              <span className="font-display font-bold text-2xl text-white hidden sm:block">
+              <span className="font-display font-bold text-2xl text-header-text hidden sm:block">
                 {t('site.name.prefix')} <span className="text-primary">{t('site.name.suffix')}</span>
               </span>
             </a>
@@ -35,23 +35,23 @@ export function Header() {
 
             {/* Right side */}
             <div className="flex items-center gap-6">
-              <a className="hidden lg:flex text-gray-300 hover:text-primary hover:bg-white/5 px-3 py-2 rounded-md transition font-medium text-sm items-center gap-2" href="https://alufshop.konimbo.co.il">
+              <a className="hidden lg:flex text-header-text-muted hover:text-primary hover:bg-black/5 dark:hover:bg-white/5 px-3 py-2 rounded-md transition font-medium text-sm items-center gap-2" href="https://alufshop.konimbo.co.il">
                 <Icon name="handyman" className="text-primary" />
                 {t('nav.lab')}
               </a>
 
-              <div className="border-l border-gray-600 pl-4 ml-2 hidden sm:block">
+              <div className="border-l border-header-border pl-4 ml-2 hidden sm:block">
                 <LangSwitcher />
               </div>
 
               <span className="hidden md:inline-flex"><ThemeToggle /></span>
 
-              <div className="flex items-center gap-4 pl-2 border-r border-gray-600 pr-4">
-                <button className="text-gray-300 hover:text-white transition flex flex-col items-center gap-0.5 group">
-                  <Icon name="person" className="group-hover:text-primary transition-colors" />
+              <div className="flex items-center gap-4 pl-2 border-r border-header-border pr-4">
+                <button className="text-header-text-muted hover:text-header-text transition flex flex-col items-center gap-0.5 group">
+                  <Icon name="person" className="transition-colors" />
                   <span className="text-[10px] hidden sm:block font-medium">{t('header.login')}</span>
                 </button>
-                <button className="text-gray-300 hover:text-white transition relative flex flex-col items-center gap-0.5 group">
+                <button className="text-header-text-muted hover:text-header-text transition relative flex flex-col items-center gap-0.5 group">
                   <div className="relative">
                     <Icon name="shopping_cart" className="group-hover:text-primary transition-colors" />
                     {cartCount > 0 && (
@@ -65,7 +65,7 @@ export function Header() {
               </div>
 
               <button
-                className="md:hidden text-gray-300"
+                className="md:hidden text-header-text-muted"
                 onClick={() => setMobileOpen(true)}
                 aria-label={t('a11y.openMenu')}
               >

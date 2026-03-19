@@ -78,7 +78,7 @@ export function CategoryPage() {
                     href={item.href}
                     className="group bg-card-bg rounded-xl p-4 border border-border-light shadow-tech hover:shadow-tech-hover hover:border-primary transition-all duration-300 flex flex-col items-center gap-3 text-center"
                   >
-                    <div className="w-16 h-16 flex items-center justify-center rounded-lg bg-card-bg group-hover:bg-primary/10 transition-colors">
+                    <div className="w-16 h-16 flex items-center justify-center rounded-lg bg-white group-hover:bg-primary/10 transition-colors">
                       <span className="material-symbols-rounded text-4xl text-text-muted group-hover:text-primary transition-colors">category</span>
                     </div>
                     <span className="text-sm font-bold text-text-main group-hover:text-primary transition-colors line-clamp-2">
@@ -133,7 +133,7 @@ export function CategoryPage() {
                   href={href || '#'}
                   className="group bg-card-bg rounded-xl p-4 border border-border-light shadow-tech hover:shadow-tech-hover hover:border-primary transition-all duration-300 flex flex-col items-center gap-4 text-center"
                 >
-                  <div className="w-full aspect-square bg-card-bg rounded-lg flex items-center justify-center p-3 overflow-hidden group-hover:bg-primary/5 transition-colors">
+                  <div className="w-full aspect-square bg-white rounded-lg flex items-center justify-center p-3 overflow-hidden group-hover:bg-primary/5 transition-colors">
                     {image ? (
                       <img
                         src={image}

@@ -24,7 +24,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         {product.originalPrice && (
           <Badge variant="sale" className="absolute top-2 left-3 z-10">{t('item.sale')}</Badge>
         )}
-        <div className="aspect-square bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden relative">
+        <div className="aspect-square bg-white rounded-lg overflow-hidden relative">
           <a href={product.href || '#'} className="block w-full h-full">
             <img
               src={product.image}
@@ -55,14 +55,14 @@ export function ProductCard({ product, className }: ProductCardProps) {
           </button>
         </div>
       </div>
-      <span className="text-xs text-primary font-bold mb-1">{product.category}</span>
+      <span className="text-xs text-text-muted font-medium mb-1">{product.category}</span>
       <a href={product.href || '#'} className="block">
         <h3 className="font-bold text-sm mb-2 line-clamp-2 text-text-main">{product.title}</h3>
       </a>
       <ul className="text-xs text-text-muted space-y-1 mb-4">
         {product.specs.map((spec, i) => (
           <li key={i} className="flex items-center gap-1">
-            <Icon name="check" className="text-primary text-xs flex-shrink-0" />
+            <Icon name="check" className="text-text-muted text-xs flex-shrink-0" />
             {spec}
           </li>
         ))}

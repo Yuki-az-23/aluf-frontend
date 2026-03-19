@@ -5,7 +5,10 @@
   --aluf-primary: #FF6B00;
   --aluf-secondary: #a855f7;
   --aluf-brand-purple: #2e1065;
-  --aluf-header-bg: #0f172a;
+  --aluf-header-bg: #ffffff;
+  --aluf-header-text: #1e293b;
+  --aluf-header-text-muted: #64748b;
+  --aluf-header-border: #e2e8f0;
   --aluf-page-bg: #F4F7FA;
   --aluf-card-bg: #FFFFFF;
   --aluf-text-main: #1e293b;
@@ -15,6 +18,10 @@
 }
 
 :root.dark {
+  --aluf-header-bg: #0f172a;
+  --aluf-header-text: #f1f5f9;
+  --aluf-header-text-muted: #94a3b8;
+  --aluf-header-border: #334155;
   --aluf-brand-purple: #c4b5fd;
   --aluf-page-bg: #0f0f14;
   --aluf-card-bg: #1a1a24;

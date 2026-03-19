@@ -63,6 +63,22 @@ export function HomePage() {
         </Container>
       </section>
 
+      {/* PC Builder CTA — mobile only, above gaming tiers */}
+      <div className="md:hidden mx-4 mb-2 mt-6 rounded-xl overflow-hidden border border-primary/30 bg-gradient-to-r from-gray-900 to-primary/20">
+        <div className="flex items-center justify-between px-4 py-3 gap-3">
+          <div>
+            <p className="font-black text-base text-white leading-tight">יכול לבנות בעצמך</p>
+            <p className="text-xs text-white/70 mt-0.5">בחר רכיבים ובנה את המחשב שלך</p>
+          </div>
+          <button
+            className="flex-shrink-0 bg-primary hover:bg-primary/90 text-white font-bold text-sm px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+            onClick={() => (window as any).PCConfiguratorIntegration?.open()}
+          >
+            בנה עכשיו ←
+          </button>
+        </div>
+      </div>
+
       {/* Gaming Tiers */}
       <section className="py-12">
         <Container>
