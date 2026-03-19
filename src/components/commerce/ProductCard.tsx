@@ -19,15 +19,26 @@ export function ProductCard({ product, className }: ProductCardProps) {
       'bg-card-bg rounded-xl border border-border-light p-4 hover:shadow-tech-hover hover:border-primary transition-all group flex flex-col',
       className,
     )}>
-      <a href={product.href || '#'} className="block relative">
-        {product.originalPrice && <Badge variant="sale" className="absolute top-2 right-2 z-10">SALE</Badge>}
-        <div className="aspect-square bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4 overflow-hidden">
+      <a href={product.href || '#'} className="block relative mb-4">
+        {/* Badge: top-left in visual space (left-3 = visually right side in RTL) */}
+        {product.originalPrice && (
+          <Badge variant="sale" className="absolute top-2 left-3 z-10">מבצע!</Badge>
+        )}
+        <div className="aspect-square bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden relative">
           <img
             src={product.image}
             alt={product.title}
-            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 p-4"
             loading="lazy"
           />
+          {/* Add-to-cart overlay on image hover */}
+          <button
+            onClick={e => { e.preventDefault(); addToCart(product.id); }}
+            className="absolute top-2 right-2 bg-primary text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+            aria-label={t('products.addToCart')}
+          >
+            <Icon name="add_shopping_cart" className="text-lg" />
+          </button>
         </div>
       </a>
       <span className="text-xs text-primary font-bold mb-1">{product.category}</span>
@@ -37,7 +48,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       <ul className="text-xs text-text-muted space-y-1 mb-4">
         {product.specs.map((spec, i) => (
           <li key={i} className="flex items-center gap-1">
-            <Icon name="check" className="text-primary text-xs" />
+            <Icon name="check" className="text-primary text-xs flex-shrink-0" />
             {spec}
           </li>
         ))}
@@ -45,9 +56,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
       <div className="mt-auto flex items-center justify-between pt-3 border-t border-border-light">
         <div>
           {product.originalPrice && (
-            <span className="text-xs text-text-muted line-through block">{t('price.currency')}{product.originalPrice.toLocaleString()}</span>
+            <span className="text-xs text-text-muted line-through block">
+              {t('price.currency')}{product.originalPrice.toLocaleString()}
+            </span>
           )}
-          <span className="text-lg font-black text-brand-purple">{t('price.currency')}{product.price.toLocaleString()}</span>
+          <span className="text-lg font-black text-brand-purple">
+            {t('price.currency')}{product.price.toLocaleString()}
+          </span>
         </div>
         <button
           onClick={() => addToCart(product.id)}
