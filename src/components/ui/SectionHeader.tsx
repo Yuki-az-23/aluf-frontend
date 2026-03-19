@@ -11,7 +11,9 @@ interface SectionHeaderProps {
 export function SectionHeader({ title, linkText, linkHref = '#', className }: SectionHeaderProps) {
   return (
     <div className={cn('flex items-center justify-between mb-8', className)}>
-      <h2 className="text-2xl font-black text-brand-purple">{title}</h2>
+      <div className="border-r-4 border-primary pr-4">
+        <h2 className="text-2xl font-black text-text-main font-display">{title}</h2>
+      </div>
       {linkText && (
         <a
           href={linkHref}
