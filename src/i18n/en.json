@@ -97,5 +97,13 @@
   "workshop.faq.q3": "Is there a warranty on data recovery?",
   "workshop.faq.a3": "Yes, we offer a full warranty on all our data recovery services.",
   "workshop.contact.title": "Contact Us",
-  "workshop.contact.address": "Herzl 8, Tel Aviv"
+  "workshop.contact.address": "Herzl 8, Tel Aviv",
+  "item.eilatPrice": "Eilat Price (VAT-free)",
+  "item.buyNow": "Buy Now",
+  "item.whyBuy": "Why Buy from Aluf?",
+  "item.trust1": "Official importer warranty — 3 years at home",
+  "item.trust2": "24 branches nationwide",
+  "item.trust3": "Certified in-store repair labs",
+  "item.faq": "Q&A",
+  "item.related": "Customers also bought"
 }
