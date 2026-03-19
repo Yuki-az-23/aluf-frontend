@@ -89,23 +89,23 @@ export function SearchInput({ className }: SearchInputProps) {
           onKeyDown={handleKeyDown}
           placeholder={t('header.search')}
           autoComplete="off"
-          className="w-full bg-slate-800 border border-gray-600 rounded-md py-2.5 pr-4 pl-12 text-white placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-primary transition-all shadow-inner text-sm text-right"
+          className="w-full bg-header-bg border border-header-border rounded-md py-2.5 pr-4 pl-12 text-header-text placeholder-header-text-muted focus:ring-1 focus:ring-primary focus:border-primary transition-all shadow-inner text-sm text-right"
         />
-        <button type="submit" className="absolute left-3 top-2.5 text-gray-400 group-focus-within:text-primary">
+        <button type="submit" className="absolute left-3 top-2.5 text-header-text-muted group-focus-within:text-primary">
           <Icon name="search" />
         </button>
       </form>
 
       {open && suggestions.length > 0 && (
-        <ul className="absolute top-full mt-1 right-0 left-0 z-50 bg-slate-800 border border-gray-600 rounded-md overflow-hidden shadow-xl max-h-80 overflow-y-auto">
+        <ul className="absolute top-full mt-1 right-0 left-0 z-50 bg-header-bg border border-header-border rounded-md overflow-hidden shadow-xl max-h-80 overflow-y-auto">
           {suggestions.map((s, i) => (
             <li key={i}>
               <button
                 type="button"
                 onMouseDown={() => navigate(s.title)}
                 className={cn(
-                  'w-full flex items-center gap-3 px-3 py-2 text-right text-sm text-white transition-colors',
-                  i === activeIndex ? 'bg-primary/20' : 'hover:bg-white/10',
+                  'w-full flex items-center gap-3 px-3 py-2 text-right text-sm text-header-text transition-colors',
+                  i === activeIndex ? 'bg-primary/20' : 'hover:bg-black/5 dark:hover:bg-white/10',
                 )}
               >
                 {s.img_path && (

@@ -16,7 +16,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
         <Icon name={service.icon} className="text-primary group-hover:text-white text-2xl transition-colors" />
       </div>
       <div className="flex-1 text-start">
-        <h3 className="font-bold text-base text-text-main mb-1">{t(service.titleKey)}</h3>
+        <h2 className="font-bold text-base text-text-main mb-1">{t(service.titleKey)}</h2>
         <p className="text-text-muted text-sm leading-relaxed">{t(service.descKey)}</p>
       </div>
     </div>

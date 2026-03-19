@@ -41,7 +41,7 @@ export function MainNav({ className }: MainNavProps) {
       ))}
       <div className="border-r border-header-border h-6 mx-2" />
       <button
-        className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors flex items-center gap-2 text-sm font-bold whitespace-nowrap"
+        className="px-4 py-3 text-primary font-bold hover:bg-black/5 dark:hover:bg-white/5 rounded-md transition-colors flex items-center gap-2 text-sm whitespace-nowrap"
         onClick={() => (window as any).PCConfiguratorIntegration?.open()}
       >
         <Icon name="build" className="text-lg" />

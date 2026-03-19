@@ -116,7 +116,7 @@ export function ItemPage() {
               {/* Upgrade options */}
               <div className="mt-4 space-y-2">
                 <p className="text-xs font-bold text-text-muted">{t('item.upgrades')}</p>
-                <div className="flex items-center gap-2 text-sm text-text-main bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2 border border-border-light">
+                <div className="flex items-center gap-2 text-sm text-text-main bg-card-bg rounded-lg px-3 py-2 border border-border-light">
                   <input type="checkbox" id="upgrade-warranty" className="accent-primary" />
                   <label htmlFor="upgrade-warranty" className="flex-1 cursor-pointer">
                     {t('item.upgradeWarranty')}
@@ -186,7 +186,7 @@ export function ItemPage() {
 
           {/* Image Gallery (end side) */}
           <div>
-            <div className="relative aspect-square bg-gray-50 dark:bg-gray-900 rounded-xl overflow-hidden mb-3 border border-border-light">
+            <div className="relative aspect-square bg-white rounded-xl overflow-hidden mb-3 border border-border-light">
               {discount > 0 && (
                 <Badge variant="sale" className="absolute top-4 end-4 z-10">
                   -{discount}%
@@ -248,7 +248,7 @@ export function ItemPage() {
                       <tr
                         key={i}
                         className={`border-b border-border-light last:border-0 ${
-                          i % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'
+                          i % 2 === 0 ? 'bg-card-bg' : 'bg-page-bg'
                         }`}
                       >
                         <td className="px-4 py-2.5 font-medium text-text-muted w-1/3 text-start">
@@ -293,7 +293,7 @@ export function ItemPage() {
                   className="border border-border-light rounded-xl overflow-hidden"
                 >
                   <button
-                    className="w-full flex items-center justify-between px-4 py-3 text-start text-sm font-medium text-text-main bg-card-bg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    className="w-full flex items-center justify-between px-4 py-3 text-start text-sm font-medium text-text-main bg-card-bg hover:bg-border-light transition-colors"
                     onClick={() => setOpenQa(openQa === i ? null : i)}
                   >
                     <Icon
@@ -305,7 +305,7 @@ export function ItemPage() {
                     {item.q}
                   </button>
                   {openQa === i && (
-                    <div className="px-4 py-3 text-sm text-text-muted border-t border-border-light bg-gray-50 dark:bg-gray-800 text-start">
+                    <div className="px-4 py-3 text-sm text-text-muted border-t border-border-light bg-page-bg text-start">
                       {item.a}
                     </div>
                   )}
@@ -334,7 +334,7 @@ export function ItemPage() {
       )}
 
       {/* Mobile sticky add-to-cart bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-border-light p-3 flex items-center justify-between gap-3 lg:hidden z-40">
+      <div className="fixed bottom-0 left-0 right-0 bg-card-bg border-t border-border-light p-3 flex items-center justify-between gap-3 lg:hidden z-40">
         <div>
           <span className="text-xl font-black text-brand-purple">
             {t('price.currency')}{itemDetail.price.toLocaleString()}

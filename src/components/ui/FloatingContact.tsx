@@ -20,7 +20,6 @@ export function FloatingContact() {
             <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.47 11.47 0 003.58.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.47 11.47 0 00.57 3.58 1 1 0 01-.25 1.02l-2.2 2.19z"/>
           </svg>
           <span>{t('contact.callNow')}</span>
-          <span className="opacity-80 text-xs">{PHONE_DISPLAY}</span>
         </a>
         <a
           href={WA_URL}

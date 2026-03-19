@@ -8,7 +8,7 @@ interface BlogCardProps {
 
 export function BlogCard({ post, featured = false }: BlogCardProps) {
   const { t } = useLang();
-  const href = post.href || 'https://alufshop.konimbo.co.il/632283-%D7%91%D7%9C%D7%95%D7%92';
+  const href = post.href || 'https://alufshop.konimbo.co.il/blog/'; ///+ post.slug; /// missing here the contion to url base and to the blog post.
 
   if (featured) {
     return (
