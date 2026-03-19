@@ -3,6 +3,7 @@ import { Icon } from '@/components/ui/Icon';
 import { useLang } from '@/i18n';
 
 const BASE = 'https://alufshop.konimbo.co.il';
+const logoSrc = 'https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/src/assets/logo.png';
 
 const deptLinks = [
   { key: 'desktops', href: BASE + '/636802-%D7%94%D7%A8%D7%9B%D7%91%D7%95%D7%AA-%D7%9E%D7%91%D7%99%D7%AA-%D7%90%D7%9C%D7%95%D7%A3-%D7%94%D7%9E%D7%97%D7%A9%D7%91%D7%99%D7%9D' },
@@ -27,9 +28,11 @@ export function Footer() {
           {/* Brand */}
           <div className="md:w-1/3">
             <div className="flex items-center gap-2 mb-4 justify-end">
-              <div className="h-6 w-6 bg-primary rounded flex items-center justify-center">
-                <Icon name="deployed_code" className="text-white text-sm" />
-              </div>
+              <img
+                src={logoSrc}
+                alt={t('site.name')}
+                className="h-6 w-auto object-contain bg-white p-0.5 rounded-sm"
+              />
               <span className="font-display font-bold text-xl text-white">
                 {t('site.name.prefix')} <span className="text-primary">{t('site.name.suffix')}</span>
               </span>
@@ -80,6 +83,10 @@ export function Footer() {
                 <li className="flex items-center gap-3 justify-end">
                   <a href="mailto:sales@aluf.co.il" className="hover:text-primary transition">sales@aluf.co.il</a>
                   <Icon name="mail" className="text-primary text-base" />
+                </li>
+                <li className="flex items-center gap-3 justify-end">
+                  <span>א-ה: 09:00 - 19:00, ו: 09:00 - 13:00</span>
+                  <Icon name="schedule" className="text-primary text-base" />
                 </li>
               </ul>
             </div>
