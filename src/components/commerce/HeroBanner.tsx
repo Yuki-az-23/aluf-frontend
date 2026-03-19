@@ -28,17 +28,22 @@ export function HeroBanner({ banners }: HeroBannerProps) {
   // Fallback: no banner data — show static hero
   if (!slides.length) {
     return (
-      <section className="bg-gradient-to-br from-header-bg via-purple-900 to-header-bg text-white py-16 md:py-24">
-        <Container>
+      <section className="bg-header-bg text-white overflow-hidden relative">
+        <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] bg-[size:32px_32px]" />
+        <Container className="py-16 md:py-24 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-6">
+            <div className="text-right">
+              <div className="inline-flex items-center gap-2 bg-primary/20 text-primary px-4 py-2 rounded-full text-sm font-bold mb-6">
+                <Icon name="verified" className="text-base" />
+                {t('hero.badge')}
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black leading-tight mb-6">
                 {t('hero.title')}
               </h1>
               <p className="text-lg text-gray-300 mb-8 leading-relaxed">
                 {t('hero.subtitle')}
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-4 justify-end">
                 <Button variant="primary" size="lg">
                   <Icon name="storefront" />
                   {t('hero.cta.shop')}
@@ -48,10 +53,21 @@ export function HeroBanner({ banners }: HeroBannerProps) {
                   {t('hero.cta.services')}
                 </Button>
               </div>
+              <div className="flex flex-wrap gap-3 mt-8 justify-end">
+                {(['hero.trust1', 'hero.trust2', 'hero.trust3'] as const).map(key => (
+                  <span key={key} className="flex items-center gap-1.5 text-sm text-gray-300 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                    <Icon name="check_circle" className="text-primary text-base" />
+                    {t(key)}
+                  </span>
+                ))}
+              </div>
             </div>
             <div className="hidden md:flex items-center justify-center">
-              <div className="w-80 h-80 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center">
-                <Icon name="memory" className="text-[120px] text-primary/60" />
+              <div className="relative">
+                <div className="w-72 h-72 bg-gradient-to-br from-primary/30 to-secondary/20 rounded-full blur-3xl absolute -inset-8" />
+                <div className="relative w-64 h-64 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-3xl border border-white/10 flex items-center justify-center">
+                  <Icon name="memory" className="text-[100px] text-primary/70" />
+                </div>
               </div>
             </div>
           </div>

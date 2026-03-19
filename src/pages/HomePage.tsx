@@ -65,20 +65,24 @@ export function HomePage() {
       </section>
 
       {/* Newsletter */}
-      <section className="py-16 bg-gradient-to-r from-primary to-secondary">
+      <section className="py-16 bg-card-bg border-t border-border-light">
         <Container>
-          <div className="text-center text-white max-w-2xl mx-auto">
-            <h2 className="text-3xl font-black mb-3">{t('newsletter.title')}</h2>
-            <p className="text-white/80 mb-8">{t('newsletter.subtitle')}</p>
-            <div className="flex gap-3 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder={t('newsletter.placeholder')}
-                className="flex-1 px-4 py-3 rounded-xl text-text-main text-sm focus:ring-2 focus:ring-white"
-              />
-              <Button variant="secondary" size="md" className="bg-white text-primary hover:bg-gray-100 shadow-none">
-                {t('newsletter.submit')}
-              </Button>
+          <div className="max-w-3xl mx-auto text-right">
+            <div className="flex flex-col md:flex-row items-center gap-10">
+              <div className="flex-1">
+                <h2 className="text-3xl font-black text-text-main mb-3">{t('newsletter.title')}</h2>
+                <p className="text-text-muted">{t('newsletter.subtitle')}</p>
+              </div>
+              <div className="flex gap-3 w-full md:w-auto md:min-w-[340px]">
+                <input
+                  type="email"
+                  placeholder={t('newsletter.placeholder')}
+                  className="flex-1 px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-gray-50"
+                />
+                <Button variant="primary" size="md">
+                  {t('newsletter.submit')}
+                </Button>
+              </div>
             </div>
           </div>
         </Container>
