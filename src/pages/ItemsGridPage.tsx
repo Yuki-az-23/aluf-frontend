@@ -14,15 +14,11 @@ export function ItemsGridPage() {
   const { t } = useLang();
   const { products, breadcrumbs, pageTitle } = useStoreData();
 
-  const prices = products.map(p => p.price);
-  const globalMin = prices.length ? Math.min(...prices) : 0;
-  const globalMax = prices.length ? Math.max(...prices) : 10000;
-
-  const [filters, setFilters] = useState<FilterState>({
-    priceMin: globalMin,
-    priceMax: globalMax,
-    brands: [],
-    inStockOnly: false,
+  const [filters, setFilters] = useState<FilterState>(() => {
+    const prices = products.map(p => p.price);
+    const globalMin = prices.length ? Math.min(...prices) : 0;
+    const globalMax = prices.length ? Math.max(...prices) : 10000;
+    return { priceMin: globalMin, priceMax: globalMax, brands: [], inStockOnly: false };
   });
   const [sort, setSort] = useState<SortOption>('price-asc');
   const [view, setView] = useState<ViewMode>('grid');
