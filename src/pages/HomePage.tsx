@@ -70,7 +70,7 @@ export function HomePage() {
       {/* Newsletter */}
       <section className="py-16 bg-card-bg border-t border-border-light">
         <Container>
-          <div className="max-w-3xl mx-auto text-right">
+          <div className="max-w-3xl mx-auto text-start">
             <div className="flex flex-col md:flex-row items-center gap-10">
               <div className="flex-1">
                 <h2 className="text-3xl font-black text-text-main mb-3">{t('newsletter.title')}</h2>
