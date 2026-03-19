@@ -1,16 +1,26 @@
 /* Aluf UI Shell — css_before */
-/* Phase 1: Hide Konimbo content immediately (before React loads) to prevent flash.
-   Uses visibility so DOM is still scrapable. Added by MutationObserver in JS. */
-body.aluf-loading > *:not(#aluf-root):not(script):not(noscript):not(link):not(style):not(meta) {
+/* Hide Konimbo native content immediately — no class needed, no observer race.
+   The browser applies this rule before the first paint, eliminating the blink.
+   Our React app adds body.aluf-loaded to switch to display:none.
+   If React fails, the timeout adds body.aluf-failed to reveal Konimbo fallback. */
+body > *:not(#aluf-root):not(script):not(noscript):not(link):not(style):not(meta) {
   visibility: hidden !important;
   height: 0 !important;
   overflow: hidden !important;
   margin: 0 !important;
   padding: 0 !important;
 }
-/* Phase 2: Fully remove Konimbo content after React mounts. */
+/* After React mounts — fully remove Konimbo DOM from layout */
 body.aluf-loaded > *:not(#aluf-root):not(script):not(noscript):not(link):not(style):not(meta) {
   display: none !important;
+}
+/* React failed to load — restore Konimbo native UI as fallback */
+body.aluf-failed > *:not(#aluf-root):not(script):not(noscript):not(link):not(style):not(meta) {
+  visibility: visible !important;
+  height: auto !important;
+  overflow: auto !important;
+  margin: revert !important;
+  padding: revert !important;
 }
 /* Reset inherited styles inside our app root */
 #aluf-root {

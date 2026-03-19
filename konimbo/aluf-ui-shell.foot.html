@@ -2,14 +2,12 @@
 <div id="aluf-root"></div>
 <script src="https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@899dffcc18b0ff15ddee3f3999874672771ba047/dist/aluf-app.js"></script>
 <script>
-// Fallback: if React hasn't mounted after 12 seconds, show reload message
+// Fallback: if React hasn't mounted after 12 seconds, reveal Konimbo native UI
 setTimeout(function() {
   var root = document.getElementById('aluf-root');
   if (root && !root.querySelector('[data-aluf-app]')) {
-    document.body.classList.remove('aluf-loaded', 'aluf-loading');
-    root.innerHTML = '<div style="text-align:center;padding:40px;font-family:Heebo,sans-serif;">' +
-      '<p style="font-size:18px;margin-bottom:16px;">שגיאה בטעינת האתר</p>' +
-      '<a href="javascript:location.reload()" style="color:#FF6B00;font-weight:bold;">לחץ כאן לרענון</a></div>';
+    document.body.classList.add('aluf-failed');
+    document.body.classList.remove('aluf-loaded');
   }
 }, 12000);
 </script>
