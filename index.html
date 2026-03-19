@@ -13,6 +13,9 @@
 </head>
 <body>
   <div id="aluf-root"></div>
+  <!-- dev-mock.local.js is gitignored — create it locally to inject mock data.
+       Silent if missing (onerror suppresses the 404). -->
+  <script src="/dev-mock.local.js" onerror="console.info('[aluf-dev] No mock file — create public/dev-mock.local.js to enable')"></script>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

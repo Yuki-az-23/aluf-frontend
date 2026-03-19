@@ -286,11 +286,31 @@ export function scrapeItemDetail(): ItemDetail | null {
   const origText = origPriceEl?.textContent?.replace(/[^\d.]/g, '') || '';
   const originalPrice = parseInt(origText, 10) || undefined;
 
+  // FAQ — Konimbo embeds structured JSON in #faq_raw_data_seo inside the description
+  let faqItems: { question: string; answer: string }[] = [];
+  const faqRawEl = document.querySelector('#faq_raw_data_seo');
+  if (faqRawEl) {
+    try {
+      const parsed = JSON.parse(faqRawEl.textContent || '[]');
+      if (Array.isArray(parsed)) {
+        faqItems = parsed
+          .map((item: Record<string, string>) => ({ question: item['question'] || '', answer: item['answer'] || '' }))
+          .filter((item) => item.question && item.answer);
+      }
+    } catch { /* malformed JSON — skip */ }
+  }
+
   // Description HTML — Konimbo uses #item_content .desc
+  // Strip FAQ markup, hidden SEO divs, and Konimbo AI context so only clean prose remains
   const descEl = document.querySelector(
     '#item_content .desc, .item_description, .product-description, .item_body, .description'
   );
-  const descriptionHtml = descEl?.innerHTML?.trim() || '';
+  let descriptionHtml = '';
+  if (descEl) {
+    const clone = descEl.cloneNode(true) as Element;
+    clone.querySelectorAll('#faq_raw_data_seo, .faq__bt--list, #ai_agent_context').forEach((el) => el.remove());
+    descriptionHtml = clone.innerHTML.trim();
+  }
 
   // Specs — flat list from #item_specifications (also backward compat selectors)
   const specs: string[] = [];
@@ -331,6 +351,7 @@ export function scrapeItemDetail(): ItemDetail | null {
     relatedItems: [],
     inStock,
     warranty,
+    faqItems: faqItems.length > 0 ? faqItems : undefined,
   };
 }
 

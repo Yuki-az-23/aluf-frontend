@@ -32,6 +32,7 @@ export function ItemPage() {
   const { addToCart } = useCart();
   const [activeImage, setActiveImage] = useState(0);
   const [adding, setAdding] = useState(false);
+  const [openQa, setOpenQa] = useState<number | null>(null);
 
   if (!itemDetail) {
     return (
@@ -303,19 +304,43 @@ export function ItemPage() {
             )}
           </div>
 
-          {/* Product description (מידע נוסף) */}
-          {itemDetail.descriptionHtml && (
-            <div>
-              <h2 className="text-xl font-black text-text-main mb-4 flex items-center gap-2">
-                <span className="w-1 h-6 bg-primary rounded-full inline-block" />
-                {t('item.description')}
-              </h2>
+          {/* שאלות ותשובות — real FAQ from #faq_raw_data_seo */}
+          <div>
+            <h2 className="text-xl font-black text-text-main mb-4 flex items-center gap-2">
+              <span className="w-1 h-6 bg-primary rounded-full inline-block" />
+              {t('item.faq')}
+            </h2>
+            {itemDetail.faqItems && itemDetail.faqItems.length > 0 ? (
+              <div className="space-y-2">
+                {itemDetail.faqItems.map((item, i) => (
+                  <div key={i} className="border border-border-light rounded-xl overflow-hidden">
+                    <button
+                      className="w-full flex items-center justify-between px-4 py-3 text-start text-sm font-medium text-text-main bg-card-bg hover:bg-border-light transition-colors"
+                      onClick={() => setOpenQa(openQa === i ? null : i)}
+                    >
+                      <Icon
+                        name="expand_more"
+                        className={`text-primary transition-transform flex-shrink-0 ${dir === 'rtl' ? 'mr-2' : 'ml-2'} ${openQa === i ? 'rotate-180' : ''}`}
+                      />
+                      {item.question}
+                    </button>
+                    {openQa === i && (
+                      <div className="px-4 py-3 text-sm text-text-muted border-t border-border-light bg-page-bg text-start">
+                        {item.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : itemDetail.descriptionHtml ? (
               <div
-                className="prose prose-sm max-w-none text-text-main text-sm leading-relaxed bg-card-bg border border-border-light rounded-xl p-4 [&_table]:w-full [&_table]:text-sm [&_td]:px-2 [&_td]:py-1 [&_th]:px-2 [&_th]:py-1 [&_tr:nth-child(even)]:bg-page-bg"
+                className="text-text-main text-sm leading-relaxed bg-card-bg border border-border-light rounded-xl p-4"
                 dangerouslySetInnerHTML={{ __html: itemDetail.descriptionHtml }}
               />
-            </div>
-          )}
+            ) : (
+              <p className="text-text-muted text-sm">{t('item.noSpecs')}</p>
+            )}
+          </div>
         </div>
       </Container>
 

@@ -10,7 +10,7 @@ export function ThemeToggle() {
       icon={theme === 'light' ? 'dark_mode' : 'light_mode'}
       label={t('a11y.toggleTheme')}
       onClick={toggleTheme}
-      className="text-gray-300 hover:text-white"
+      className="text-header-text-muted hover:text-header-text"
     />
   );
 }

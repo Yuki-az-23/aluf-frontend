@@ -3,6 +3,9 @@ import { Icon } from '@/components/ui/Icon';
 import { useLang } from '@/i18n';
 
 const BASE = 'https://alufshop.konimbo.co.il';
+const MAPS_QUERY = encodeURIComponent('אלוף המחשבים הרצל 102 ראשון לציון');
+const MAPS_LINK = `https://www.google.com/maps/search/?api=1&query=${MAPS_QUERY}`;
+const MAPS_EMBED = `https://maps.google.com/maps?q=${MAPS_QUERY}&output=embed&hl=iw&z=15`;
 const logoSrc = 'https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/src/assets/logo.png';
 
 const deptLinks = [
@@ -73,8 +76,10 @@ export function Footer() {
               <h3 className="text-white font-bold mb-4 text-base">{t('footer.contact')}</h3>
               <ul className="space-y-3 text-sm text-gray-400">
                 <li className="flex items-start gap-3 justify-start">
-                  <Icon name="location_on" className="text-primary text-base mt-0.5" />
-                  <span>{t('footer.address')}</span>
+                  <Icon name="location_on" className="text-primary text-base mt-0.5 flex-shrink-0" />
+                  <a href={MAPS_LINK} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition">
+                    {t('footer.address')}
+                  </a>
                 </li>
                 <li className="flex items-center gap-3 justify-start">
                   <Icon name="call" className="text-primary text-base" />
@@ -92,7 +97,27 @@ export function Footer() {
             </div>
           </div>
         </div>
-        <div className="border-t border-gray-800 mt-12 pt-8 text-center text-xs text-gray-500">
+        {/* Store map */}
+        <div className="mt-10 rounded-xl overflow-hidden border border-gray-700">
+          <a href={MAPS_LINK} target="_blank" rel="noopener noreferrer" className="block relative group">
+            <iframe
+              src={MAPS_EMBED}
+              width="100%"
+              height="200"
+              style={{ border: 0, display: 'block', pointerEvents: 'none' }}
+              loading="lazy"
+              title={t('footer.address')}
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
+                <Icon name="open_in_new" className="text-sm" />
+                {t('footer.openMap')}
+              </span>
+            </div>
+          </a>
+        </div>
+
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-xs text-gray-500">
           {t('footer.copyright')}
         </div>
       </Container>

@@ -28,6 +28,7 @@ export interface ItemDetail {
   relatedItems: Product[];
   inStock: boolean;
   warranty?: string;
+  faqItems?: { question: string; answer: string }[];
 }
 
 export interface BlogPostItem {

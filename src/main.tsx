@@ -18,32 +18,44 @@ import './theme/tokens.css';
 
 const root = document.getElementById('aluf-root');
 if (root) {
-  const pageType = getPageType();
+  // Dev mock: if public/dev-mock.local.js pre-loaded data, use it and skip scraping
+  const devMock = (window as any).__ALUF_SCRAPED__;
+  const devPageType = (window as any).__ALUF_DEV_PAGE_TYPE__ as string | undefined;
+  const usingMock = !!(devMock && devPageType);
 
-  // 1. Synchronous first scrape (catches data already in DOM)
-  const itemDetailRaw = pageType === 'item' ? scrapeItemDetail() : null;
-  const relatedItems = pageType === 'item' ? scrapeRelatedItems() : [];
+  const pageType = usingMock ? devPageType! : getPageType();
 
-  if (itemDetailRaw) {
-    itemDetailRaw.relatedItems = relatedItems;
+  let scrapedData: typeof devMock;
+
+  if (usingMock) {
+    // Already set by dev-mock.local.js — no DOM scraping needed
+    scrapedData = devMock;
+  } else {
+    // 1. Synchronous first scrape (catches data already in DOM)
+    const itemDetailRaw = pageType === 'item' ? scrapeItemDetail() : null;
+    const relatedItems = pageType === 'item' ? scrapeRelatedItems() : [];
+
+    if (itemDetailRaw) {
+      itemDetailRaw.relatedItems = relatedItems;
+    }
+
+    scrapedData = {
+      products: scrapeProducts(),
+      categories: scrapeCategories(),
+      categoryGroups: scrapeCategoryGroups(),
+      banners: scrapeBanners(),
+      itemDetail: itemDetailRaw,
+      breadcrumbs: ['category', 'items', 'item', 'blog', 'blogpost'].includes(pageType)
+        ? scrapeBreadcrumbs()
+        : [],
+      pageTitle: ['category', 'items', 'blog'].includes(pageType) ? scrapeCategoryTitle() : '',
+      blogPosts: pageType === 'blog' ? scrapeBlogPosts() : [],
+      blogPostDetail: pageType === 'blogpost' ? scrapeBlogPostDetail() : null,
+    };
+
+    // Store on window so StoreDataProvider can access it synchronously
+    (window as any).__ALUF_SCRAPED__ = scrapedData;
   }
-
-  const scrapedData = {
-    products: scrapeProducts(),
-    categories: scrapeCategories(),
-    categoryGroups: scrapeCategoryGroups(),
-    banners: scrapeBanners(),
-    itemDetail: itemDetailRaw,
-    breadcrumbs: ['category', 'items', 'item', 'blog', 'blogpost'].includes(pageType)
-      ? scrapeBreadcrumbs()
-      : [],
-    pageTitle: ['category', 'items', 'blog'].includes(pageType) ? scrapeCategoryTitle() : '',
-    blogPosts: pageType === 'blog' ? scrapeBlogPosts() : [],
-    blogPostDetail: pageType === 'blogpost' ? scrapeBlogPostDetail() : null,
-  };
-
-  // Store on window so StoreDataProvider can access it synchronously
-  (window as any).__ALUF_SCRAPED__ = scrapedData;
 
   // 2. Move #aluf-root to be a direct child of <body>
   if (root.parentElement !== document.body) {
