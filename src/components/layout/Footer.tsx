@@ -22,7 +22,7 @@ const serviceLinks = [
 export function Footer() {
   const { t } = useLang();
   return (
-    <footer className="bg-header-bg border-t border-gray-800 mt-auto text-gray-300">
+    <footer className="bg-gray-900 border-t border-gray-800 mt-auto text-gray-300">
       <Container className="py-12">
         <div className="flex flex-col md:flex-row justify-between gap-12 text-start">
           {/* Brand */}

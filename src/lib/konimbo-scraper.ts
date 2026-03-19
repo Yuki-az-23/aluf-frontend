@@ -307,6 +307,10 @@ export function scrapeItemDetail(): ItemDetail | null {
   const bodyText = document.body?.textContent || '';
   const inStock = !outOfStockEl && !bodyText.includes('אזל מהמלאי') && !bodyText.includes('אין במלאי');
 
+  // Warranty — Konimbo uses #item_warranty
+  const warrantyEl = document.querySelector('#item_warranty');
+  const warranty = warrantyEl?.textContent?.trim() || undefined;
+
   // ID from multiple sources
   const metaId = document.querySelector('meta[name="item-id"]')?.getAttribute('content') || '';
   const dataId = document.querySelector('[data-item-id]')?.getAttribute('data-item-id') || '';
@@ -326,34 +330,38 @@ export function scrapeItemDetail(): ItemDetail | null {
     specRows,
     relatedItems: [],
     inStock,
+    warranty,
   };
 }
 
 /** Scrape related products from item detail page */
 export function scrapeRelatedItems(): Product[] {
-  // Konimbo "also bought" section — #item_also_buy .matchingCarousel
-  // Items are <tr> rows with <a href="/items/...">, <img>, <b> (title), <i> (price)
-  const alsoContainer = document.querySelector('#item_also_buy');
-  if (alsoContainer) {
-    const products: Product[] = [];
+  // Konimbo "also bought" — #matchingCarouselHook (XPath: #matchingCarouselHook/div/div[1])
+  const carouselHook = document.querySelector('#matchingCarouselHook');
+  if (carouselHook) {
+    // Try parseProductElements first (handles .layout_list_item / [id^="item_id_"])
+    const products = parseProductElements(carouselHook);
+    if (products.length > 0) return products;
+
+    // Fallback: extract from anchor links inside the carousel
     const seen = new Set<string>();
-    alsoContainer.querySelectorAll('tr').forEach((tr) => {
-      const linkEl = tr.querySelector('a[href*="/items/"]') as HTMLAnchorElement | null;
-      if (!linkEl) return;
-      const rawHref = linkEl.getAttribute('href') || '';
-      const href = makeAbsolute(rawHref);
+    const fallback: Product[] = [];
+    carouselHook.querySelectorAll('a[href*="/items/"]').forEach((a) => {
+      const rawHref = a.getAttribute('href') || '';
       const urlMatch = rawHref.match(/\/items\/([^/?#]+)/);
-      const id = urlMatch?.[1] || rawHref;
+      const id = urlMatch?.[1] || '';
       if (!id || seen.has(id)) return;
       seen.add(id);
-      const title = tr.querySelector('b')?.textContent?.trim() || linkEl.textContent?.trim() || '';
-      const imgEl = tr.querySelector('img') as HTMLImageElement | null;
+      const href = makeAbsolute(rawHref);
+      const container = a.closest('li, tr, div[id^="item_id_"], .layout_list_item') || a.parentElement;
+      const title = container?.querySelector('b, h4, .title')?.textContent?.trim() || a.textContent?.trim() || '';
+      const imgEl = container?.querySelector('img') as HTMLImageElement | null;
       const image = imgEl?.getAttribute('src') || imgEl?.getAttribute('data-src') || '';
-      const priceText = tr.querySelector('i, .price, .item_price')?.textContent?.replace(/[^\d]/g, '') || '0';
+      const priceText = container?.querySelector('.price, .item_price, i')?.textContent?.replace(/[^\d]/g, '') || '0';
       const price = parseInt(priceText, 10) || 0;
-      if (title) products.push({ id, title, category: '', image, specs: [], price, inStock: true, href });
+      if (title) fallback.push({ id, title, category: '', image, specs: [], price, inStock: true, href });
     });
-    if (products.length > 0) return products;
+    if (fallback.length > 0) return fallback;
   }
 
   // Fallback: legacy Konimbo layouts using .layout_list_item

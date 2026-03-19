@@ -27,6 +27,7 @@ export interface ItemDetail {
   specRows: SpecRow[];
   relatedItems: Product[];
   inStock: boolean;
+  warranty?: string;
 }
 
 export interface BlogPostItem {

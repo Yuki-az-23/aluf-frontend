@@ -9,13 +9,29 @@ import { useStoreData } from '@/lib/StoreDataContext';
 import { useCart } from '@/lib/CartContext';
 import { useLang } from '@/i18n';
 
+/** Translate a raw Hebrew warranty string (from Konimbo) into the current language */
+function translateWarranty(raw: string, lang: string, t: (k: string) => string): string {
+  if (!raw) return raw;
+  if (lang === 'he') return raw;
+  let result = raw;
+  // Years (Hebrew word → translated)
+  result = result.replace(/חמש שנים|5 שנים/g, t('warranty.5years'));
+  result = result.replace(/ארבע שנים|4 שנים/g, t('warranty.4years'));
+  result = result.replace(/שלוש שנים|3 שנים/g, t('warranty.3years'));
+  result = result.replace(/שנתיים/g, t('warranty.2years'));
+  result = result.replace(/שנה אחת|שנה/g, t('warranty.1year'));
+  // Service type
+  result = result.replace(/בבית הלקוח/g, t('warranty.onsite'));
+  result = result.replace(/החזרה למעבדה|במעבדה/g, t('warranty.depot'));
+  return result;
+}
+
 export function ItemPage() {
-  const { t, dir } = useLang();
+  const { t, dir, lang } = useLang();
   const { itemDetail, breadcrumbs } = useStoreData();
   const { addToCart } = useCart();
   const [activeImage, setActiveImage] = useState(0);
   const [adding, setAdding] = useState(false);
-  const [openQa, setOpenQa] = useState<number | null>(null);
 
   if (!itemDetail) {
     return (
@@ -47,13 +63,6 @@ export function ItemPage() {
   const hasSpecRows = itemDetail.specRows && itemDetail.specRows.length > 0;
   const hasFlatSpecs = !hasSpecRows && itemDetail.specs && itemDetail.specs.length > 0;
   const hasRelated = itemDetail.relatedItems && itemDetail.relatedItems.length > 0;
-
-  // Q&A items — translated
-  const QA_ITEMS = [
-    { q: t('item.qa.q1'), a: t('item.qa.a1') },
-    { q: t('item.qa.q2'), a: t('item.qa.a2') },
-    { q: t('item.qa.q3'), a: t('item.qa.a3') },
-  ];
 
   return (
     <>
@@ -148,6 +157,15 @@ export function ItemPage() {
                 </Button>
               </div>
 
+              {/* Warranty badge */}
+              {itemDetail.warranty && (
+                <div className="mt-4 flex items-center gap-2 text-sm text-text-main bg-card-bg rounded-lg px-3 py-2 border border-border-light">
+                  <Icon name="verified_user" className="text-primary text-base flex-shrink-0" />
+                  <span className="font-medium">{t('warranty.label')}:</span>
+                  <span>{translateWarranty(itemDetail.warranty, lang, t)}</span>
+                </div>
+              )}
+
               {/* Trust badges */}
               <div className="flex items-center justify-around mt-4 pt-4 border-t border-border-light text-xs text-text-muted">
                 <span className="flex items-center gap-1">
@@ -182,6 +200,11 @@ export function ItemPage() {
                 </li>
               </ul>
             </div>
+
+            {/* Legal disclaimer */}
+            <p className="text-[11px] text-text-muted leading-relaxed border-t border-border-light pt-3">
+              {t('item.disclaimer')}
+            </p>
           </div>
 
           {/* Image Gallery (end side) */}
@@ -280,39 +303,19 @@ export function ItemPage() {
             )}
           </div>
 
-          {/* Q&A Accordion */}
-          <div>
-            <h2 className="text-xl font-black text-text-main mb-4 flex items-center gap-2">
-              <span className="w-1 h-6 bg-primary rounded-full inline-block" />
-              {t('item.faq')}
-            </h2>
-            <div className="space-y-3">
-              {QA_ITEMS.map((item, i) => (
-                <div
-                  key={i}
-                  className="border border-border-light rounded-xl overflow-hidden"
-                >
-                  <button
-                    className="w-full flex items-center justify-between px-4 py-3 text-start text-sm font-medium text-text-main bg-card-bg hover:bg-border-light transition-colors"
-                    onClick={() => setOpenQa(openQa === i ? null : i)}
-                  >
-                    <Icon
-                      name="expand_more"
-                      className={`text-primary transition-transform flex-shrink-0 ${dir === 'rtl' ? 'mr-2' : 'ml-2'} ${
-                        openQa === i ? 'rotate-180' : ''
-                      }`}
-                    />
-                    {item.q}
-                  </button>
-                  {openQa === i && (
-                    <div className="px-4 py-3 text-sm text-text-muted border-t border-border-light bg-page-bg text-start">
-                      {item.a}
-                    </div>
-                  )}
-                </div>
-              ))}
+          {/* Product description (מידע נוסף) */}
+          {itemDetail.descriptionHtml && (
+            <div>
+              <h2 className="text-xl font-black text-text-main mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-primary rounded-full inline-block" />
+                {t('item.description')}
+              </h2>
+              <div
+                className="prose prose-sm max-w-none text-text-main text-sm leading-relaxed bg-card-bg border border-border-light rounded-xl p-4 [&_table]:w-full [&_table]:text-sm [&_td]:px-2 [&_td]:py-1 [&_th]:px-2 [&_th]:py-1 [&_tr:nth-child(even)]:bg-page-bg"
+                dangerouslySetInnerHTML={{ __html: itemDetail.descriptionHtml }}
+              />
             </div>
-          </div>
+          )}
         </div>
       </Container>
 
