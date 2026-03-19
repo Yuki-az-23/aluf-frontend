@@ -134,6 +134,8 @@
   "item.specsAndFaq": "Technical Specs & FAQ",
   "item.fullSpecs": "Full Technical Specs",
   "item.noSpecs": "Technical specifications unavailable",
+  "item.specsShowAll": "Show all specs",
+  "item.specsShowLess": "Show less",
   "item.qa.q1": "Does the keyboard include Hebrew?",
   "item.qa.a1": "Yes, the keyboard includes Hebrew. You can select a Hebrew keyboard when ordering.",
   "item.qa.q2": "What does the warranty cover?",
@@ -159,5 +161,11 @@
   "item.disclaimer": "The company reserves the right to cancel an order in the event of a proven error in the product price or description. T&C apply — Images are for illustration purposes only.",
   "item.freeShippingTooltip": "Free shipping to central Israel only",
   "footer.openMap": "Open in Maps",
-  "cart.printQuote": "Print Quote (PDF)"
+  "cart.printQuote": "Print Quote (PDF)",
+  "filters.title": "Filters",
+  "filters.reset": "Clear All",
+  "filters.price": "Price Range",
+  "filters.category": "Category",
+  "filters.inStock": "In Stock Only",
+  "products.loading": "Loading products..."
 }

@@ -134,6 +134,8 @@
   "item.specsAndFaq": "מפרט טכני ושאלות נפוצות",
   "item.fullSpecs": "מפרט טכני מלא",
   "item.noSpecs": "מפרט טכני לא זמין",
+  "item.specsShowAll": "הצג את כל המפרט",
+  "item.specsShowLess": "הסתר מפרט",
   "item.qa.q1": "האם המקלדת כוללת עברית?",
   "item.qa.a1": "כן, המקלדת כוללת עברית. ניתן לבחור מקלדת עם עברית בעת ביצוע ההזמנה.",
   "item.qa.q2": "מה כולל האחריות?",
@@ -159,5 +161,11 @@
   "item.disclaimer": "החברה שומרת לעצמה את הזכות לבטל הזמנה במקרה של טעות מוכחת במחיר המוצר או בתיאורו. ט.ל.ח — התמונות להמחשה בלבד.",
   "item.freeShippingTooltip": "משלוח חינם למרכז הארץ בלבד",
   "footer.openMap": "פתח במפות",
-  "cart.printQuote": "הדפס הצעת מחיר (PDF)"
+  "cart.printQuote": "הדפס הצעת מחיר (PDF)",
+  "filters.title": "מסננים",
+  "filters.reset": "נקה הכל",
+  "filters.price": "טווח מחירים",
+  "filters.category": "קטגוריה",
+  "filters.inStock": "במלאי בלבד",
+  "products.loading": "טוען מוצרים..."
 }

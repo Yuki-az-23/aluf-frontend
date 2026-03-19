@@ -17,6 +17,14 @@ function resolveParentKey(title: string): string | null {
   return null;
 }
 
+function gridCols(count: number): string {
+  if (count <= 2) return 'grid-cols-2';
+  if (count <= 3) return 'grid-cols-2 sm:grid-cols-3';
+  if (count <= 4) return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4';
+  if (count <= 6) return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6';
+  return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6';
+}
+
 function findCategoryHref(name: string, categories: KonimboCategory[]): string | undefined {
   for (const cat of categories) {
     if (cat.title === name || cat.title.includes(name) || name.includes(cat.title)) {
@@ -71,7 +79,7 @@ export function CategoryPage() {
               <h2 className="text-xl font-bold text-text-main mb-4 text-right border-r-4 border-primary pr-3">
                 {group.group}
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+              <div className={`grid gap-4 ${gridCols(group.items.length)}`}>
                 {group.items.map(item => (
                   <a
                     key={item.href}
@@ -123,7 +131,7 @@ export function CategoryPage() {
           <h2 className="text-xl font-bold text-text-main mb-4 text-right border-r-4 border-primary pr-3">
             {group.group}
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+          <div className={`grid gap-4 ${gridCols(group.items.length)}`}>
             {group.items.map(itemName => {
               const href = findCategoryHref(itemName, categories);
               const image = ICON_MAP[itemName];

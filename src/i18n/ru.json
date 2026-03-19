@@ -134,6 +134,8 @@
   "item.specsAndFaq": "Характеристики и FAQ",
   "item.fullSpecs": "Полные характеристики",
   "item.noSpecs": "Характеристики недоступны",
+  "item.specsShowAll": "Показать все характеристики",
+  "item.specsShowLess": "Свернуть",
   "item.qa.q1": "Есть ли на клавиатуре иврит?",
   "item.qa.a1": "Да, клавиатура с ивритом. Вы можете выбрать клавиатуру с ивритом при оформлении заказа.",
   "item.qa.q2": "Что входит в гарантию?",
@@ -159,5 +161,11 @@
   "warranty.4years": "4 года",
   "warranty.5years": "5 лет",
   "footer.openMap": "Открыть в картах",
-  "cart.printQuote": "Распечатать предложение (PDF)"
+  "cart.printQuote": "Распечатать предложение (PDF)",
+  "filters.title": "Фильтры",
+  "filters.reset": "Сбросить",
+  "filters.price": "Диапазон цен",
+  "filters.category": "Категория",
+  "filters.inStock": "Только в наличии",
+  "products.loading": "Загрузка товаров..."
 }

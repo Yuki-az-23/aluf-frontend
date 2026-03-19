@@ -26,40 +26,64 @@ export function ItemsGridPage() {
 
   // Extra products fetched from subsequent Konimbo pages
   const [extraProducts, setExtraProducts] = useState<Product[]>([]);
-  const [nextPageUrl, setNextPageUrl] = useState<string | null>(() => getNextPageUrl());
   const [loadingMore, setLoadingMore] = useState(false);
   const [showCount, setShowCount] = useState(STEP);
+
+  // Track whether a background prefetch is running
+  const prefetchCancelRef = useRef(false);
 
   const allProducts = useMemo(() => [...products, ...extraProducts], [products, extraProducts]);
   const filtered = useMemo(() => applyFilters(allProducts, filters), [allProducts, filters]);
   const sorted = useMemo(() => applySorting(filtered, sort), [filtered, sort]);
   const displayed = sorted.slice(0, showCount);
-  const hasMore = sorted.length > showCount || !!nextPageUrl;
+  const hasMoreDisplay = sorted.length > showCount;
 
   const handleFilterChange = (f: FilterState) => { setFilters(f); setShowCount(STEP); };
   const handleSortChange = (s: SortOption) => { setSort(s); setShowCount(STEP); };
 
-  const loadMore = useCallback(async () => {
-    if (loadingMore) return;
-    if (showCount < sorted.length) {
-      setShowCount(c => c + STEP);
-      return;
-    }
-    if (!nextPageUrl) return;
-    setLoadingMore(true);
-    const { products: more, nextUrl } = await fetchMoreProducts(nextPageUrl);
-    if (more.length > 0) {
-      setExtraProducts(prev => [...prev, ...more]);
-      setShowCount(c => c + more.length);
-    }
-    setNextPageUrl(nextUrl);
-    setLoadingMore(false);
-  }, [loadingMore, showCount, sorted.length, nextPageUrl]);
-
-  // IntersectionObserver sentinel at bottom of list
-  const sentinelRef = useRef<HTMLDivElement>(null);
+  // On mount: eagerly prefetch ALL remaining Konimbo pages in background.
+  // Konimbo lazy-renders products on scroll, but once we take over the UI
+  // that scroll never fires — so we fetch all pages up-front via HTTP.
   useEffect(() => {
-    if (!hasMore) return;
+    const initialNextUrl = getNextPageUrl();
+    if (!initialNextUrl) return;
+
+    prefetchCancelRef.current = false;
+    setLoadingMore(true);
+
+    async function prefetchAll(startUrl: string) {
+      let url: string | null = startUrl;
+      const MAX_PAGES = 20; // safety cap
+      let page = 0;
+      while (url && !prefetchCancelRef.current && page < MAX_PAGES) {
+        page++;
+        const { products: more, nextUrl } = await fetchMoreProducts(url);
+        if (prefetchCancelRef.current) break;
+        if (more.length > 0) {
+          setExtraProducts(prev => {
+            const existingIds = new Set(prev.map(p => p.id));
+            const fresh = more.filter(p => !existingIds.has(p.id));
+            return fresh.length > 0 ? [...prev, ...fresh] : prev;
+          });
+        }
+        url = nextUrl;
+      }
+      if (!prefetchCancelRef.current) setLoadingMore(false);
+    }
+
+    prefetchAll(initialNextUrl);
+    return () => { prefetchCancelRef.current = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // only on mount — getNextPageUrl() reads DOM at that point
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const loadMore = useCallback(() => {
+    if (hasMoreDisplay) setShowCount(c => c + STEP);
+  }, [hasMoreDisplay]);
+
+  // IntersectionObserver sentinel — reveals more already-loaded products on scroll
+  useEffect(() => {
+    if (!hasMoreDisplay) return;
     const el = sentinelRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(
@@ -68,7 +92,7 @@ export function ItemsGridPage() {
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [hasMore, loadMore]);
+  }, [hasMoreDisplay, loadMore]);
 
   const crumbs = breadcrumbs.length > 0
     ? breadcrumbs
@@ -86,7 +110,7 @@ export function ItemsGridPage() {
 
       {products.length === 0 ? (
         <div className="py-8">
-          <p className="text-center text-text-muted mb-8 text-lg">טוען מוצרים...</p>
+          <p className="text-center text-text-muted mb-8 text-lg">{t('products.loading')}</p>
           {categories.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mt-6">
               {categories.slice(0, 12).map(cat => (
@@ -127,16 +151,16 @@ export function ItemsGridPage() {
               <p className="text-center text-text-muted py-16">{t('products.empty')}</p>
             )}
 
-            {/* Infinite scroll sentinel */}
-            {hasMore && <div ref={sentinelRef} className="h-10" />}
+            {/* Sentinel triggers revealing more already-loaded products on scroll */}
+            {hasMoreDisplay && <div ref={sentinelRef} className="h-10" />}
 
-            {/* Loading indicator */}
+            {/* Background fetch indicator */}
             {loadingMore && (
-              <p className="text-center text-text-muted py-4 text-sm">{t('products.loading') || 'טוען...'}</p>
+              <p className="text-center text-text-muted py-4 text-sm">{t('products.loading')}</p>
             )}
 
-            {/* Manual load more button as fallback */}
-            {hasMore && !loadingMore && (
+            {/* Manual reveal button as fallback */}
+            {hasMoreDisplay && !loadingMore && (
               <div className="flex justify-center mt-4">
                 <button
                   onClick={loadMore}

@@ -1,5 +1,6 @@
 import { Icon } from '@/components/ui/Icon';
 import type { Product } from '@/data/products';
+import { useLang } from '@/i18n';
 
 export interface FilterState {
   priceMin: number;
@@ -15,6 +16,7 @@ interface FilterSidebarProps {
 }
 
 export function FilterSidebar({ products, filters, onChange }: FilterSidebarProps) {
+  const { t } = useLang();
   const allBrands = Array.from(new Set(products.map(p => p.category))).sort();
   const prices = products.map(p => p.price);
   const globalMin = prices.length ? Math.min(...prices) : 0;
@@ -35,14 +37,14 @@ export function FilterSidebar({ products, filters, onChange }: FilterSidebarProp
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-bold text-base text-text-main flex items-center gap-2">
             <Icon name="filter_list" className="text-primary" />
-            מסננים
+            {t('filters.title')}
           </h2>
-          <button type="button" onClick={reset} className="text-xs text-primary font-bold hover:underline">נקה הכל</button>
+          <button type="button" onClick={reset} className="text-xs text-primary font-bold hover:underline">{t('filters.reset')}</button>
         </div>
 
         {/* Price range */}
         <div className="mb-6">
-          <h3 className="font-bold text-sm mb-3">טווח מחירים</h3>
+          <h3 className="font-bold text-sm mb-3">{t('filters.price')}</h3>
           <input
             type="range"
             min={globalMin}
@@ -61,7 +63,7 @@ export function FilterSidebar({ products, filters, onChange }: FilterSidebarProp
         {/* Category checkboxes */}
         {allBrands.length > 0 && (
           <div className="mb-6">
-            <h3 className="font-bold text-sm mb-3">קטגוריה</h3>
+            <h3 className="font-bold text-sm mb-3">{t('filters.category')}</h3>
             <div className="space-y-2.5">
               {allBrands.map(brand => {
                 const count = products.filter(p => p.category === brand).length;
@@ -90,7 +92,7 @@ export function FilterSidebar({ products, filters, onChange }: FilterSidebarProp
             onChange={e => onChange({ ...filters, inStockOnly: e.target.checked })}
             className="w-4 h-4 rounded border-border-light text-primary focus:ring-primary"
           />
-          <span className="text-sm text-text-main">במלאי בלבד</span>
+          <span className="text-sm text-text-main">{t('filters.inStock')}</span>
         </label>
       </div>
     </aside>

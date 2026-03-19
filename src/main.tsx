@@ -84,30 +84,32 @@ if (root) {
       '<a href="javascript:location.reload()" style="color:#FF6B00;font-weight:bold;">\u05DC\u05D7\u05E5 \u05DB\u05D0\u05DF \u05DC\u05E8\u05E2\u05E0\u05D5\u05DF</a></div>';
   }
 
-  // 5a. MutationObserver: if products were empty (Konimbo lazy-loads them),
-  //     watch for them to appear, re-scrape, and trigger a React re-render.
-  const needsProductReScrape =
-    (pageType === 'home' || pageType === 'items' || pageType === 'category') &&
-    scrapedData.products.length === 0;
+  // 5a. MutationObserver: watch for Konimbo lazy-loading products into the DOM.
+  //     Konimbo may render products incrementally (e.g. first 12, then more as
+  //     the page continues loading). We keep watching until the count stabilises.
+  const isProductPage = pageType === 'home' || pageType === 'items' || pageType === 'category';
 
-  if (needsProductReScrape && reactRoot) {
-    let retries = 0;
-    const maxRetries = 30; // 3 seconds max (every 100ms)
+  if (isProductPage && reactRoot) {
+    let lastCount = scrapedData.products.length;
+    let stableRounds = 0;
+    const maxStableRounds = 10; // disconnect after ~1s with no new products
+    const maxTotalRetries = 60;  // hard cap at 6 seconds total
+    let totalRetries = 0;
 
     const observer = new MutationObserver(() => {
+      totalRetries++;
       const newProducts = scrapeProducts();
-      if (newProducts.length > 0) {
-        observer.disconnect();
-        // Update the global data and dispatch event for context to pick up
+      if (newProducts.length > lastCount) {
+        // New products appeared — update and notify React, keep watching
+        lastCount = newProducts.length;
+        stableRounds = 0;
         scrapedData.products = newProducts;
-        if (pageType === 'home') {
-          scrapedData.banners = scrapeBanners();
-        }
+        if (pageType === 'home') scrapedData.banners = scrapeBanners();
         (window as any).__ALUF_SCRAPED__ = { ...scrapedData };
         window.dispatchEvent(new CustomEvent('aluf:products-ready', { detail: newProducts }));
       } else {
-        retries++;
-        if (retries >= maxRetries) {
+        stableRounds++;
+        if (stableRounds >= maxStableRounds || totalRetries >= maxTotalRetries) {
           observer.disconnect();
         }
       }

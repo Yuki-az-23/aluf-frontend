@@ -25,19 +25,31 @@ function getTodayDate(): string {
   ].join('/');
 }
 
+/** Prices are VAT-inclusive. Extract the VAT portion: price × 18/118 */
+function vatOf(priceWithVat: number): number {
+  return Math.round(priceWithVat * VAT_RATE / (1 + VAT_RATE));
+}
+function exVat(priceWithVat: number): number {
+  return Math.round(priceWithVat / (1 + VAT_RATE));
+}
+
 function printCart(items: CartItem[], subtotal: number): void {
-  const vatIncluded = Math.round(subtotal * VAT_RATE);
+  const totalVat = vatOf(subtotal);
+  const subtotalExVat = subtotal - totalVat;
   const date = getTodayDate();
 
-  // Build rows — all values via textContent so no injection possible
   const rowsHtml = items.map(item => {
-    const lineTotal = item.price * item.quantity;
-    // Use safe text interpolation (numbers and pre-validated strings from localStorage)
+    const unitWithVat = item.price;
+    const unitExVat = exVat(unitWithVat);
+    const lineWithVat = unitWithVat * item.quantity;
+    const lineExVat = unitExVat * item.quantity;
     return `<tr>
       <td>${escapeHtml(item.item_name)}</td>
       <td style="text-align:center">${item.quantity}</td>
-      <td style="text-align:center">&#x20AA;${item.price.toLocaleString('he-IL')}</td>
-      <td style="text-align:center">&#x20AA;${lineTotal.toLocaleString('he-IL')}</td>
+      <td style="text-align:center">&#x20AA;${unitExVat.toLocaleString('he-IL')}</td>
+      <td style="text-align:center">&#x20AA;${unitWithVat.toLocaleString('he-IL')}</td>
+      <td style="text-align:center">&#x20AA;${lineExVat.toLocaleString('he-IL')}</td>
+      <td style="text-align:center; font-weight:700">&#x20AA;${lineWithVat.toLocaleString('he-IL')}</td>
     </tr>`;
   }).join('');
 
@@ -54,13 +66,14 @@ function printCart(items: CartItem[], subtotal: number): void {
     .header h1 { font-size: 26px; font-weight: 900; color: #030213; margin-bottom: 6px; }
     .header .meta { font-size: 14px; color: #555; line-height: 1.8; }
     table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-    th { background: #030213; color: #fff; padding: 10px 12px; font-size: 14px; }
-    td { padding: 9px 12px; border-bottom: 1px solid #ddd; font-size: 14px; }
+    th { background: #030213; color: #fff; padding: 10px 12px; font-size: 13px; white-space: nowrap; }
+    td { padding: 9px 12px; border-bottom: 1px solid #ddd; font-size: 13px; }
     tr:nth-child(even) td { background: #f9f9f9; }
-    .summary { border-top: 2px solid #030213; padding-top: 16px; text-align: left; }
+    .vat-note { font-size: 11px; color: #888; text-align: center; margin-bottom: 16px; }
+    .summary { border-top: 2px solid #030213; padding-top: 16px; max-width: 340px; margin-right: auto; }
     .summary-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 15px; }
     .summary-row.total { font-size: 19px; font-weight: 900; border-top: 1px solid #ccc; margin-top: 8px; padding-top: 8px; color: #030213; }
-    .footer { margin-top: 32px; text-align: center; font-size: 12px; color: #888; border-top: 1px solid #eee; padding-top: 16px; }
+    .footer { margin-top: 32px; text-align: center; font-size: 11px; color: #888; border-top: 1px solid #eee; padding-top: 16px; }
     @media print { body { padding: 16px; } }
   </style>
 </head>
@@ -79,22 +92,26 @@ function printCart(items: CartItem[], subtotal: number): void {
       <tr>
         <th>מוצר</th>
         <th style="text-align:center">כמות</th>
-        <th style="text-align:center">מחיר ליח'</th>
-        <th style="text-align:center">סה"כ</th>
+        <th style="text-align:center">מחיר ליח' (ללא מע"מ)</th>
+        <th style="text-align:center">מחיר ליח' (כולל מע"מ)</th>
+        <th style="text-align:center">סה"כ (ללא מע"מ)</th>
+        <th style="text-align:center">סה"כ (כולל מע"מ)</th>
       </tr>
     </thead>
     <tbody>${rowsHtml}</tbody>
   </table>
 
+  <p class="vat-note">* מע"מ 18% כלול במחיר</p>
+
   <div class="summary">
-    <div class="summary-row"><span>סכום ביניים</span><span>&#x20AA;${subtotal.toLocaleString('he-IL')}</span></div>
-    <div class="summary-row"><span>מע"מ (18%)</span><span>&#x20AA;${vatIncluded.toLocaleString('he-IL')}</span></div>
+    <div class="summary-row"><span>סכום לפני מע"מ</span><span>&#x20AA;${subtotalExVat.toLocaleString('he-IL')}</span></div>
+    <div class="summary-row"><span>מע"מ (18%)</span><span>&#x20AA;${totalVat.toLocaleString('he-IL')}</span></div>
     <div class="summary-row"><span>משלוח</span><span style="color:#16a34a">חינם</span></div>
     <div class="summary-row total"><span>סה"כ לתשלום</span><span>&#x20AA;${subtotal.toLocaleString('he-IL')}</span></div>
   </div>
 
   <div class="footer">
-    * המחירים כוללים מע"מ | התמונות להמחשה בלבד | החברה שומרת לעצמה את הזכות לשנות מחירים ללא הודעה מוקדמת
+    המחירים כוללים מע"מ 18% | התמונות להמחשה בלבד | החברה שומרת לעצמה את הזכות לשנות מחירים ללא הודעה מוקדמת
   </div>
 
   <script>setTimeout(function(){ window.print(); }, 400);<\/script>
@@ -199,8 +216,8 @@ export function CartPage() {
   }, []);
 
   const subtotal = cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
-  // VAT is included in price — show the included amount
-  const vatIncluded = Math.round(subtotal * VAT_RATE);
+  // Prices are VAT-inclusive — extract the embedded VAT: price × 18/118
+  const vatIncluded = vatOf(subtotal);
   const loyaltyPoints = Math.floor(subtotal / 10);
 
   const cartItemIds = new Set(cartItems.map(i => i.item_id));

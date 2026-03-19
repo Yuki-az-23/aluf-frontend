@@ -33,6 +33,7 @@ export function ItemPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [adding, setAdding] = useState(false);
   const [openQa, setOpenQa] = useState<number | null>(null);
+  const [specsExpanded, setSpecsExpanded] = useState(false);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [hoverZoom, setHoverZoom] = useState<{ mx: number; my: number; bgX: number; bgY: number } | null>(null);
 
@@ -296,47 +297,85 @@ export function ItemPage() {
               {t('item.specsAndFaq')}
             </h2>
 
-            {hasSpecRows && (
-              <div className="rounded-xl overflow-hidden border border-border-light">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-card-bg border-b border-border-light">
-                      <th className="text-start px-4 py-2 font-bold text-text-main" colSpan={2}>
-                        {t('item.fullSpecs')}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {itemDetail.specRows.map((row, i) => (
-                      <tr
-                        key={i}
-                        className={`border-b border-border-light last:border-0 ${
-                          i % 2 === 0 ? 'bg-card-bg' : 'bg-page-bg'
-                        }`}
-                      >
-                        <td className="px-4 py-2.5 font-medium text-text-muted w-1/3 text-start">
-                          {row.label}
-                        </td>
-                        <td className="px-4 py-2.5 text-text-main text-start">{row.value}</td>
+            {hasSpecRows && (() => {
+              const PREVIEW = 5;
+              const rows = specsExpanded ? itemDetail.specRows : itemDetail.specRows.slice(0, PREVIEW);
+              const hasMore = itemDetail.specRows.length > PREVIEW;
+              return (
+                <div className="rounded-xl overflow-hidden border border-border-light">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-card-bg border-b border-border-light">
+                        <th className="text-start px-4 py-2 font-bold text-text-main" colSpan={2}>
+                          {t('item.fullSpecs')}
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    </thead>
+                    <tbody>
+                      {rows.map((row, i) => (
+                        <tr
+                          key={i}
+                          className={`border-b border-border-light last:border-0 ${
+                            i % 2 === 0 ? 'bg-card-bg' : 'bg-page-bg'
+                          }`}
+                        >
+                          <td className="px-4 py-2.5 font-medium text-text-muted w-1/3 text-start">
+                            {row.label}
+                          </td>
+                          <td className="px-4 py-2.5 text-text-main text-start">{row.value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {hasMore && (
+                    <button
+                      onClick={() => setSpecsExpanded(v => !v)}
+                      className="w-full flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium text-primary bg-card-bg border-t border-border-light hover:bg-border-light transition-colors"
+                    >
+                      <Icon
+                        name="expand_more"
+                        className={`text-base transition-transform ${specsExpanded ? 'rotate-180' : ''}`}
+                      />
+                      {specsExpanded
+                        ? t('item.specsShowLess')
+                        : `${t('item.specsShowAll')} (${itemDetail.specRows.length - PREVIEW})`}
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
 
-            {hasFlatSpecs && (
-              <div className="bg-card-bg rounded-xl border border-border-light p-4">
-                <ul className="space-y-2">
-                  {itemDetail.specs.map((spec, i) => (
-                    <li key={i} className="flex items-center gap-2 text-sm text-text-main">
-                      <Icon name="check" className="text-primary text-xs flex-shrink-0" />
-                      {spec}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            {hasFlatSpecs && (() => {
+              const PREVIEW = 5;
+              const specs = specsExpanded ? itemDetail.specs : itemDetail.specs.slice(0, PREVIEW);
+              const hasMore = itemDetail.specs.length > PREVIEW;
+              return (
+                <div className="bg-card-bg rounded-xl border border-border-light overflow-hidden">
+                  <ul className="p-4 space-y-2">
+                    {specs.map((spec, i) => (
+                      <li key={i} className="flex items-center gap-2 text-sm text-text-main">
+                        <Icon name="check" className="text-primary text-xs flex-shrink-0" />
+                        {spec}
+                      </li>
+                    ))}
+                  </ul>
+                  {hasMore && (
+                    <button
+                      onClick={() => setSpecsExpanded(v => !v)}
+                      className="w-full flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium text-primary border-t border-border-light hover:bg-border-light transition-colors"
+                    >
+                      <Icon
+                        name="expand_more"
+                        className={`text-base transition-transform ${specsExpanded ? 'rotate-180' : ''}`}
+                      />
+                      {specsExpanded
+                        ? t('item.specsShowLess')
+                        : `${t('item.specsShowAll')} (${itemDetail.specs.length - PREVIEW})`}
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
 
             {!hasSpecRows && !hasFlatSpecs && (
               <p className="text-text-muted text-sm">{t('item.noSpecs')}</p>
