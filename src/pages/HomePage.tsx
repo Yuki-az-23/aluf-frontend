@@ -56,8 +56,11 @@ export function HomePage() {
       <section className="py-12">
         <Container>
           <SectionHeader title={t('blog.title')} linkText={t('blog.readMore')} />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {blogPosts.map(post => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {blogPosts.slice(0, 1).map(post => (
+              <BlogCard key={post.title} post={post} featured />
+            ))}
+            {blogPosts.slice(1, 3).map(post => (
               <BlogCard key={post.title} post={post} />
             ))}
           </div>
