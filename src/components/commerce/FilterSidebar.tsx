@@ -50,7 +50,7 @@ export function FilterSidebar({ products, filters, onChange }: FilterSidebarProp
             step={50}
             value={filters.priceMax}
             onChange={e => onChange({ ...filters, priceMax: Number(e.target.value) })}
-            className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+            className="w-full h-1.5 bg-border-light rounded-lg appearance-none cursor-pointer accent-primary"
           />
           <div className="flex justify-between text-xs text-text-muted mt-2">
             <span>₪{filters.priceMin.toLocaleString()}</span>
@@ -71,7 +71,7 @@ export function FilterSidebar({ products, filters, onChange }: FilterSidebarProp
                       type="checkbox"
                       checked={filters.brands.includes(brand)}
                       onChange={() => toggleBrand(brand)}
-                      className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                      className="w-4 h-4 rounded border-border-light text-primary focus:ring-primary"
                     />
                     <span className="text-sm text-text-main group-hover:text-primary transition-colors flex-1">{brand}</span>
                     <span className="text-xs text-text-muted">({count})</span>
@@ -88,7 +88,7 @@ export function FilterSidebar({ products, filters, onChange }: FilterSidebarProp
             type="checkbox"
             checked={filters.inStockOnly}
             onChange={e => onChange({ ...filters, inStockOnly: e.target.checked })}
-            className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+            className="w-4 h-4 rounded border-border-light text-primary focus:ring-primary"
           />
           <span className="text-sm text-text-main">במלאי בלבד</span>
         </label>

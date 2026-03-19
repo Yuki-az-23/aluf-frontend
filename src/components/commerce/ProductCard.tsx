@@ -37,7 +37,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 const parent = target.parentElement;
                 if (parent && !parent.querySelector('.img-fallback')) {
                   const fallback = document.createElement('div');
-                  fallback.className = 'img-fallback w-full h-full flex items-center justify-center text-gray-300';
+                  fallback.className = 'img-fallback w-full h-full flex items-center justify-center text-text-muted';
                   fallback.innerHTML = '<span class="material-symbols-outlined text-6xl">image</span>';
                   parent.appendChild(fallback);
                 }

@@ -31,7 +31,7 @@ export function SortBar({ count, sort, view, onSortChange, onViewChange }: SortB
             <option value="name">שם</option>
           </select>
         </div>
-        <div className="h-5 w-px bg-gray-200" />
+        <div className="h-5 w-px bg-border-light" />
         <div className="flex items-center gap-1">
           <button
             type="button"

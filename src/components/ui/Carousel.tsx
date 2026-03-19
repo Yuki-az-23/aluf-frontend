@@ -189,7 +189,7 @@ export function Carousel({
             onClick={() => scroll('prev')}
             className={cn(
               'absolute top-1/2 -translate-y-1/2 end-2 z-10',
-              'w-10 h-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-md',
+              'w-10 h-10 rounded-full bg-card-bg shadow-md border border-border-light',
               'flex items-center justify-center',
               'opacity-0 group-hover/carousel:opacity-100 transition-opacity',
               !canScrollPrev && !canScrollNext && 'hidden',
@@ -202,7 +202,7 @@ export function Carousel({
             onClick={() => scroll('next')}
             className={cn(
               'absolute top-1/2 -translate-y-1/2 start-2 z-10',
-              'w-10 h-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-md',
+              'w-10 h-10 rounded-full bg-card-bg shadow-md border border-border-light',
               'flex items-center justify-center',
               'opacity-0 group-hover/carousel:opacity-100 transition-opacity',
               !canScrollPrev && !canScrollNext && 'hidden',
@@ -232,7 +232,7 @@ export function Carousel({
               }}
               className={cn(
                 'w-2.5 h-2.5 rounded-full transition-colors',
-                i === activeIndex ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600',
+                i === activeIndex ? 'bg-primary' : 'bg-border-accent',
               )}
               aria-label={`Slide ${i + 1}`}
             />

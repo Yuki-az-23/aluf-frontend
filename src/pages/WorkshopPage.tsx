@@ -73,7 +73,7 @@ export function WorkshopPage() {
       </section>
 
       {/* How it works */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-900">
+      <section className="py-16 bg-page-bg">
         <Container>
           <h2 className="text-2xl font-black text-text-main text-center mb-12">
             {t('workshop.howItWorks')}
@@ -109,7 +109,7 @@ export function WorkshopPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-900">
+      <section className="py-16 bg-page-bg">
         <Container>
           <h2 className="text-2xl font-black text-text-main text-center mb-8">
             {t('workshop.faq.title')}

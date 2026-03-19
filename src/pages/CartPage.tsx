@@ -1,16 +1,18 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Icon } from '@/components/ui/Icon';
 import { Button } from '@/components/ui/Button';
 import { QuantityStepper } from '@/components/ui/QuantityStepper';
 import { CouponInput } from '@/components/commerce/CouponInput';
-import { ProductCard } from '@/components/commerce/ProductCard';
 import { useStoreData } from '@/lib/StoreDataContext';
 import { useLang } from '@/i18n';
 import { syncCartToJStorage } from '@/lib/konimbo';
+import { parseProductElements } from '@/lib/konimbo-scraper';
+import type { Product } from '@/data/products';
 
 const CHECKOUT_URL = '/orders/alufshop/new#secureHook';
-const VAT_RATE = 0.17;
+const VAT_RATE = 0.18;
+const TAG_URL = '/tags/246669-tag5';
 const LOGO_URL = 'https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/src/assets/logo.png';
 const SUPPORT_PHONE = '053-336-8084';
 
@@ -86,7 +88,7 @@ function printCart(items: CartItem[], subtotal: number): void {
 
   <div class="summary">
     <div class="summary-row"><span>סכום ביניים</span><span>&#x20AA;${subtotal.toLocaleString('he-IL')}</span></div>
-    <div class="summary-row"><span>מע"מ (17%)</span><span>&#x20AA;${vatIncluded.toLocaleString('he-IL')}</span></div>
+    <div class="summary-row"><span>מע"מ (18%)</span><span>&#x20AA;${vatIncluded.toLocaleString('he-IL')}</span></div>
     <div class="summary-row"><span>משלוח</span><span style="color:#16a34a">חינם</span></div>
     <div class="summary-row total"><span>סה"כ לתשלום</span><span>&#x20AA;${subtotal.toLocaleString('he-IL')}</span></div>
   </div>
@@ -161,8 +163,24 @@ function persistCartItems(items: CartItem[]): void {
 
 export function CartPage() {
   const { t } = useLang();
-  const { products } = useStoreData();
+  useStoreData(); // keep context alive
   const [cartItems, setCartItems] = useState<CartItem[]>(readCartItems);
+  const [tagProducts, setTagProducts] = useState<Product[]>([]);
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  // Fetch up to 20 random products from the tag page on mount
+  useEffect(() => {
+    fetch(TAG_URL)
+      .then(r => r.text())
+      .then(html => {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const parsed = parseProductElements(doc, window.location.origin);
+        // Shuffle randomly then cap at 20
+        const shuffled = parsed.sort(() => Math.random() - 0.5).slice(0, 20);
+        setTagProducts(shuffled);
+      })
+      .catch(() => {});
+  }, []);
 
   const updateQty = useCallback((itemId: string, qty: number) => {
     setCartItems(prev => {
@@ -186,7 +204,14 @@ export function CartPage() {
   const loyaltyPoints = Math.floor(subtotal / 10);
 
   const cartItemIds = new Set(cartItems.map(i => i.item_id));
-  const suggestedProducts = products.filter(p => !cartItemIds.has(p.id)).slice(0, 3);
+  // Filter out items already in cart
+  const suggested = tagProducts.filter(p => !cartItemIds.has(p.id));
+
+  function scrollCarousel(dir: 'left' | 'right') {
+    const el = carouselRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir === 'left' ? -280 : 280, behavior: 'smooth' });
+  }
 
   if (cartItems.length === 0) {
     return (
@@ -213,8 +238,8 @@ export function CartPage() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* ── Cart items list ── */}
-        <div className="flex-[2] space-y-4">
+        {/* ── Left column: items + carousel ── */}
+        <div className="flex-[2] flex flex-col gap-4">
           {cartItems.map(item => {
             const itemTotal = item.price * item.quantity;
             return (
@@ -281,6 +306,69 @@ export function CartPage() {
               </div>
             );
           })}
+
+          {/* ── "אולי יעניין אותך גם" horizontal carousel ── */}
+          {suggested.length > 0 && (
+            <div className="mt-2">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-base font-bold text-text-main flex items-center gap-1.5">
+                  <Icon name="auto_awesome" className="text-sm text-primary" />
+                  {t('cart.alsoLike')}
+                </h2>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => scrollCarousel('right')}
+                    className="w-7 h-7 rounded-full border border-border-light flex items-center justify-center text-text-muted hover:border-primary hover:text-primary transition-colors"
+                    aria-label="הקודם"
+                  >
+                    <Icon name="chevron_right" className="text-base" />
+                  </button>
+                  <button
+                    onClick={() => scrollCarousel('left')}
+                    className="w-7 h-7 rounded-full border border-border-light flex items-center justify-center text-text-muted hover:border-primary hover:text-primary transition-colors"
+                    aria-label="הבא"
+                  >
+                    <Icon name="chevron_left" className="text-base" />
+                  </button>
+                </div>
+              </div>
+
+              <div
+                ref={carouselRef}
+                className="flex gap-3 overflow-x-auto pb-2 scroll-smooth"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {suggested.map(product => (
+                  <a
+                    key={product.id}
+                    href={`/items/${product.id}`}
+                    className="shrink-0 w-40 bg-card-bg border border-border-light rounded-xl p-2.5 flex flex-col gap-2 hover:border-primary hover:shadow-md transition-all group"
+                  >
+                    <div className="w-full h-28 bg-white rounded-lg overflow-hidden flex items-center justify-center">
+                      {product.image ? (
+                        <img
+                          src={product.image}
+                          alt={product.title}
+                          className="object-contain w-full h-full p-1"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <Icon name="image" className="text-3xl text-text-muted" />
+                      )}
+                    </div>
+                    <p className="text-xs font-semibold text-text-main leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                      {product.title}
+                    </p>
+                    {product.price > 0 && (
+                      <p className="text-sm font-black text-primary">
+                        ₪{product.price.toLocaleString()}
+                      </p>
+                    )}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ── Order summary sidebar ── */}
@@ -325,9 +413,9 @@ export function CartPage() {
             <button
               type="button"
               onClick={() => printCart(cartItems, subtotal)}
-              className="mt-3 w-full flex items-center justify-center gap-2 text-sm font-semibold text-text-muted border border-border-light rounded-xl py-2.5 hover:border-primary hover:text-primary transition-colors"
+              className="mt-3 w-full flex items-center justify-center gap-2 text-sm font-semibold bg-card-bg text-text-main border border-border-light rounded-xl py-2.5 hover:bg-primary/10 hover:border-primary hover:text-primary transition-colors"
             >
-              <Icon name="print" className="text-lg" />
+              <Icon name="print" className="text-base" />
               {t('cart.printQuote')}
             </button>
 
@@ -367,20 +455,6 @@ export function CartPage() {
         </div>
       </div>
 
-      {/* ── "You might also like" ── */}
-      {suggestedProducts.length > 0 && (
-        <section className="mt-16">
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-text-main">
-            <Icon name="auto_awesome" className="text-primary" />
-            {t('cart.alsoLike')}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {suggestedProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
-      )}
     </Container>
   );
 }

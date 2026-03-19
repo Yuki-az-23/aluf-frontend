@@ -17,8 +17,8 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] bg-header-bg text-white flex flex-col">
-      <div className="flex items-center justify-between px-4 h-20 border-b border-gray-700">
+    <div className="fixed inset-0 z-[60] bg-gray-900 text-white flex flex-col">
+      <div className="flex items-center justify-between px-4 h-20 border-b border-header-border">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 bg-primary rounded-lg flex items-center justify-center">
             <Icon name="deployed_code" className="text-white text-2xl" />
@@ -47,7 +47,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
         </a>
       </nav>
 
-      <div className="p-4 border-t border-gray-700 space-y-4">
+      <div className="p-4 border-t border-header-border space-y-4">
         <div className="flex items-center justify-between">
           <LangSwitcher />
           <ThemeToggle />
