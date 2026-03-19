@@ -44,7 +44,7 @@ export function Header() {
                 <LangSwitcher />
               </div>
 
-              <ThemeToggle />
+              <span className="hidden md:inline-flex"><ThemeToggle /></span>
 
               <div className="flex items-center gap-4 pl-2 border-r border-gray-600 pr-4">
                 <button className="text-gray-300 hover:text-white transition flex flex-col items-center gap-0.5 group">

@@ -51,7 +51,7 @@ export function TabbedProducts() {
               'px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-colors',
               i === activeTab
                 ? 'bg-primary text-white'
-                : 'bg-gray-100 text-text-main hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700',
+                : 'bg-card-bg text-text-muted hover:bg-border-light',
             )}
           >
             {t(tab.labelKey)}
