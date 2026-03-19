@@ -26,10 +26,10 @@ body.aluf-failed > *:not(#aluf-root):not(script):not(noscript):not(link):not(sty
 #aluf-root {
   all: initial;
   display: block !important;
-  font-family: 'Heebo', sans-serif;
+  font-family: 'Inter', 'Heebo', sans-serif;
   color: #1e293b;
   line-height: 1.5;
-  direction: rtl;
+  /* direction is set dynamically by React LangProvider (rtl for HE, ltr for EN/RU) */
   -webkit-text-size-adjust: 100%;
 }
 #aluf-root *, #aluf-root *::before, #aluf-root *::after {

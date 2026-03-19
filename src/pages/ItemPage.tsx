@@ -9,24 +9,8 @@ import { useStoreData } from '@/lib/StoreDataContext';
 import { useCart } from '@/lib/CartContext';
 import { useLang } from '@/i18n';
 
-// Q&A items – static Hebrew content (common questions for tech shop)
-const QA_ITEMS = [
-  {
-    q: 'האם המקלדת כוללת עברית?',
-    a: 'כן, המקלדת כוללת עברית. ניתן לבחור מקלדת עם עברית בעת ביצוע ההזמנה.',
-  },
-  {
-    q: 'מה כולל האחריות?',
-    a: 'המוצר מגיע עם אחריות יבואן רשמי ל-3 שנים בבית הלקוח. האחריות מכסה כשלים בייצור וחומרה.',
-  },
-  {
-    q: 'האם ניתן לשדרג את הזיכרון (RAM) במחשב זה?',
-    a: 'ניתן לשדרג זיכרון בדגמים רבים. אנא צרו קשר עם שירות הלקוחות שלנו לבדיקת תאימות לדגם הספציפי.',
-  },
-];
-
 export function ItemPage() {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   const { itemDetail, breadcrumbs } = useStoreData();
   const { addToCart } = useCart();
   const [activeImage, setActiveImage] = useState(0);
@@ -60,23 +44,30 @@ export function ItemPage() {
   const hasFlatSpecs = !hasSpecRows && itemDetail.specs && itemDetail.specs.length > 0;
   const hasRelated = itemDetail.relatedItems && itemDetail.relatedItems.length > 0;
 
+  // Q&A items — translated
+  const QA_ITEMS = [
+    { q: t('item.qa.q1'), a: t('item.qa.a1') },
+    { q: t('item.qa.q2'), a: t('item.qa.a2') },
+    { q: t('item.qa.q3'), a: t('item.qa.a3') },
+  ];
+
   return (
     <>
       <Container className="py-6">
         <Breadcrumbs items={crumbs} className="mb-6" />
 
-        {/* ── TOP SECTION: info panel (right) + image (left) ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12" dir="rtl">
+        {/* ── TOP SECTION: info panel + image ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12" dir={dir}>
 
-          {/* Right: Info Panel */}
+          {/* Info Panel (start side) */}
           <div className="flex flex-col">
             {/* SKU + Badge */}
             <div className="flex items-center gap-3 mb-2">
               {itemDetail.sku && (
-                <span className="text-xs text-text-muted">מק"ט: {itemDetail.sku}</span>
+                <span className="text-xs text-text-muted">{t('item.skuLabel')} {itemDetail.sku}</span>
               )}
               {discount > 0 && (
-                <Badge variant="sale" className="text-xs px-2 py-0.5">מבצע</Badge>
+                <Badge variant="sale" className="text-xs px-2 py-0.5">{t('item.sale')}</Badge>
               )}
             </div>
 
@@ -98,7 +89,7 @@ export function ItemPage() {
               <div className="flex items-start justify-between mb-1">
                 <div>
                   {itemDetail.originalPrice && (
-                    <p className="text-xs text-text-muted mb-0.5">מחיר בלי מע"מ</p>
+                    <p className="text-xs text-text-muted mb-0.5">{t('item.vatFreePrice')}</p>
                   )}
                   <div className="flex items-center gap-3">
                     <span className="text-3xl font-black text-brand-purple">
@@ -118,13 +109,13 @@ export function ItemPage() {
                 )}
               </div>
 
-              {/* Upgrade options — shown as static placeholder when no data */}
+              {/* Upgrade options */}
               <div className="mt-4 space-y-2">
-                <p className="text-xs font-bold text-text-muted">שדרונים למוצר</p>
+                <p className="text-xs font-bold text-text-muted">{t('item.upgrades')}</p>
                 <div className="flex items-center gap-2 text-sm text-text-main bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2 border border-border-light">
                   <input type="checkbox" id="upgrade-warranty" className="accent-primary" />
                   <label htmlFor="upgrade-warranty" className="flex-1 cursor-pointer">
-                    הארכת אחריות ל-5 שנים
+                    {t('item.upgradeWarranty')}
                   </label>
                   <span className="font-bold text-primary">+₪199</span>
                 </div>
@@ -139,7 +130,7 @@ export function ItemPage() {
                   onClick={handleAddToCart}
                   disabled={!itemDetail.inStock || adding}
                 >
-                  <Icon name="shopping_cart" className="ml-2" />
+                  <Icon name="shopping_cart" className={dir === 'rtl' ? 'ml-2' : 'mr-2'} />
                   {adding ? '...' : t('item.addToCart')}
                 </Button>
                 <Button
@@ -149,7 +140,7 @@ export function ItemPage() {
                   onClick={handleAddToCart}
                   disabled={!itemDetail.inStock || adding}
                 >
-                  קנה עכשיו
+                  {t('item.buyNow')}
                 </Button>
               </div>
 
@@ -161,7 +152,7 @@ export function ItemPage() {
                 </span>
                 <span className="flex items-center gap-1">
                   <Icon name="store" className="text-primary text-sm" />
-                  בכלאי למשלוח מיידי
+                  {t('item.readyToShip')}
                 </span>
               </div>
             </div>
@@ -170,30 +161,30 @@ export function ItemPage() {
             <div className="rounded-xl border border-border-light p-4 bg-card-bg">
               <p className="font-bold text-sm text-text-main mb-2 flex items-center gap-2">
                 <Icon name="verified" className="text-primary text-base" />
-                למה לקנות באלוף המחשבים?
+                {t('item.whyBuy')}
               </p>
               <ul className="space-y-1.5 text-xs text-text-muted">
                 <li className="flex items-center gap-2">
                   <Icon name="check_circle" className="text-green-500 text-xs" />
-                  אחריות יבואן רשמי ל-3 שנים בבית הלקוח
+                  {t('item.trust1')}
                 </li>
                 <li className="flex items-center gap-2">
                   <Icon name="check_circle" className="text-green-500 text-xs" />
-                  פרוסה רחבה של 24 סניפים בכל הארץ
+                  {t('item.trust2')}
                 </li>
                 <li className="flex items-center gap-2">
                   <Icon name="check_circle" className="text-green-500 text-xs" />
-                  מעבדות תיקונים מוסמכות בפקום
+                  {t('item.trust3')}
                 </li>
               </ul>
             </div>
           </div>
 
-          {/* Left: Image Gallery */}
+          {/* Image Gallery (end side) */}
           <div>
             <div className="relative aspect-square bg-gray-50 dark:bg-gray-900 rounded-xl overflow-hidden mb-3 border border-border-light">
               {discount > 0 && (
-                <Badge variant="sale" className="absolute top-4 right-4 z-10">
+                <Badge variant="sale" className="absolute top-4 end-4 z-10">
                   -{discount}%
                 </Badge>
               )}
@@ -211,7 +202,7 @@ export function ItemPage() {
             </div>
             {/* Thumbnails */}
             {itemDetail.images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto no-scrollbar justify-end">
+              <div className="flex gap-2 overflow-x-auto no-scrollbar">
                 {itemDetail.images.map((img, i) => (
                   <button
                     key={i}
@@ -229,13 +220,13 @@ export function ItemPage() {
         </div>
 
         {/* ── BELOW FOLD: Spec table + Q&A ── */}
-        <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8" dir="rtl">
+        <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8" dir={dir}>
 
           {/* Spec table */}
           <div>
             <h2 className="text-xl font-black text-text-main mb-4 flex items-center gap-2">
               <span className="w-1 h-6 bg-primary rounded-full inline-block" />
-              מפרט טכני ושאלות נפוצות
+              {t('item.specsAndFaq')}
             </h2>
 
             {hasSpecRows && (
@@ -243,8 +234,8 @@ export function ItemPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-card-bg border-b border-border-light">
-                      <th className="text-right px-4 py-2 font-bold text-text-main" colSpan={2}>
-                        מפרט טכני מלא
+                      <th className="text-start px-4 py-2 font-bold text-text-main" colSpan={2}>
+                        {t('item.fullSpecs')}
                       </th>
                     </tr>
                   </thead>
@@ -256,10 +247,10 @@ export function ItemPage() {
                           i % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'
                         }`}
                       >
-                        <td className="px-4 py-2.5 font-medium text-text-muted w-1/3 text-right">
+                        <td className="px-4 py-2.5 font-medium text-text-muted w-1/3 text-start">
                           {row.label}
                         </td>
-                        <td className="px-4 py-2.5 text-text-main text-right">{row.value}</td>
+                        <td className="px-4 py-2.5 text-text-main text-start">{row.value}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -281,7 +272,7 @@ export function ItemPage() {
             )}
 
             {!hasSpecRows && !hasFlatSpecs && (
-              <p className="text-text-muted text-sm">מפרט טכני לא זמין</p>
+              <p className="text-text-muted text-sm">{t('item.noSpecs')}</p>
             )}
           </div>
 
@@ -289,7 +280,7 @@ export function ItemPage() {
           <div>
             <h2 className="text-xl font-black text-text-main mb-4 flex items-center gap-2">
               <span className="w-1 h-6 bg-primary rounded-full inline-block" />
-              שאלות ותשובות (Q&A)
+              {t('item.faq')}
             </h2>
             <div className="space-y-3">
               {QA_ITEMS.map((item, i) => (
@@ -298,19 +289,19 @@ export function ItemPage() {
                   className="border border-border-light rounded-xl overflow-hidden"
                 >
                   <button
-                    className="w-full flex items-center justify-between px-4 py-3 text-right text-sm font-medium text-text-main bg-card-bg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    className="w-full flex items-center justify-between px-4 py-3 text-start text-sm font-medium text-text-main bg-card-bg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     onClick={() => setOpenQa(openQa === i ? null : i)}
                   >
                     <Icon
                       name="expand_more"
-                      className={`text-primary transition-transform flex-shrink-0 mr-2 ${
+                      className={`text-primary transition-transform flex-shrink-0 ${dir === 'rtl' ? 'mr-2' : 'ml-2'} ${
                         openQa === i ? 'rotate-180' : ''
                       }`}
                     />
                     {item.q}
                   </button>
                   {openQa === i && (
-                    <div className="px-4 py-3 text-sm text-text-muted border-t border-border-light bg-gray-50 dark:bg-gray-800 text-right">
+                    <div className="px-4 py-3 text-sm text-text-muted border-t border-border-light bg-gray-50 dark:bg-gray-800 text-start">
                       {item.a}
                     </div>
                   )}
@@ -325,9 +316,9 @@ export function ItemPage() {
       {hasRelated && (
         <section className="py-10 bg-card-bg border-t border-border-light mt-8">
           <Container>
-            <h2 className="text-2xl font-black text-text-main mb-6 text-right flex items-center gap-3">
+            <h2 className="text-2xl font-black text-text-main mb-6 text-start flex items-center gap-3">
               <span className="w-1 h-7 bg-primary rounded-full inline-block" />
-              לקוחות שקנו מוצר זה קנו גם
+              {t('item.related')}
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {itemDetail.relatedItems.slice(0, 4).map((p) => (
@@ -352,7 +343,7 @@ export function ItemPage() {
           disabled={!itemDetail.inStock || adding}
           className="flex-1"
         >
-          <Icon name="shopping_cart" className="ml-2" />
+          <Icon name="shopping_cart" className={dir === 'rtl' ? 'ml-2' : 'mr-2'} />
           {adding ? '...' : t('item.addToCart')}
         </Button>
       </div>

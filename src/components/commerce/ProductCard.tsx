@@ -22,7 +22,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       <div className="block relative mb-4">
         {/* Badge: top-left in visual space (left-3 = visually right side in RTL) */}
         {product.originalPrice && (
-          <Badge variant="sale" className="absolute top-2 left-3 z-10">מבצע!</Badge>
+          <Badge variant="sale" className="absolute top-2 left-3 z-10">{t('item.sale')}</Badge>
         )}
         <div className="aspect-square bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden relative">
           <a href={product.href || '#'} className="block w-full h-full">
@@ -31,6 +31,17 @@ export function ProductCard({ product, className }: ProductCardProps) {
               alt={product.title}
               className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 p-4"
               loading="lazy"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.style.display = 'none';
+                const parent = target.parentElement;
+                if (parent && !parent.querySelector('.img-fallback')) {
+                  const fallback = document.createElement('div');
+                  fallback.className = 'img-fallback w-full h-full flex items-center justify-center text-gray-300';
+                  fallback.innerHTML = '<span class="material-symbols-outlined text-6xl">image</span>';
+                  parent.appendChild(fallback);
+                }
+              }}
             />
           </a>
           {/* Add-to-cart overlay on image hover */}

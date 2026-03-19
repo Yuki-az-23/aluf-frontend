@@ -24,10 +24,10 @@ export function Footer() {
   return (
     <footer className="bg-header-bg border-t border-gray-800 mt-auto text-gray-300">
       <Container className="py-12">
-        <div className="flex flex-col md:flex-row justify-between gap-12 text-right">
+        <div className="flex flex-col md:flex-row justify-between gap-12 text-start">
           {/* Brand */}
           <div className="md:w-1/3">
-            <div className="flex items-center gap-2 mb-4 justify-end">
+            <div className="flex items-center gap-2 mb-4 justify-start">
               <img
                 src={logoSrc}
                 alt={t('site.name')}
@@ -38,7 +38,7 @@ export function Footer() {
               </span>
             </div>
             <p className="text-gray-400 text-sm mb-6 leading-relaxed">{t('footer.description')}</p>
-            <div className="flex gap-4 justify-end">
+            <div className="flex gap-4 justify-start">
               {[
                 { icon: 'public', href: BASE },
                 { icon: 'chat', href: BASE },
@@ -52,7 +52,7 @@ export function Footer() {
           </div>
 
           {/* Links */}
-          <div className="flex-grow flex flex-col sm:flex-row justify-end gap-12 md:gap-24">
+          <div className="flex-grow flex flex-col sm:flex-row justify-start gap-12 md:gap-24">
             <div>
               <h3 className="text-white font-bold mb-4 text-base">{t('footer.departments')}</h3>
               <ul className="space-y-2 text-sm text-gray-400">
@@ -72,21 +72,21 @@ export function Footer() {
             <div>
               <h3 className="text-white font-bold mb-4 text-base">{t('footer.contact')}</h3>
               <ul className="space-y-3 text-sm text-gray-400">
-                <li className="flex items-start gap-3 justify-end">
-                  <span>רחוב המחשב 10, תל אביב</span>
+                <li className="flex items-start gap-3 justify-start">
                   <Icon name="location_on" className="text-primary text-base mt-0.5" />
+                  <span>{t('footer.address')}</span>
                 </li>
-                <li className="flex items-center gap-3 justify-end">
-                  <a href="tel:03-123-4567" className="hover:text-primary transition" dir="ltr">03-123-4567</a>
+                <li className="flex items-center gap-3 justify-start">
                   <Icon name="call" className="text-primary text-base" />
+                  <a href="tel:03-123-4567" className="hover:text-primary transition" dir="ltr">03-123-4567</a>
                 </li>
-                <li className="flex items-center gap-3 justify-end">
-                  <a href="mailto:sales@aluf.co.il" className="hover:text-primary transition">sales@aluf.co.il</a>
+                <li className="flex items-center gap-3 justify-start">
                   <Icon name="mail" className="text-primary text-base" />
+                  <a href="mailto:sales@aluf.co.il" className="hover:text-primary transition">sales@aluf.co.il</a>
                 </li>
-                <li className="flex items-center gap-3 justify-end">
-                  <span>א-ה: 09:00 - 19:00, ו: 09:00 - 13:00</span>
+                <li className="flex items-center gap-3 justify-start">
                   <Icon name="schedule" className="text-primary text-base" />
+                  <span>{t('footer.hours')}</span>
                 </li>
               </ul>
             </div>

@@ -105,5 +105,22 @@
   "item.trust2": "24 branches nationwide",
   "item.trust3": "Certified in-store repair labs",
   "item.faq": "Q&A",
-  "item.related": "Customers also bought"
+  "item.related": "Customers also bought",
+  "item.sale": "Sale!",
+  "item.skuLabel": "SKU:",
+  "item.vatFreePrice": "VAT-free price",
+  "item.upgrades": "Product Upgrades",
+  "item.upgradeWarranty": "Extend warranty to 5 years",
+  "item.readyToShip": "In stock, ready to ship",
+  "item.specsAndFaq": "Technical Specs & FAQ",
+  "item.fullSpecs": "Full Technical Specs",
+  "item.noSpecs": "Technical specifications unavailable",
+  "item.qa.q1": "Does the keyboard include Hebrew?",
+  "item.qa.a1": "Yes, the keyboard includes Hebrew. You can select a Hebrew keyboard when ordering.",
+  "item.qa.q2": "What does the warranty cover?",
+  "item.qa.a2": "The product comes with a 3-year official importer warranty at the customer's home. The warranty covers manufacturing and hardware defects.",
+  "item.qa.q3": "Can the RAM be upgraded in this computer?",
+  "item.qa.a3": "RAM can be upgraded in many models. Please contact our customer service to check compatibility for your specific model.",
+  "footer.address": "10 HaMachshev St., Tel Aviv",
+  "footer.hours": "Sun-Thu: 09:00-19:00, Fri: 09:00-13:00"
 }

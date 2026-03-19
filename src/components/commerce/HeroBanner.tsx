@@ -32,7 +32,7 @@ export function HeroBanner({ banners }: HeroBannerProps) {
         <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] bg-[size:32px_32px]" />
         <Container className="py-16 md:py-24 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="text-right">
+            <div className="text-start">
               <div className="inline-flex items-center gap-2 bg-primary/20 text-primary px-4 py-2 rounded-full text-sm font-bold mb-6">
                 <Icon name="verified" className="text-base" />
                 {t('hero.badge')}
@@ -43,7 +43,7 @@ export function HeroBanner({ banners }: HeroBannerProps) {
               <p className="text-lg text-gray-300 mb-8 leading-relaxed">
                 {t('hero.subtitle')}
               </p>
-              <div className="flex flex-wrap gap-4 justify-end">
+              <div className="flex flex-wrap gap-4 justify-start">
                 <Button variant="primary" size="lg">
                   <Icon name="storefront" />
                   {t('hero.cta.shop')}
@@ -53,7 +53,7 @@ export function HeroBanner({ banners }: HeroBannerProps) {
                   {t('hero.cta.services')}
                 </Button>
               </div>
-              <div className="flex flex-wrap gap-3 mt-8 justify-end">
+              <div className="flex flex-wrap gap-3 mt-8 justify-start">
                 {(['hero.trust1', 'hero.trust2', 'hero.trust3'] as const).map(key => (
                   <span key={key} className="flex items-center gap-1.5 text-sm text-gray-300 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
                     <Icon name="check_circle" className="text-primary text-base" />

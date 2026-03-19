@@ -25,23 +25,32 @@ function getInitialLang(): Lang {
   return 'he';
 }
 
+/** Apply direction to both <html> and #aluf-root */
+function applyDirection(lang: Lang) {
+  const dir = RTL_LANGS.includes(lang) ? 'rtl' : 'ltr';
+  document.documentElement.dir = dir;
+  document.documentElement.lang = lang;
+  // Also apply to #aluf-root since its CSS uses `all: initial` which resets inherited direction
+  const root = document.getElementById('aluf-root');
+  if (root) {
+    root.dir = dir;
+    root.style.direction = dir;
+  }
+}
+
 export function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(getInitialLang);
 
+  // Apply direction on initial mount
+  useEffect(() => {
+    applyDirection(lang);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const setLang = useCallback((newLang: Lang) => {
     setLangState(newLang);
-    const dir = RTL_LANGS.includes(newLang) ? 'rtl' : 'ltr';
-    document.documentElement.dir = dir;
-    document.documentElement.lang = newLang;
+    applyDirection(newLang);
     try { localStorage.setItem('aluf-lang', newLang); } catch {}
   }, []);
-
-  // Apply dir/lang to <html> on initial mount (Konimbo sets dir="rtl" by default)
-  useEffect(() => {
-    const dir = RTL_LANGS.includes(lang) ? 'rtl' : 'ltr';
-    document.documentElement.dir = dir;
-    document.documentElement.lang = lang;
-  }, [lang]);
 
   const t = useCallback((key: string): string => {
     return locales[lang]?.[key] || locales.he[key] || key;
