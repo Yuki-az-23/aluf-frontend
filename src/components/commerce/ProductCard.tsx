@@ -47,7 +47,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           {/* Add-to-cart overlay on image hover */}
           <button
             type="button"
-            onClick={() => addToCart(product.id)}
+            onClick={() => addToCart(product.id, 1, { title: product.title, price: product.price, image: product.image, category: product.category })}
             className="absolute top-2 right-2 bg-primary text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white transition-opacity shadow-lg z-10"
             aria-label={t('products.addToCart')}
           >
@@ -80,7 +80,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         </div>
         <button
           type="button"
-          onClick={() => addToCart(product.id)}
+          onClick={() => addToCart(product.id, 1, { title: product.title, price: product.price, image: product.image, category: product.category })}
           className="bg-primary/10 hover:bg-primary text-primary hover:text-white p-2.5 rounded-lg transition-colors"
           aria-label={t('products.addToCart')}
         >

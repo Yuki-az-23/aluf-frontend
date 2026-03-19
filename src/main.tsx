@@ -72,8 +72,8 @@ if (root) {
       '<a href="javascript:location.reload()" style="color:#FF6B00;font-weight:bold;">\u05DC\u05D7\u05E5 \u05DB\u05D0\u05DF \u05DC\u05E8\u05E2\u05E0\u05D5\u05DF</a></div>';
   }
 
-  // 5. MutationObserver: if products were empty (Konimbo lazy-loads them),
-  //    watch for them to appear, re-scrape, and trigger a React re-render.
+  // 5a. MutationObserver: if products were empty (Konimbo lazy-loads them),
+  //     watch for them to appear, re-scrape, and trigger a React re-render.
   const needsProductReScrape =
     (pageType === 'home' || pageType === 'items' || pageType === 'category') &&
     scrapedData.products.length === 0;
@@ -102,6 +102,34 @@ if (root) {
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  // 5b. MutationObserver: if item detail page is missing price/images (Konimbo lazy-loads),
+  //     keep re-scraping until we get meaningful data.
+  const needsItemReScrape =
+    pageType === 'item' &&
+    (!scrapedData.itemDetail || scrapedData.itemDetail.price === 0 || scrapedData.itemDetail.images.length === 0);
+
+  if (needsItemReScrape && reactRoot) {
+    let itemRetries = 0;
+    const itemMaxRetries = 50; // 5 seconds max (every 100ms)
+
+    const itemObserver = new MutationObserver(() => {
+      const newItem = scrapeItemDetail();
+      if (newItem && (newItem.price > 0 || newItem.images.length > 0)) {
+        itemObserver.disconnect();
+        newItem.relatedItems = scrapeRelatedItems();
+        scrapedData.itemDetail = newItem;
+        scrapedData.breadcrumbs = scrapeBreadcrumbs();
+        (window as any).__ALUF_SCRAPED__ = { ...scrapedData };
+        window.dispatchEvent(new CustomEvent('aluf:item-ready', { detail: newItem }));
+      } else {
+        itemRetries++;
+        if (itemRetries >= itemMaxRetries) itemObserver.disconnect();
+      }
+    });
+
+    itemObserver.observe(document.body, { childList: true, subtree: true });
   }
 } else {
   console.error('[aluf] #aluf-root element not found');

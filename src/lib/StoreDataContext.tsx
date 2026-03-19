@@ -46,12 +46,16 @@ export function StoreDataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<StoreData>(readScraped);
 
   useEffect(() => {
-    // Listen for the MutationObserver in main.tsx to signal that late-loaded products are ready
-    function onProductsReady() {
+    // Listen for the MutationObserver in main.tsx to signal that late-loaded data is ready
+    function onDataReady() {
       setData(readScraped());
     }
-    window.addEventListener('aluf:products-ready', onProductsReady);
-    return () => window.removeEventListener('aluf:products-ready', onProductsReady);
+    window.addEventListener('aluf:products-ready', onDataReady);
+    window.addEventListener('aluf:item-ready', onDataReady);
+    return () => {
+      window.removeEventListener('aluf:products-ready', onDataReady);
+      window.removeEventListener('aluf:item-ready', onDataReady);
+    };
   }, []);
 
   return (

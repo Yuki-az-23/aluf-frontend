@@ -1,9 +1,9 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
-import { getCartCount as readCartCookie, addToCart as konimboAddToCart } from './konimbo';
+import { getCartCount as readCartCookie, addToCart as konimboAddToCart, type CartProductInfo } from './konimbo';
 
 interface CartContextValue {
   cartCount: number;
-  addToCart: (itemId: string, qty?: number) => Promise<boolean>;
+  addToCart: (itemId: string, qty?: number, info?: CartProductInfo) => Promise<boolean>;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -11,9 +11,9 @@ const CartContext = createContext<CartContextValue | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartCount, setCartCount] = useState(readCartCookie);
 
-  const addToCart = useCallback(async (itemId: string, qty = 1) => {
+  const addToCart = useCallback(async (itemId: string, qty = 1, info: CartProductInfo = {}) => {
     setCartCount(c => c + qty);
-    const result = await konimboAddToCart(itemId, qty);
+    const result = await konimboAddToCart(itemId, qty, info);
     setCartCount(result.cartCount);
     return result.success;
   }, []);

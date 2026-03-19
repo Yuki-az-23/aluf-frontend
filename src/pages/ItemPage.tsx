@@ -32,7 +32,11 @@ export function ItemPage() {
 
   const handleAddToCart = async () => {
     setAdding(true);
-    await addToCart(itemDetail.id);
+    await addToCart(itemDetail.id, 1, {
+      title: itemDetail.title,
+      price: itemDetail.price,
+      image: itemDetail.images[0],
+    });
     setAdding(false);
   };
 
