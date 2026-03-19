@@ -74,6 +74,11 @@ export function Header() {
             </div>
           </div>
 
+          {/* Mobile search row */}
+          <div className="md:hidden pb-3">
+            <SearchInput />
+          </div>
+
           <MainNav className="hidden md:flex" />
         </Container>
       </header>

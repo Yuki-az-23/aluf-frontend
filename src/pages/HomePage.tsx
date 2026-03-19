@@ -21,6 +21,29 @@ export function HomePage() {
       {/* Hero Banner Carousel */}
       <HeroBanner banners={banners} />
 
+      {/* PC Builder CTA */}
+      <div className="bg-gradient-to-r from-primary to-orange-500 text-white">
+        <Container>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-5">
+            <div className="flex items-center gap-4">
+              <div className="bg-white/20 rounded-xl p-3 flex-shrink-0">
+                <span className="material-symbols-outlined text-3xl">computer</span>
+              </div>
+              <div>
+                <p className="font-black text-xl leading-tight">{t('pcbuilder.title')}</p>
+                <p className="text-sm text-white/80">{t('pcbuilder.subtitle')}</p>
+              </div>
+            </div>
+            <a
+              href="/workshop"
+              className="flex-shrink-0 bg-white text-primary font-black px-6 py-3 rounded-xl hover:bg-orange-50 transition-colors text-sm shadow-lg whitespace-nowrap"
+            >
+              {t('pcbuilder.cta')} ←
+            </a>
+          </div>
+        </Container>
+      </div>
+
       {/* Services */}
       <section className="py-12">
         <Container>

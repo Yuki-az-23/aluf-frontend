@@ -1,5 +1,6 @@
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { FloatingContact } from '@/components/ui/FloatingContact';
 import { useLang } from '@/i18n';
 import type { ReactNode } from 'react';
 
@@ -15,10 +16,12 @@ export function AppShell({ children }: AppShellProps) {
         {t('a11y.skipToContent')}
       </a>
       <Header />
-      <main id="main-content" className="flex-1">
+      {/* pb-16 on mobile keeps footer above the floating contact bar */}
+      <main id="main-content" className="flex-1 pb-16 md:pb-0">
         {children}
       </main>
       <Footer />
+      <FloatingContact />
     </div>
   );
 }

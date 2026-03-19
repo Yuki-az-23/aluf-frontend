@@ -122,5 +122,11 @@
   "item.qa.q3": "Can the RAM be upgraded in this computer?",
   "item.qa.a3": "RAM can be upgraded in many models. Please contact our customer service to check compatibility for your specific model.",
   "footer.address": "10 HaMachshev St., Tel Aviv",
-  "footer.hours": "Sun-Thu: 09:00-19:00, Fri: 09:00-13:00"
+  "footer.hours": "Sun-Thu: 09:00-19:00, Fri: 09:00-13:00",
+  "contact.callNow": "Call Now",
+  "contact.whatsapp": "WhatsApp",
+  "contact.helpLine": "Computer stuck? Click for help",
+  "pcbuilder.title": "Build a PC",
+  "pcbuilder.subtitle": "Custom AI-assisted PC build",
+  "pcbuilder.cta": "Start Now"
 }
