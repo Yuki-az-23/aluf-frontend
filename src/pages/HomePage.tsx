@@ -3,6 +3,7 @@ import type { BlogPostItem } from '@/data/products';
 import { Container } from '@/components/layout/Container';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Button } from '@/components/ui/Button';
+import { PageMeta } from '@/components/ui/PageMeta';
 import { HeroBanner } from '@/components/commerce/HeroBanner';
 import { TierCard } from '@/components/commerce/TierCard';
 import { BlogCard } from '@/components/commerce/BlogCard';
@@ -107,6 +108,10 @@ export function HomePage() {
 
   return (
     <>
+      <PageMeta
+        title="אלוף המחשבים | מחשבים, גיימינג, רכיבים ומעבדה מקצועית"
+        description="אלוף המחשבים - חנות מחשבים מובילה בישראל. מחשבים, כרטיסי מסך, רכיבים, ציוד גיימינג ושירותי מעבדה מקצועיים. משלוח חינם מ-₪500."
+      />
       {/* Hero Banner Carousel */}
       <HeroBanner banners={banners} />
 
