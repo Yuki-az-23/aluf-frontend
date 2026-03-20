@@ -59,7 +59,7 @@ export function getPageType(): string {
   if (/^\/items\//.test(path)) {
     // Blog post items have no add-to-cart form; products do
     const hasCart = !!document.querySelector('.add_to_cart, #add_to_cart_button, .cart_options, form[action*="/orders"]');
-    const isBlogLayout = !!document.querySelector('.blog_post, .blog_item, .post_content, [class*="blog"]');
+    const isBlogLayout = !!document.querySelector('.blog_post, .blog_item, .post_content');
     if (!hasCart || isBlogLayout) return 'blogpost';
     return 'item';
   }

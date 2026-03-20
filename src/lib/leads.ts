@@ -42,6 +42,10 @@ export const LEAD_SOURCES = {
   // Item page
   ITEM_FAQ:      { placement: 'item-faq',             label: 'שאלת מוצר — עמוד פריט',   page: 'item'     },
   ITEM_CONTACT:  { placement: 'item-contact',         label: 'צור קשר — עמוד פריט',     page: 'item'     },
+  // Workshop page
+  WORKSHOP_LAB:  { placement: 'workshop-lab',         label: 'שירותי מעבדה — ורקשופ',   page: 'workshop' },
+  WORKSHOP_HOME: { placement: 'workshop-home',        label: 'טכנאי עד הבית — ורקשופ',  page: 'workshop' },
+  WORKSHOP_BIZ:  { placement: 'workshop-biz',         label: 'עסקים — ורקשופ',           page: 'workshop' },
   // Other pages
   CART_CONTACT:  { placement: 'cart-contact',         label: 'צור קשר — עגלה',          page: 'cart'     },
   PC_BUILDER:    { placement: 'pc-builder',           label: 'בנה מחשב — מבנה',         page: 'builder'  },

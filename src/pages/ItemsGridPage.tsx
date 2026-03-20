@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ProductCard } from '@/components/commerce/ProductCard';
@@ -90,22 +90,28 @@ export function ItemsGridPage() {
   }, []); // only on mount — getNextPageUrl() reads DOM at that point
 
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const loadMore = useCallback(() => {
-    if (hasMoreDisplay) setShowCount(c => c + STEP);
-  }, [hasMoreDisplay]);
 
-  // IntersectionObserver sentinel — reveals more already-loaded products on scroll
+  // Keep refs so the observer callback always sees current values without stale closures
+  const sortedLenRef  = useRef(0);
+  const showCountRef  = useRef(STEP);
+  sortedLenRef.current  = sorted.length;
+  showCountRef.current  = showCount;
+
+  // Set up IntersectionObserver ONCE — no reconnect on every state change
   useEffect(() => {
-    if (!hasMoreDisplay) return;
     const el = sentinelRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(
-      (entries) => { if (entries[0].isIntersecting) loadMore(); },
-      { rootMargin: '200px' }
+      (entries) => {
+        if (entries[0].isIntersecting && sortedLenRef.current > showCountRef.current) {
+          setShowCount(c => c + STEP);
+        }
+      },
+      { rootMargin: '400px' }
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [hasMoreDisplay, loadMore]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // On /search?q=... show the query as the page heading
   const searchQuery = new URLSearchParams(window.location.search).get('q') || '';
@@ -183,19 +189,19 @@ export function ItemsGridPage() {
               <p className="text-center text-text-muted py-16">{t('products.empty')}</p>
             )}
 
-            {/* Sentinel triggers revealing more already-loaded products on scroll */}
-            {hasMoreDisplay && <div ref={sentinelRef} className="h-10" />}
+            {/* Sentinel — always in DOM so the observer never needs to reconnect */}
+            <div ref={sentinelRef} className="h-1" />
 
             {/* Background fetch indicator */}
             {loadingMore && (
               <p className="text-center text-text-muted py-4 text-sm">{t('products.loading')}</p>
             )}
 
-            {/* Manual reveal button as fallback */}
+            {/* Manual "load more" fallback for users who disable JS intersection */}
             {hasMoreDisplay && !loadingMore && (
               <div className="flex justify-center mt-4">
                 <button
-                  onClick={loadMore}
+                  onClick={() => setShowCount(c => c + STEP)}
                   className="px-6 py-2.5 rounded-xl border border-primary text-primary font-bold text-sm hover:bg-primary hover:text-white transition-colors"
                 >
                   {t('products.loadMore')}

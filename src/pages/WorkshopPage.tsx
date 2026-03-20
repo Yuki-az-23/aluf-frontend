@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Icon } from '@/components/ui/Icon';
 import { useLang } from '@/i18n';
+import { cn } from '@/lib/cn';
+import { sendLead, LEAD_SOURCES, type LeadSource } from '@/lib/leads';
 
 const WA_NUM = '972533368048';
 const WA_URL = `https://api.whatsapp.com/send?phone=${WA_NUM}`;
@@ -48,7 +50,13 @@ const WaSvg = () => (
   </svg>
 );
 
-const TICKET_ITEM_ID = '8765261';
+// Maps serviceType key → lead source
+const SERVICE_TYPE_SOURCE: Record<string, LeadSource> = {
+  lab:   LEAD_SOURCES.WORKSHOP_LAB,
+  home:  LEAD_SOURCES.WORKSHOP_HOME,
+  biz:   LEAD_SOURCES.WORKSHOP_BIZ,
+  other: LEAD_SOURCES.GENERAL,
+};
 
 export function WorkshopPage() {
   const { t, dir } = useLang();
@@ -63,46 +71,44 @@ export function WorkshopPage() {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
+  /** Click a service card → pre-fill ticket form + scroll to it */
+  const prefillTicket = (serviceName: string, type: 'lab' | 'home' | 'biz' | 'other') => {
+    setServiceType(type);
+    setDesc(serviceName + ' — ');
+    document.getElementById('ticket')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   const handleTicketSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setSubmitError('');
 
     const svcLabels: Record<string, string> = {
-      lab: t('workshop.ticket.type.lab'),
-      home: t('workshop.ticket.type.home'),
-      biz: t('workshop.ticket.type.biz'),
+      lab:   t('workshop.ticket.type.lab'),
+      home:  t('workshop.ticket.type.home'),
+      biz:   t('workshop.ticket.type.biz'),
       other: t('workshop.ticket.type.other'),
     };
     const devLabels: Record<string, string> = {
       desktop: t('workshop.ticket.device.desktop'),
-      laptop: t('workshop.ticket.device.laptop'),
-      other: t('workshop.ticket.device.other'),
+      laptop:  t('workshop.ticket.device.laptop'),
+      other:   t('workshop.ticket.device.other'),
     };
 
-    const content = [
+    const message = [
       `סוג שירות: ${svcLabels[serviceType] ?? serviceType}`,
       `סוג מכשיר: ${devLabels[deviceType] ?? deviceType}`,
       `תיאור: ${desc}`,
     ].join('\n');
 
-    const body = new URLSearchParams();
-    body.append('ticket[customer_name]', name);
-    body.append('ticket[customer_phone]', phone);
-    body.append('ticket[customer_email]', email);
-    body.append('ticket[item_id]', TICKET_ITEM_ID);
-    body.append('ticket[content]', content);
-    body.append('ticket[newsletter]', '0');
-
     try {
-      const res = await fetch('/tickets', { method: 'POST', body });
-      if (res.ok) {
-        setSubmitted(true);
-        setName(''); setPhone(''); setEmail(''); setDesc('');
-        setServiceType('lab'); setDeviceType('laptop');
-      } else {
-        setSubmitError(t('workshop.ticket.error'));
-      }
+      await sendLead({
+        name, phone, email, message,
+        source: SERVICE_TYPE_SOURCE[serviceType] ?? LEAD_SOURCES.GENERAL,
+      });
+      setSubmitted(true);
+      setName(''); setPhone(''); setEmail(''); setDesc('');
+      setServiceType('lab'); setDeviceType('laptop');
     } catch {
       setSubmitError(t('workshop.ticket.error'));
     } finally {
@@ -129,18 +135,14 @@ export function WorkshopPage() {
           </p>
 
           <div className="flex flex-wrap gap-3 justify-center mb-12">
-            <a
-              href="#ticket"
-              className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl px-6 py-3 transition"
-            >
+            <a href="#ticket"
+              className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl px-6 py-3 transition">
               <Icon name="build_circle" className="text-xl" />
               {t('workshop.ticket.send.cta')}
             </a>
-            <a
-              href="https://www.aluf.co.il/pages/52434-%D7%98%D7%9B%D7%A0%D7%90%D7%99-%D7%A2%D7%93-%D7%94%D7%91%D7%99%D7%AA"
+            <a href="https://www.aluf.co.il/pages/52434-%D7%98%D7%9B%D7%A0%D7%90%D7%99-%D7%A2%D7%93-%D7%94%D7%91%D7%99%D7%AA"
               target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 border border-white/40 hover:bg-white/10 text-white font-semibold rounded-xl px-6 py-3 transition"
-            >
+              className="inline-flex items-center gap-2 border border-white/40 hover:bg-white/10 text-white font-semibold rounded-xl px-6 py-3 transition">
               <Icon name="home_repair_service" className="text-xl" />
               {t('workshop.home.cta')}
             </a>
@@ -162,7 +164,7 @@ export function WorkshopPage() {
         </Container>
       </section>
 
-      {/* ── 2. LAB SERVICES ── */}
+      {/* ── 2. LAB SERVICES — cards are clickable, pre-fill ticket ── */}
       <section className="bg-page-bg py-16">
         <Container>
           <div className="text-center mb-12">
@@ -171,19 +173,28 @@ export function WorkshopPage() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {LAB_SERVICES.map(({ icon, nameKey, descKey }) => (
-              <div key={nameKey} className="bg-card-bg border border-border-light rounded-xl p-5 flex flex-col items-center text-center hover:shadow-md hover:border-primary/40 transition">
-                <span className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+              <button
+                key={nameKey}
+                type="button"
+                onClick={() => prefillTicket(t(nameKey), 'lab')}
+                className="bg-card-bg border border-border-light rounded-xl p-5 flex flex-col items-center text-center hover:shadow-md hover:border-primary/60 hover:bg-primary/5 transition group cursor-pointer"
+              >
+                <span className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition">
                   <Icon name={icon} className="text-primary text-2xl" />
                 </span>
-                <h3 className="font-semibold text-sm text-text-main mb-1">{t(nameKey)}</h3>
+                <h3 className="font-semibold text-sm text-text-main mb-1 group-hover:text-primary transition">{t(nameKey)}</h3>
                 <p className="text-text-muted text-xs leading-relaxed">{t(descKey)}</p>
-              </div>
+                <span className="mt-3 text-xs text-primary font-bold opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
+                  <Icon name="edit_note" className="text-sm" />
+                  {t('workshop.card.openTicket')}
+                </span>
+              </button>
             ))}
           </div>
         </Container>
       </section>
 
-      {/* ── 3. HOME TECHNICIAN ── */}
+      {/* ── 3. HOME TECHNICIAN — 2 columns: ticket CTA | WhatsApp order ── */}
       <section className="py-16">
         <Container>
           <div className="flex flex-col lg:flex-row gap-10 items-start">
@@ -207,23 +218,41 @@ export function WorkshopPage() {
               </p>
             </div>
 
-            <div className="w-full lg:w-72 bg-card-bg border border-border-light rounded-2xl shadow-lg p-8 flex flex-col items-center text-center">
-              <span className="text-5xl font-extrabold text-primary mb-1">₪300</span>
-              <p className="text-text-muted text-sm mb-8">{t('workshop.home.region')}</p>
+            {/* Two-column CTA card */}
+            <div className="w-full lg:w-[480px] grid grid-cols-2 gap-4">
+              {/* Ticket creation */}
               <a
-                href={WA_URL}
-                target="_blank" rel="noopener noreferrer"
-                className="inline-flex w-full items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-semibold rounded-xl px-5 py-3 transition"
+                href="#ticket"
+                onClick={() => prefillTicket(t('workshop.ticket.type.home'), 'home')}
+                className="bg-card-bg border border-border-light rounded-2xl p-6 flex flex-col items-center text-center hover:border-primary/60 hover:shadow-md transition group"
               >
-                <WaSvg />
-                {t('workshop.home.cta')}
+                <span className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition">
+                  <Icon name="build_circle" className="text-primary text-3xl" />
+                </span>
+                <h3 className="font-bold text-text-main mb-1 text-sm">{t('workshop.home.ticketCta')}</h3>
+                <p className="text-text-muted text-xs leading-relaxed">{t('workshop.home.ticketDesc')}</p>
               </a>
+
+              {/* WhatsApp order */}
+              <div className="bg-card-bg border border-border-light rounded-2xl p-6 flex flex-col items-center text-center">
+                <span className="text-4xl font-extrabold text-primary mb-0.5">₪300</span>
+                <p className="text-xs text-text-muted mb-1">{t('workshop.home.region')}</p>
+                <p className="text-xs text-amber-500 font-semibold mb-4">{t('workshop.home.centerOnly')}</p>
+                <a
+                  href={WA_URL}
+                  target="_blank" rel="noopener noreferrer"
+                  className="inline-flex w-full items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-semibold rounded-xl px-4 py-2.5 transition text-sm"
+                >
+                  <WaSvg />
+                  {t('workshop.home.cta')}
+                </a>
+              </div>
             </div>
           </div>
         </Container>
       </section>
 
-      {/* ── 4. BUSINESS SOLUTIONS ── */}
+      {/* ── 4. BUSINESS SOLUTIONS — cards are clickable, pre-fill ticket ── */}
       <section className="bg-page-bg py-16">
         <Container>
           <div className="text-center mb-12">
@@ -232,22 +261,25 @@ export function WorkshopPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
             {BIZ_CARDS.map(({ icon, nameKey, descKey }) => (
-              <div key={nameKey} className="bg-card-bg border border-border-light rounded-xl p-6 flex gap-4 hover:shadow-md hover:border-primary/40 transition">
-                <span className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <button
+                key={nameKey}
+                type="button"
+                onClick={() => prefillTicket(t(nameKey), 'biz')}
+                className="bg-card-bg border border-border-light rounded-xl p-6 flex gap-4 hover:shadow-md hover:border-primary/60 hover:bg-primary/5 transition text-start group cursor-pointer"
+              >
+                <span className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition">
                   <Icon name={icon} className="text-primary text-2xl" />
                 </span>
-                <div>
-                  <h3 className="font-semibold text-text-main mb-1">{t(nameKey)}</h3>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-text-main mb-1 group-hover:text-primary transition">{t(nameKey)}</h3>
                   <p className="text-text-muted text-sm">{t(descKey)}</p>
+                  <span className="mt-2 text-xs text-primary font-bold opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
+                    <Icon name="edit_note" className="text-sm" />
+                    {t('workshop.card.openTicket')}
+                  </span>
                 </div>
-              </div>
+              </button>
             ))}
-          </div>
-          <div className="text-center">
-            <a href="https://www.aluf.co.il/contact" className="inline-flex items-center gap-2 text-primary font-semibold hover:underline">
-              {t('workshop.biz.cta')}
-              <Icon name={dir === 'rtl' ? 'arrow_back' : 'arrow_forward'} className="text-base" />
-            </a>
           </div>
         </Container>
       </section>
@@ -315,9 +347,7 @@ export function WorkshopPage() {
                   <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.desc')}</label>
                   <textarea rows={4} required value={desc} onChange={e => setDesc(e.target.value)} className={inputCls} placeholder={t('workshop.ticket.desc.placeholder')} />
                 </div>
-                {submitError && (
-                  <p className="text-red-500 text-sm text-center">{submitError}</p>
-                )}
+                {submitError && <p className="text-red-500 text-sm text-center">{submitError}</p>}
                 <button
                   type="submit"
                   disabled={submitting}
@@ -359,30 +389,103 @@ export function WorkshopPage() {
         </Container>
       </section>
 
-      {/* ── 7. CONTACT STRIP ── */}
-      <section className="bg-gray-900 text-white py-10">
+      {/* ── 7. CONTACT — 2 columns: customer | business ── */}
+      <section className="bg-gray-900 text-white py-14">
         <Container>
-          <div className="flex flex-wrap justify-center gap-4">
-            <a href="tel:0533368048" className="flex flex-col items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-xl px-7 py-5 transition min-w-[130px] text-center">
-              <Icon name="phone" className="text-primary text-3xl" />
-              <span className="font-semibold text-sm">053-336-8048</span>
-              <span className="text-gray-400 text-xs">התקשרו עכשיו</span>
-            </a>
-            <a href={WA_URL} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-xl px-7 py-5 transition min-w-[130px] text-center">
-              <WaSvg />
-              <span className="font-semibold text-sm">WhatsApp</span>
-              <span className="text-gray-400 text-xs">שלחו הודעה</span>
-            </a>
-            <a href={WAZE_URL} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-xl px-7 py-5 transition min-w-[130px] text-center">
-              <Icon name="navigation" className="text-[#33CCFF] text-3xl" />
-              <span className="font-semibold text-sm">Waze</span>
-              <span className="text-gray-400 text-xs">נווטו אלינו</span>
-            </a>
-            <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-xl px-7 py-5 transition min-w-[130px] text-center">
-              <Icon name="location_on" className="text-red-400 text-3xl" />
-              <span className="font-semibold text-sm">הרצל 102</span>
-              <span className="text-gray-400 text-xs">ראשון לציון</span>
-            </a>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+
+            {/* Customer column */}
+            <div>
+              <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                <Icon name="person" className="text-primary text-xl" />
+                {t('workshop.contact.personal')}
+              </h2>
+              <div className="space-y-3">
+                <a href="tel:0533368048"
+                  className={cn('flex items-center gap-4 bg-gray-800 hover:bg-gray-700 rounded-xl px-5 py-4 transition')}>
+                  <Icon name="phone" className="text-primary text-2xl shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm" dir="ltr">053-336-8048</p>
+                    <p className="text-gray-400 text-xs">{t('workshop.contact.callUs')}</p>
+                  </div>
+                </a>
+                <a href={WA_URL} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-4 bg-gray-800 hover:bg-gray-700 rounded-xl px-5 py-4 transition">
+                  <span className="text-[#25D366] shrink-0"><WaSvg /></span>
+                  <div>
+                    <p className="font-semibold text-sm">WhatsApp</p>
+                    <p className="text-gray-400 text-xs">{t('workshop.contact.whatsapp')}</p>
+                  </div>
+                </a>
+                <a href={WAZE_URL} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-4 bg-gray-800 hover:bg-gray-700 rounded-xl px-5 py-4 transition">
+                  <Icon name="navigation" className="text-[#33CCFF] text-2xl shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm">Waze</p>
+                    <p className="text-gray-400 text-xs">{t('workshop.contact.navigate')}</p>
+                  </div>
+                </a>
+                <a href={MAPS_URL} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-4 bg-gray-800 hover:bg-gray-700 rounded-xl px-5 py-4 transition">
+                  <Icon name="location_on" className="text-red-400 text-2xl shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm">{t('workshop.contact.address')}</p>
+                    <p className="text-gray-400 text-xs">{t('workshop.contact.addressDetail')}</p>
+                  </div>
+                </a>
+                <div className="flex items-center gap-4 bg-gray-800 rounded-xl px-5 py-4">
+                  <Icon name="schedule" className="text-primary text-2xl shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm">{t('workshop.contact.hours')}</p>
+                    <p className="text-gray-400 text-xs">{t('footer.hours')}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Business column */}
+            <div>
+              <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                <Icon name="business" className="text-primary text-xl" />
+                {t('workshop.contact.business')}
+              </h2>
+              <div className="space-y-3">
+                <a href="mailto:sales@aluf.co.il"
+                  className="flex items-center gap-4 bg-gray-800 hover:bg-gray-700 rounded-xl px-5 py-4 transition">
+                  <Icon name="mail" className="text-primary text-2xl shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm" dir="ltr">sales@aluf.co.il</p>
+                    <p className="text-gray-400 text-xs">{t('workshop.contact.bizEmail')}</p>
+                  </div>
+                </a>
+                <a href="tel:0533368048"
+                  className="flex items-center gap-4 bg-gray-800 hover:bg-gray-700 rounded-xl px-5 py-4 transition">
+                  <Icon name="phone_in_talk" className="text-primary text-2xl shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm" dir="ltr">053-336-8048</p>
+                    <p className="text-gray-400 text-xs">{t('workshop.contact.bizLine')}</p>
+                  </div>
+                </a>
+                <a href="#ticket"
+                  onClick={() => prefillTicket(t('workshop.biz.title'), 'biz')}
+                  className="flex items-center gap-4 bg-primary/20 hover:bg-primary/30 border border-primary/40 rounded-xl px-5 py-4 transition">
+                  <Icon name="description" className="text-primary text-2xl shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm text-primary">{t('workshop.contact.bizTicket')}</p>
+                    <p className="text-gray-400 text-xs">{t('workshop.contact.bizTicketDesc')}</p>
+                  </div>
+                </a>
+                <a href="https://www.aluf.co.il/contact"
+                  className="flex items-center gap-4 bg-gray-800 hover:bg-gray-700 rounded-xl px-5 py-4 transition">
+                  <Icon name="open_in_new" className="text-primary text-2xl shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm">{t('workshop.contact.bizContact')}</p>
+                    <p className="text-gray-400 text-xs">{t('workshop.contact.bizContactDesc')}</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+
           </div>
         </Container>
       </section>
