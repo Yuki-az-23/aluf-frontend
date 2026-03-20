@@ -9,15 +9,13 @@ const STORE_EMAIL  = 'sales@aluf.co.il';
 // Material Icon names per section — professional, no emojis
 const SECTION_ICONS: Record<string, string> = {
   s1: 'manage_search',
-  s2: 'tune',
-  s3: 'lock',
-  s4: 'cookie',
-  s5: 'share',
-  s6: 'verified_user',
-  s7: 'update',
-  s8: 'contact_mail',
+  s2: 'lock',
+  s3: 'share',
+  s4: 'verified_user',
+  s5: 'cookie',
+  s6: 'update',
 };
-const SECTION_KEYS = ['s1','s2','s3','s4','s5','s6','s7','s8'] as const;
+const SECTION_KEYS = ['s1','s2','s3','s4','s5','s6'] as const;
 
 export function PrivacyPage() {
   const { t } = useLang();

@@ -5,7 +5,7 @@ import { useLang } from '@/i18n';
 
 const LAST_UPDATED  = '01/01/2026';
 const STORE_EMAIL   = 'sales@aluf.co.il';
-const SECTION_KEYS  = ['s1','s2','s3','s4','s5','s6','s7','s8','s9'] as const;
+const SECTION_KEYS  = ['s1','s2','s3','s4','s5','s6','s7','s8'] as const;
 
 export function TermsPage() {
   const { t } = useLang();

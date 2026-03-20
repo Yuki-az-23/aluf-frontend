@@ -2,6 +2,8 @@ import { ThemeProvider } from '@/theme/ThemeProvider';
 import { LangProvider } from '@/i18n';
 import { CartProvider } from '@/lib/CartContext';
 import { StoreDataProvider } from '@/lib/StoreDataContext';
+import { PCBuilderProvider, usePCBuilder } from '@/lib/PCBuilderContext';
+import { PCBuilderModal } from '@/components/commerce/PCBuilderModal';
 import { AppShell } from '@/components/layout/AppShell';
 import { HomePage } from '@/pages/HomePage';
 import { CategoryPage } from '@/pages/CategoryPage';
@@ -32,6 +34,18 @@ function PageRouter() {
       return <HomePage />;
   }
 }
+function AppInner() {
+  const { isOpen, close } = usePCBuilder();
+  return (
+    <>
+      <AppShell>
+        <PageRouter />
+      </AppShell>
+      <PCBuilderModal isOpen={isOpen} onClose={close} />
+    </>
+  );
+}
+
 export function App() {
   return (
     <div data-aluf-app>
@@ -39,9 +53,9 @@ export function App() {
         <LangProvider>
           <StoreDataProvider>
             <CartProvider>
-              <AppShell>
-                <PageRouter />
-              </AppShell>
+              <PCBuilderProvider>
+                <AppInner />
+              </PCBuilderProvider>
             </CartProvider>
           </StoreDataProvider>
         </LangProvider>

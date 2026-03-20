@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Container } from '@/components/layout/Container';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Button } from '@/components/ui/Button';
@@ -6,16 +5,16 @@ import { HeroBanner } from '@/components/commerce/HeroBanner';
 import { TierCard } from '@/components/commerce/TierCard';
 import { BlogCard } from '@/components/commerce/BlogCard';
 import { TabbedProducts } from '@/components/commerce/TabbedProducts';
-import { PCBuilderModal } from '@/components/commerce/PCBuilderModal';
 import { useLang } from '@/i18n';
 import { useStoreData } from '@/lib/StoreDataContext';
+import { usePCBuilder } from '@/lib/PCBuilderContext';
 import { gamingTiers } from '@/data/tiers';
 import { blogPosts } from '@/data/blog';
 
 export function HomePage() {
   const { t } = useLang();
   const { banners } = useStoreData();
-  const [pcBuilderOpen, setPcBuilderOpen] = useState(false);
+  const { open: openPcBuilder } = usePCBuilder();
 
   return (
     <>
@@ -43,7 +42,7 @@ export function HomePage() {
             </div>
             <button
               className="flex-shrink-0 bg-primary hover:bg-primary/90 text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap shadow-lg"
-              onClick={() => setPcBuilderOpen(true)}
+              onClick={openPcBuilder}
             >
               בנה עכשיו ←
             </button>
@@ -51,7 +50,6 @@ export function HomePage() {
         </Container>
       </div>
 
-      <PCBuilderModal isOpen={pcBuilderOpen} onClose={() => setPcBuilderOpen(false)} />
 
       {/* Gaming Tiers */}
       <section className="py-12">

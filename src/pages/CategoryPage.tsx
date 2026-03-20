@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type CSSProperties } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ProductCard } from '@/components/commerce/ProductCard';
@@ -19,7 +19,11 @@ function resolveParentKey(title: string): string | null {
   return null;
 }
 
-const GROUP_GRID = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4';
+// Returns the number of grid columns to use for a group, based on item count.
+// Capped at 6; never more columns than items (prevents empty RTL gaps).
+function groupCols(count: number): number {
+  return Math.max(2, Math.min(count, 6));
+}
 
 function findCategoryHref(name: string, categories: KonimboCategory[]): string | undefined {
   for (const cat of categories) {
@@ -143,7 +147,10 @@ export function CategoryPage() {
                 <h2 className="text-base font-bold text-text-main border-r-4 border-primary pr-3 inline-block mb-4">
                   {group.group}
                 </h2>
-                <div className={GROUP_GRID}>
+                <div
+                  className="category-group-grid grid gap-4"
+                  style={{ '--cols': groupCols(group.items.length) } as CSSProperties}
+                >
                   {group.items.map(item => (
                     <a
                       key={item.href}
@@ -197,7 +204,10 @@ export function CategoryPage() {
             <h2 className="text-base font-bold text-text-main border-r-4 border-primary pr-3 inline-block mb-4">
               {group.group}
             </h2>
-            <div className={GROUP_GRID}>
+            <div
+              className="category-group-grid grid gap-4"
+              style={{ '--cols': groupCols(group.items.length) } as CSSProperties}
+            >
               {group.items.map(itemName => {
                 const href = findCategoryHref(itemName, categories);
                 const image = ICON_MAP[itemName];
