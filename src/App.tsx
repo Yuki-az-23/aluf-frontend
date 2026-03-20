@@ -11,6 +11,8 @@ import { CartPage } from '@/pages/CartPage';
 import { WorkshopPage } from '@/pages/WorkshopPage';
 import { BlogListPage } from '@/pages/BlogListPage';
 import { BlogPostPage } from '@/pages/BlogPostPage';
+import { TermsPage } from '@/pages/TermsPage';
+import { PrivacyPage } from '@/pages/PrivacyPage';
 import { getPageType } from '@/lib/konimbo';
 
 function PageRouter() {
@@ -23,6 +25,8 @@ function PageRouter() {
     case 'workshop': return <WorkshopPage />;
     case 'blog': return <BlogListPage />;
     case 'blogpost': return <BlogPostPage />;
+    case 'terms': return <TermsPage />;
+    case 'privacy': return <PrivacyPage />;
     case 'home':
     default:
       return <HomePage />;

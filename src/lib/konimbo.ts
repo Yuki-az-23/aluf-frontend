@@ -35,7 +35,7 @@ export function getPageType(): string {
   // 1. Explicit meta tag (set via Konimbo admin)
   const meta = document.querySelector('meta[name="aluf-page"]');
   const metaType = meta?.getAttribute('content') || '';
-  if (metaType && ['home', 'category', 'items', 'item', 'cart', 'workshop', 'blog', 'blogpost'].includes(metaType)) {
+  if (metaType && ['home', 'category', 'items', 'item', 'cart', 'workshop', 'blog', 'blogpost', 'terms', 'privacy'].includes(metaType)) {
     return metaType;
   }
 
@@ -45,6 +45,8 @@ export function getPageType(): string {
   if (/^\/items\//.test(path)) return 'item';
   if (/^\/tags\//.test(path)) return 'items';
   if (/^\/search(\?|$)/.test(path)) return 'items';
+  if (/^\/contract(\?|$)/.test(path)) return 'terms';
+  if (/^\/pages\/54957-/.test(path)) return 'privacy';
   if (/^\/(cart|orders)(\/|$)/.test(path)) return 'cart';
   if (/^\/632283-/.test(path)) return 'blog';
 

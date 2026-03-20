@@ -117,8 +117,6 @@
   "item.description": "Description",
   "item.specs": "Specifications",
   "breadcrumb.home": "Home",
-  "workshop.hero.title": "Professional Repair & Data Recovery Lab",
-  "workshop.hero.subtitle": "Advanced hardware and software solutions. Fast diagnostics, full transparency, and extended warranty on every repair.",
   "workshop.hero.cta": "Open Service Request",
   "workshop.repair.title": "PC Repair",
   "workshop.repair.desc": "Expert repair for all types of hardware and software issues.",
@@ -279,5 +277,11 @@
   "workshop.ticket.device.laptop": "Laptop",
   "workshop.ticket.device.other": "Other",
   "workshop.faq.q4": "Is it worth upgrading an old computer?",
-  "workshop.faq.a4": "In most cases yes! Upgrading to an SSD and adding RAM are the most popular ways to boost performance. We'll check and recommend based on your model."
+  "workshop.faq.a4": "In most cases yes! Upgrading to an SSD and adding RAM are the most popular ways to boost performance. We'll check and recommend based on your model.",
+  "terms.title": "Store Terms & Conditions",
+  "terms.updated": "Last updated",
+  "terms.breadcrumb": "Terms",
+  "privacy.title": "Privacy Policy",
+  "privacy.updated": "Last updated",
+  "privacy.breadcrumb": "Privacy Policy"
 }

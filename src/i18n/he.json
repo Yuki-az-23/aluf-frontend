@@ -117,8 +117,6 @@
   "item.description": "תיאור המוצר",
   "item.specs": "מפרט טכני",
   "breadcrumb.home": "דף הבית",
-  "workshop.hero.title": "מעבדת שירות ושחזור נתונים מקצועית",
-  "workshop.hero.subtitle": "פתרונות חומרה ותוכנה מתקדמים ברמת ריבו. אבחון מהיר, שקיפות מלאה ואחריות מורחבת על כל תיקון.",
   "workshop.hero.cta": "פתח קריאת תיקון",
   "workshop.repair.title": "תיקון מחשבים",
   "workshop.repair.desc": "שיפור בכל סוגי התקלות ברמה הגבוהה.",
@@ -279,5 +277,11 @@
   "workshop.ticket.device.laptop": "מחשב נייד",
   "workshop.ticket.device.other": "אחר",
   "workshop.faq.q4": "האם כדאי לשדרג מחשב ישן?",
-  "workshop.faq.a4": "ברוב המקרים כן! שדרוג ל-SSD והוספת RAM הם הדרכים הפופולריות לשיפור ביצועים. נבדוק ונמליץ בהתאם לדגם שלכם."
+  "workshop.faq.a4": "ברוב המקרים כן! שדרוג ל-SSD והוספת RAM הם הדרכים הפופולריות לשיפור ביצועים. נבדוק ונמליץ בהתאם לדגם שלכם.",
+  "terms.title": "תקנון החנות",
+  "terms.updated": "עודכן לאחרונה",
+  "terms.breadcrumb": "תקנון",
+  "privacy.title": "מדיניות פרטיות",
+  "privacy.updated": "עודכן לאחרונה",
+  "privacy.breadcrumb": "מדיניות פרטיות"
 }

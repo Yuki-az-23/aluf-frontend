@@ -5,6 +5,7 @@ import { useLang } from '@/i18n';
 import { useCart } from '@/lib/CartContext';
 import type { Product } from '@/data/products';
 import type { ViewMode } from './SortBar';
+import cartSoundUrl from '@/assets/add2cart.mp3';
 
 interface ProductCardProps {
   product: Product;
@@ -12,17 +13,22 @@ interface ProductCardProps {
   viewMode?: ViewMode;
 }
 
+const cartSound = new Audio(cartSoundUrl);
+
 export function ProductCard({ product, className, viewMode = 'grid' }: ProductCardProps) {
   const { t } = useLang();
   const { addToCart } = useCart();
 
-  const doAddToCart = () =>
+  const doAddToCart = () => {
     addToCart(product.id, 1, {
       title: product.title,
       price: product.price,
       image: product.image,
       category: product.category,
     });
+    cartSound.currentTime = 0;
+    cartSound.play().catch(() => {});
+  };
 
   // ── Strip view ─────────────────────────────────────────────────────────────
   // Layout (RTL Hebrew): image on visual-right, text fills left, cart+price at bottom-left
@@ -186,7 +192,7 @@ export function ProductCard({ product, className, viewMode = 'grid' }: ProductCa
         <button
           type="button"
           onClick={doAddToCart}
-          className="bg-primary/10 hover:bg-primary text-primary hover:text-white p-2.5 rounded-lg transition-colors"
+          className="sm:hidden bg-primary/10 hover:bg-primary text-primary hover:text-white p-2.5 rounded-lg transition-colors"
           aria-label={t('products.addToCart')}
         >
           <Icon name="add_shopping_cart" className="text-xl" />

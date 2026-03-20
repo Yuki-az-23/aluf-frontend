@@ -107,6 +107,10 @@ if (root) {
         stableRounds = 0;
         scrapedData.products = newProducts;
         if (pageType === 'home') scrapedData.banners = scrapeBanners();
+        // Re-scrape filter groups now that more products are in DOM
+        if (['items', 'category'].includes(pageType)) {
+          scrapedData.filterGroups = scrapeFilterGroups();
+        }
         (window as any).__ALUF_SCRAPED__ = { ...scrapedData };
         window.dispatchEvent(new CustomEvent('aluf:products-ready', { detail: newProducts }));
       } else {
@@ -148,31 +152,31 @@ if (root) {
     itemObserver.observe(document.body, { childList: true, subtree: true });
   }
 
-  // 5c. Always watch for #matchingCarouselHook to populate on item pages.
-  //     The carousel widget loads independently and after price/images, so we
-  //     need a separate observer that fires once it has content.
+  // 5c. Poll for #matchingCarouselHook on item pages.
+  //     The carousel widget loads independently (often several seconds after price/images).
+  //     Using setInterval instead of MutationObserver so retries = real time, not DOM mutations
+  //     (MutationObserver can exhaust retries in <1s on a busy Konimbo page).
   if (pageType === 'item' && reactRoot) {
-    let relatedRetries = 0;
-    const relatedMaxRetries = 100; // up to 10 seconds
+    const INTERVAL = 200;    // ms between checks
+    const MAX_ATTEMPTS = 75; // 75 × 200ms = 15 seconds max
+    let attempts = 0;
 
-    const relatedObserver = new MutationObserver(() => {
+    const relatedTimer = setInterval(() => {
+      attempts++;
       const carousel = document.querySelector('#matchingCarouselHook');
       const hasItems = carousel && carousel.querySelectorAll('a[href*="/items/"]').length > 0;
       if (hasItems) {
-        relatedObserver.disconnect();
+        clearInterval(relatedTimer);
         const related = scrapeRelatedItems();
         if (related.length > 0 && scrapedData.itemDetail) {
           scrapedData.itemDetail.relatedItems = related;
           (window as any).__ALUF_SCRAPED__ = { ...scrapedData };
           window.dispatchEvent(new CustomEvent('aluf:item-ready', { detail: scrapedData.itemDetail }));
         }
-      } else {
-        relatedRetries++;
-        if (relatedRetries >= relatedMaxRetries) relatedObserver.disconnect();
+      } else if (attempts >= MAX_ATTEMPTS) {
+        clearInterval(relatedTimer);
       }
-    });
-
-    relatedObserver.observe(document.body, { childList: true, subtree: true });
+    }, INTERVAL);
   }
 } else {
   console.error('[aluf] #aluf-root element not found');
