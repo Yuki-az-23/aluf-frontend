@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Konimbo customer account and cart pages — no index value
+Disallow: /customer_login
+Disallow: /customer_profile
+Disallow: /customer_edit_profile
+Disallow: /orders/
+Disallow: /cart
+Disallow: /checkout
+
+Sitemap: https://alufshop.konimbo.co.il/sitemap.xml
