@@ -60,6 +60,8 @@ export function HomePage() {
 
   const [blogPosts, setBlogPosts] = useState<BlogPostItem[]>([]);
   const [tiers, setTiers] = useState<TierConfig[]>(gamingTiers);
+  const [tiersLoading, setTiersLoading] = useState(true);
+  const [blogLoading, setBlogLoading] = useState(true);
 
   const TIER_COLORS = ['from-blue-500 to-cyan-400', 'from-primary to-amber-400', 'from-purple-600 to-secondary'] as const;
 
@@ -73,7 +75,7 @@ export function HomePage() {
         href: t.href,
         color: TIER_COLORS[i] ?? TIER_COLORS[0],
       })));
-    });
+    }).finally(() => setTiersLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -81,7 +83,8 @@ export function HomePage() {
     fetch(BLOG_URL)
       .then(r => r.text())
       .then(html => setBlogPosts(parseBlogPosts(html)))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setBlogLoading(false));
   }, []);
 
   // ── Newsletter state ────────────────────────────────────────────────────
@@ -144,22 +147,47 @@ export function HomePage() {
         <Container>
           <SectionHeader title={t('tiers.title')} />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {tiers.map(tier => (
-              <TierCard key={tier.name} tier={tier} />
-            ))}
+            {tiersLoading
+              ? Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="bg-card-bg rounded-xl border border-border-light overflow-hidden animate-pulse">
+                    <div className="h-2 bg-border-light" />
+                    <div className="p-6 space-y-3">
+                      <div className="h-6 w-2/3 bg-border-light rounded" />
+                      <div className="h-8 w-1/2 bg-border-light rounded" />
+                      <div className="space-y-2 my-4">
+                        {Array.from({ length: 4 }).map((_, j) => (
+                          <div key={j} className="h-4 bg-border-light rounded" />
+                        ))}
+                      </div>
+                      <div className="h-10 bg-border-light rounded-lg" />
+                    </div>
+                  </div>
+                ))
+              : tiers.map(tier => <TierCard key={tier.name} tier={tier} />)
+            }
           </div>
         </Container>
       </section>
 
       {/* Blog — fetched from the blog listing page */}
-      {blogPosts.length > 0 && (
+      {(blogLoading || blogPosts.length > 0) && (
         <section className="py-12">
           <Container>
             <SectionHeader title={t('blog.title')} linkText={t('blog.readMore')} linkHref={BLOG_URL} />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {blogPosts.slice(0, 6).map(post => (
-                <BlogCard key={post.id} post={post} />
-              ))}
+              {blogLoading
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="bg-card-bg rounded-xl border border-border-light overflow-hidden animate-pulse">
+                      <div className="aspect-video bg-border-light" />
+                      <div className="p-5 space-y-3">
+                        <div className="h-3 w-1/3 bg-border-light rounded" />
+                        <div className="h-5 bg-border-light rounded" />
+                        <div className="h-4 w-5/6 bg-border-light rounded" />
+                      </div>
+                    </div>
+                  ))
+                : blogPosts.slice(0, 6).map(post => <BlogCard key={post.id} post={post} />)
+              }
             </div>
           </Container>
         </section>
