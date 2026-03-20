@@ -12,6 +12,8 @@ import { useStoreData } from '@/lib/StoreDataContext';
 import { usePCBuilder } from '@/lib/PCBuilderContext';
 import { sendLead, LEAD_SOURCES } from '@/lib/leads';
 import { gamingTiers } from '@/data/tiers';
+import type { TierConfig } from '@/data/tiers';
+import { fetchTierProducts } from '@/lib/konimbo-scraper';
 
 
 const BLOG_URL = '/632283-%D7%91%D7%9C%D7%95%D7%92?order=down_created_at';
@@ -57,6 +59,23 @@ export function HomePage() {
   const { open: openPcBuilder } = usePCBuilder();
 
   const [blogPosts, setBlogPosts] = useState<BlogPostItem[]>([]);
+  const [tiers, setTiers] = useState<TierConfig[]>(gamingTiers);
+
+  const TIER_COLORS = ['from-blue-500 to-cyan-400', 'from-primary to-amber-400', 'from-purple-600 to-secondary'] as const;
+
+  useEffect(() => {
+    fetchTierProducts('gaming-tier').then(live => {
+      if (!live.length) return;
+      setTiers(live.map((t, i) => ({
+        name: t.title,
+        price: t.price,
+        specs: t.specs,
+        href: t.href,
+        color: TIER_COLORS[i] ?? TIER_COLORS[0],
+      })));
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     fetch(BLOG_URL)
@@ -125,7 +144,7 @@ export function HomePage() {
         <Container>
           <SectionHeader title={t('tiers.title')} />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {gamingTiers.map(tier => (
+            {tiers.map(tier => (
               <TierCard key={tier.name} tier={tier} />
             ))}
           </div>

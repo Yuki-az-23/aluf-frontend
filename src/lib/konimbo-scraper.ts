@@ -628,14 +628,36 @@ export function scrapeBlogPostDetail(): BlogPostDetail | null {
   const title = titleEl?.textContent?.trim() || '';
   if (!title) return null;
 
-  const imgEl = document.querySelector('.item_image img, .product-gallery img, img.img-responsive, .item_show_images img');
-  const image = imgEl?.getAttribute('data-src') || imgEl?.getAttribute('src') || '';
+  // Images — same cascade as scrapeItemDetail: prefer #lightSlider (full-res), then fallbacks
+  let image = '';
+  const lightSliderFirst = document.querySelector('#lightSlider li');
+  if (lightSliderFirst) {
+    const src =
+      lightSliderFirst.getAttribute('data-src') ||
+      (lightSliderFirst.querySelector('img') as HTMLImageElement | null)?.getAttribute('data-src') ||
+      (lightSliderFirst.querySelector('img') as HTMLImageElement | null)?.src || '';
+    if (src && !src.includes('placeholder') && !src.includes('blank')) image = src;
+  }
+  if (!image) {
+    const imgEl = document.querySelector(
+      '#main_photo, .item_image img, .product-gallery img, img.img-responsive, ' +
+      '.item_show_images img, .item_single_images img, .blog_post img, article img, main img'
+    ) as HTMLImageElement | null;
+    image =
+      imgEl?.getAttribute('data-large') ||
+      imgEl?.getAttribute('data-src') ||
+      imgEl?.getAttribute('data-original') ||
+      imgEl?.getAttribute('src') || '';
+  }
 
-  const dateEl = document.querySelector('.date, .item_date, .created_at');
+  const dateEl = document.querySelector('.date, .item_date, .created_at, time[datetime], .published_at');
   const date = dateEl?.textContent?.trim() || '';
 
+  // Content — try Konimbo's standard product desc selector first, then blog-specific fallbacks
   const contentEl = document.querySelector(
-    '#item_content .desc, .item_description, .product-description, .item_content, .blog_post_content, .post_content'
+    '#item_content .desc, .item_description, .product-description, .item_body, .description, ' +
+    '.item_content, .blog_post_content, .post_content, .blog_content, .blog_post .content, ' +
+    'article .content, [class*="blog"] .content, [class*="post"] .content'
   );
   const contentHtml = contentEl?.innerHTML?.trim() || '';
 
@@ -754,4 +776,45 @@ export function scrapeBanners(): BannerData {
     desktop: desktop.length ? desktop : fallback,
     mobile,
   };
+}
+
+export interface TierProduct {
+  title: string;
+  price: number;
+  specs: string[];
+  href: string;
+}
+
+/**
+ * Fetch live tier data from a Konimbo tag page.
+ *
+ * Konimbo admin setup:
+ *  1. Create 3 products, tag each with the given tag (default: "gaming-tier")
+ *  2. Set each product's short description to pipe-separated specs:
+ *     e.g. "Intel i5-13400F | RTX 4060 | 16GB DDR5 | 512GB NVMe SSD"
+ *  3. Order products by position (1 = entry, 2 = performance, 3 = ultimate)
+ *
+ * Returns an empty array if the tag page is unreachable or has no products,
+ * so the caller can fall back to hardcoded data.
+ */
+export async function fetchTierProducts(tag = 'gaming-tier'): Promise<TierProduct[]> {
+  try {
+    const url = `${BASE_URL}/tags/${encodeURIComponent(tag)}`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const products = parseProductElements(doc, BASE_URL, false);
+    return products.slice(0, 3).map(p => {
+      const itemEl = doc.getElementById(`item_id_${p.id}`);
+      const descEl = itemEl?.querySelector('.description, .item_description, .short_description');
+      const descText = descEl?.textContent?.trim() || '';
+      const specs = descText
+        ? descText.split(/\s*\|\s*|\n/).map(s => s.trim()).filter(Boolean)
+        : (p.specs ?? []);
+      return { title: p.title, price: p.price, specs, href: p.href ?? '' };
+    });
+  } catch {
+    return [];
+  }
 }

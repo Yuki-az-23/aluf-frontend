@@ -83,7 +83,7 @@
   "workshop.contact.callUs": "Phone call",
   "workshop.contact.whatsapp": "Send a message",
   "workshop.contact.navigate": "Navigate to us",
-  "workshop.contact.address": "Herzl 102, Rishon LeZion",
+  "workshop.contact.address": "Herzl 8, Tel Aviv",
   "workshop.contact.addressDetail": "Kaspi Tower, Floor 2",
   "workshop.contact.hours": "Opening hours",
   "workshop.contact.bizEmail": "Email for business inquiries",
@@ -196,7 +196,6 @@
   "workshop.faq.q3": "Is there a warranty on data recovery?",
   "workshop.faq.a3": "Yes, we offer a full warranty on all our data recovery services.",
   "workshop.contact.title": "Contact Us",
-  "workshop.contact.address": "Herzl 8, Tel Aviv",
   "item.eilatPrice": "Eilat Price (VAT-free)",
   "item.buyNow": "Buy Now",
   "item.whyBuy": "Why Buy from Aluf?",
@@ -381,5 +380,6 @@
   "privacy.s5.title": "Use of Cookies & Tracking Technologies",
   "privacy.s5.body": "The site uses Cookies (first-party and third-party) and other tracking technologies for its proper operation, security and measuring product popularity.\nMicrosoft Clarity collects usage data to understand user activity and improve site performance. For more information, see Microsoft's Privacy Statement.\nYou can block cookies in your browser settings, but this may affect some site features.",
   "privacy.s6.title": "Changes to This Privacy Policy",
-  "privacy.s6.body": "The company may update this privacy policy from time to time. The binding version is the current version published on the site."
+  "privacy.s6.body": "The company may update this privacy policy from time to time. The binding version is the current version published on the site.",
+  "footer.privacy": "Privacy Policy"
 }

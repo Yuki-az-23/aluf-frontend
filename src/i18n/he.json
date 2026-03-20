@@ -73,7 +73,7 @@
   "workshop.contact.callUs": "שיחת טלפון",
   "workshop.contact.whatsapp": "שלחו הודעה",
   "workshop.contact.navigate": "נווטו אלינו",
-  "workshop.contact.address": "הרצל 102, ראשון לציון",
+  "workshop.contact.address": "הרצל 8, תל אביב",
   "workshop.contact.addressDetail": "מגדל כספי, קומה 2",
   "workshop.contact.hours": "שעות פעילות",
   "workshop.contact.bizEmail": "דוא״ל לפניות עסקיות",
@@ -186,7 +186,6 @@
   "workshop.faq.q3": "האם יש אחריות על שחזור נתונים?",
   "workshop.faq.a3": "כן, אנו מציעים אחריות מלאה על כל שירותי שחזור הנתונים שלנו.",
   "workshop.contact.title": "צרו קשר",
-  "workshop.contact.address": "הרצל 8, תל אביב",
   "item.eilatPrice": "מחיר באילת (ללא מע\"מ)",
   "item.buyNow": "קנה עכשיו",
   "item.whyBuy": "למה לקנות באלוף המחשבים?",
@@ -381,5 +380,6 @@
   "privacy.s5.title": "שימוש בעוגיות (Cookies) וטכנולוגיות מעקב",
   "privacy.s5.body": "האתר משתמש בקבצי Cookies (צד א' וצד ג') וטכנולוגיות מעקב לצורך תפעולו התקין, אבטחה ומדידת פופולריות מוצרים.\nMicrosoft Clarity אוספת נתוני שימוש להבנת פעילות המשתמשים ושיפור ביצועי האתר. למידע נוסף, ראו את הצהרת הפרטיות של Microsoft.\nניתן לחסום עוגיות בהגדרות הדפדפן, אך הדבר עלול לפגוע בחלק מתכונות האתר.",
   "privacy.s6.title": "שינויים במדיניות הפרטיות",
-  "privacy.s6.body": "החברה רשאית לשנות את מדיניות הפרטיות מעת לעת. הנוסח המחייב הוא הנוסח העדכני המופיע באתר."
+  "privacy.s6.body": "החברה רשאית לשנות את מדיניות הפרטיות מעת לעת. הנוסח המחייב הוא הנוסח העדכני המופיע באתר.",
+  "footer.privacy": "מדיניות פרטיות"
 }

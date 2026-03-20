@@ -23,9 +23,13 @@ export function TierCard({ tier }: TierCardProps) {
             </li>
           ))}
         </ul>
-        <Button variant="outline" size="md" className="w-full">
-          {t('tiers.cta')}
-        </Button>
+        {tier.href ? (
+          <a href={tier.href} className="block w-full">
+            <Button variant="outline" size="md" className="w-full">{t('tiers.cta')}</Button>
+          </a>
+        ) : (
+          <Button variant="outline" size="md" className="w-full">{t('tiers.cta')}</Button>
+        )}
       </div>
     </div>
   );

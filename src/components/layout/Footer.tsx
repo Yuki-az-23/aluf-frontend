@@ -2,7 +2,6 @@ import { Container } from './Container';
 import { Icon } from '@/components/ui/Icon';
 import { useLang } from '@/i18n';
 
-const ALUF = 'https://www.aluf.co.il';
 const SHOP = 'https://alufshop.konimbo.co.il';
 
 const MAPS_QUERY = encodeURIComponent('אלוף המחשבים הרצל 102 ראשון לציון');
@@ -13,20 +12,24 @@ const WA_LINK = 'https://api.whatsapp.com/send?phone=972533368048';
 const logoSrc = 'https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/src/assets/logo.png';
 
 const deptLinks = [
-  { key: 'desktops',    href: ALUF + '/596696-מחשבים' },
-  { key: 'laptops',     href: ALUF + '/617479-מחשב-נייד' },
-  { key: 'components',  href: ALUF + '/585802-חומרת-מחשב' },
-  { key: 'gamingGear',  href: ALUF + '/596731-גיימינג' },
+  { key: 'desktops',    href: '/596696-מחשבים' },
+  { key: 'laptops',     href: '/617479-מחשב-נייד' },
+  { key: 'components',  href: '/585802-חומרת-מחשב' },
+  { key: 'gamingGear',  href: '/596731-גיימינג' },
 ];
 
 const serviceLinks = [
-  { key: 'contactPage',   href: ALUF  + '/contact' },
-  { key: 'support',       href: ALUF  + '/contact' },
-  { key: 'orderTracking', href: ALUF  + '/customer_login' },
-  { key: 'cancelOrder',   href: SHOP  + '/contact?CancellingTransaction=true&msg=%D7%9E%D7%A2%D7%95%D7%A0%D7%99%D7%99%D7%9F%20%D7%9C%D7%91%D7%98%D7%9C%20%D7%90%D7%AA%20%D7%94%D7%94%D7%96%D7%9E%D7%A0%D7%94' },
+  { key: 'contactPage',   href: '/contact' },
+  { key: 'support',       href: '/pages/52435-%D7%9E%D7%A2%D7%91%D7%93%D7%94-%D7%9C%D7%9E%D7%97%D7%A9%D7%91%D7%99%D7%9D' },
+  { key: 'orderTracking', href: '/customer_login' },
+  { key: 'tracking',      href: '/customer_login' },
+  { key: 'cancelOrder',   href: SHOP + '/contact?CancellingTransaction=true&msg=%D7%9E%D7%A2%D7%95%D7%A0%D7%99%D7%99%D7%9F%20%D7%9C%D7%91%D7%98%D7%9C%20%D7%90%D7%AA%20%D7%94%D7%94%D7%96%D7%9E%D7%A0%D7%94' },
+  { key: 'returns',       href: '/contract' },
   { key: 'contract',      href: '/contract' },
-  { key: 'about',         href: ALUF  + '/about' },
-  { key: 'directions',    href: ALUF  + '/location' },
+  { key: 'terms',         href: '/contract' },
+  { key: 'privacy',       href: '/pages/54957-תקנון-פרטיות' },
+  { key: 'about',         href: '/about' },
+  { key: 'directions',    href: '/location' },
 ];
 
 export function Footer() {

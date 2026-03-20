@@ -162,6 +162,31 @@ if (root) {
       observer.observe(document.body, { childList: true, subtree: true });
     }
 
+    // 5b-blog. MutationObserver: blog posts may also lazy-load their content/image.
+    const needsBlogReScrape =
+      pageType === 'blogpost' &&
+      (!scrapedData.blogPostDetail || (!scrapedData.blogPostDetail.contentHtml && !scrapedData.blogPostDetail.image));
+
+    if (needsBlogReScrape && reactRoot) {
+      let blogRetries = 0;
+      const blogMaxRetries = 50;
+
+      const blogObserver = new MutationObserver(() => {
+        const newPost = scrapeBlogPostDetail();
+        if (newPost && (newPost.contentHtml || newPost.image)) {
+          blogObserver.disconnect();
+          scrapedData.blogPostDetail = newPost;
+          (window as any).__ALUF_SCRAPED__ = { ...scrapedData };
+          window.dispatchEvent(new CustomEvent('aluf:item-ready', { detail: newPost }));
+        } else {
+          blogRetries++;
+          if (blogRetries >= blogMaxRetries) blogObserver.disconnect();
+        }
+      });
+
+      blogObserver.observe(document.body, { childList: true, subtree: true });
+    }
+
     // 5b. MutationObserver: if item detail page is missing price/images (Konimbo lazy-loads),
     //     keep re-scraping until we get meaningful data.
     const needsItemReScrape =

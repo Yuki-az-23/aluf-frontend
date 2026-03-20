@@ -3,6 +3,8 @@ export interface TierConfig {
   price: number;
   specs: string[];
   color: string;
+  /** Link to the Konimbo product page — populated when tiers are fetched live */
+  href?: string;
 }
 
 export const gamingTiers: TierConfig[] = [
