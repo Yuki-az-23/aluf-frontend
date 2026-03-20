@@ -160,9 +160,9 @@ ${cust}
 }
 
 // ── Small field ───────────────────────────────────────────────────────────────
-function Field({ label, value, onChange, onBlur, type='text', error, placeholder, multiline, list }: {
+function Field({ label, value, onChange, onBlur, type='text', error, placeholder, multiline }: {
   label: string; value: string; onChange:(v:string)=>void; onBlur?:()=>void; type?:string;
-  error?:string; placeholder?:string; multiline?:boolean; list?:string;
+  error?:string; placeholder?:string; multiline?:boolean;
 }) {
   const base = 'w-full bg-page-bg border rounded-xl px-4 py-3 text-sm text-text-main placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/40 transition-colors';
   const cls  = `${base} ${error ? 'border-red-400' : 'border-border-light'}`;
@@ -171,8 +171,61 @@ function Field({ label, value, onChange, onBlur, type='text', error, placeholder
       <label className="block text-xs font-bold text-text-muted mb-1.5 uppercase tracking-wide">{label}</label>
       {multiline
         ? <textarea rows={3} value={value} onChange={e=>onChange(e.target.value)} onBlur={onBlur} placeholder={placeholder} className={cls+' resize-none'} />
-        : <input type={type} value={value} onChange={e=>onChange(e.target.value)} onBlur={onBlur} placeholder={placeholder} className={cls} list={list} />}
+        : <input type={type} value={value} onChange={e=>onChange(e.target.value)} onBlur={onBlur} placeholder={placeholder} className={cls} />}
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+    </div>
+  );
+}
+
+// ── Autocomplete field ────────────────────────────────────────────────────────
+function Autocomplete({ label, value, onChange, onBlur, placeholder, options, error }: {
+  label: string; value: string; onChange:(v:string)=>void; onBlur?:()=>void;
+  placeholder?:string; options:string[]; error?:string;
+}) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  const filtered = value.trim()
+    ? options.filter(o => o.includes(value.trim())).slice(0, 20)
+    : [];
+
+  useEffect(() => {
+    function onOutside(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onOutside);
+    return () => document.removeEventListener('mousedown', onOutside);
+  }, []);
+
+  const base = 'w-full bg-page-bg border rounded-xl px-4 py-3 text-sm text-text-main placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/40 transition-colors';
+  const cls  = `${base} ${error ? 'border-red-400' : 'border-border-light'}`;
+
+  return (
+    <div ref={wrapRef} className="relative">
+      <label className="block text-xs font-bold text-text-muted mb-1.5 uppercase tracking-wide">{label}</label>
+      <input
+        type="text"
+        value={value}
+        autoComplete="off"
+        placeholder={placeholder}
+        className={cls}
+        onChange={e => { onChange(e.target.value); setOpen(true); }}
+        onFocus={() => setOpen(true)}
+        onBlur={onBlur}
+        onKeyDown={e => { if (e.key === 'Escape') setOpen(false); }}
+      />
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+      {open && filtered.length > 0 && (
+        <ul className="absolute z-50 top-full mt-1 w-full bg-card-bg border border-border-light rounded-xl shadow-lg max-h-52 overflow-y-auto text-sm">
+          {filtered.map(opt => (
+            <li key={opt}
+              onMouseDown={() => { onChange(opt); setOpen(false); }}
+              className="px-4 py-2.5 cursor-pointer hover:bg-primary/10 hover:text-primary transition-colors text-text-main text-right">
+              {opt}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -316,8 +369,15 @@ export function CartPage() {
 
   function validateFields() {
     const e: Partial<Record<keyof ContactForm|'store', string>> = {};
-    if (contact.phone && !/^0[5-9]\d{7,8}$/.test(contact.phone.replace(/[\s-]/g,''))) e.phone = t('cart.phoneInvalid');
+    if (!contact.fullName.trim()) e.fullName = t('cart.fieldRequired');
+    if (!contact.phone.trim()) e.phone = t('cart.fieldRequired');
+    else if (!/^0[5-9]\d{7,8}$/.test(contact.phone.replace(/[\s-]/g,''))) e.phone = t('cart.phoneInvalid');
     if (contact.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) e.email = t('cart.emailInvalid');
+    if (shipping === 'delivery') {
+      if (!contact.city.trim()) e.city = t('cart.fieldRequired');
+      if (!contact.street.trim()) e.street = t('cart.fieldRequired');
+      if (!contact.houseNum.trim()) e.houseNum = t('cart.fieldRequired');
+    }
     return e;
   }
 
@@ -326,7 +386,12 @@ export function CartPage() {
       document.getElementById('cart-terms-checkbox')?.focus();
       return;
     }
-    setErrors(validateFields());
+    const errs = validateFields();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      document.querySelector('[data-form-section]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
     const fullAddress = [contact.city, contact.street, contact.houseNum].filter(Boolean).join(', ');
     const storeName   = DEFAULT_STORE.name;
     const note = [shipping==='pickup' ? `איסוף מהחנות: ${storeName}` : '', contact.note].filter(Boolean).join(' | ');
@@ -336,7 +401,7 @@ export function CartPage() {
         full_address: shipping==='delivery' ? fullAddress : storeName, note,
       }));
     } catch {}
-    syncCartToJStorage(cartItems);
+    persistCartItems(cartItems);
     window.location.href = CHECKOUT_URL;
   }
 
@@ -345,7 +410,12 @@ export function CartPage() {
       document.getElementById('cart-terms-checkbox')?.focus();
       return;
     }
-    setErrors(validateFields());
+    const errs = validateFields();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      document.querySelector('[data-form-section]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
     const fullAddress = [contact.city, contact.street, contact.houseNum].filter(Boolean).join(', ');
     const storeName   = DEFAULT_STORE.name;
     const note = ['תשלום בטלפון', shipping==='pickup' ? `איסוף מהחנות: ${storeName}` : '', contact.note].filter(Boolean).join(' | ');
@@ -355,7 +425,7 @@ export function CartPage() {
         full_address: shipping==='delivery' ? fullAddress : storeName, note,
       }));
     } catch {}
-    syncCartToJStorage(cartItems);
+    persistCartItems(cartItems);
     window.location.href = CHECKOUT_PHONE_URL;
   }
 
@@ -552,20 +622,14 @@ export function CartPage() {
                 {/* Address — city autocomplete + street + house number */}
                 {shipping === 'delivery' && (
                   <>
-                    {/* Datalist for city autocomplete */}
-                    <datalist id="il-cities">
-                      {IL_CITIES.map(c => <option key={c} value={c} />)}
-                    </datalist>
-                    <datalist id="il-streets">
-                      {streetSuggestions.map(s => <option key={s} value={s} />)}
-                    </datalist>
                     <div className="sm:col-span-2">
-                      <Field label={t('cart.city')} value={contact.city} onChange={v=>setField('city',v)}
-                        placeholder="הקלד עיר..." list="il-cities" />
+                      <Autocomplete label={t('cart.city')} value={contact.city} onChange={v=>setField('city',v)}
+                        placeholder="הקלד עיר..." options={IL_CITIES} error={errors.city} />
                     </div>
-                    <Field label={t('cart.street')} value={contact.street} onChange={v=>setField('street',v)}
-                      placeholder="שם הרחוב" list={contact.city && IL_CITIES.includes(contact.city) ? 'il-streets' : undefined} />
-                    <Field label={t('cart.houseNum')} value={contact.houseNum} onChange={v=>setField('houseNum',v)} placeholder='מס׳ בית / דירה' />
+                    <Autocomplete label={t('cart.street')} value={contact.street} onChange={v=>setField('street',v)}
+                      placeholder="שם הרחוב" options={streetSuggestions} error={errors.street} />
+                    <Field label={t('cart.houseNum')} value={contact.houseNum} onChange={v=>setField('houseNum',v)}
+                      placeholder='מס׳ בית / דירה' error={errors.houseNum} />
                   </>
                 )}
 

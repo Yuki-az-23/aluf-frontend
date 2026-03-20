@@ -4,6 +4,7 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Button } from '@/components/ui/Button';
 import { HeroBanner } from '@/components/commerce/HeroBanner';
 import { TierCard } from '@/components/commerce/TierCard';
+import { BlogCard } from '@/components/commerce/BlogCard';
 import { TabbedProducts } from '@/components/commerce/TabbedProducts';
 import { useLang } from '@/i18n';
 import { useStoreData } from '@/lib/StoreDataContext';
@@ -14,7 +15,7 @@ import { gamingTiers } from '@/data/tiers';
 
 export function HomePage() {
   const { t } = useLang();
-  const { banners } = useStoreData();
+  const { banners, blogPosts } = useStoreData();
   const { open: openPcBuilder } = usePCBuilder();
 
   // ── Newsletter state ────────────────────────────────────────────────────
@@ -82,27 +83,48 @@ export function HomePage() {
         </Container>
       </section>
 
+      {/* Blog — shown only when real posts are scraped from Konimbo */}
+      {blogPosts.length > 0 && (
+        <section className="py-12">
+          <Container>
+            <SectionHeader title={t('blog.title')} linkText={t('blog.readMore')} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {blogPosts.slice(0, 1).map(post => (
+                <BlogCard key={post.title} post={post} featured />
+              ))}
+              {blogPosts.slice(1, 3).map(post => (
+                <BlogCard key={post.title} post={post} />
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
+
       {/* Newsletter */}
       <section className="py-16 bg-card-bg border-t border-border-light">
         <Container>
-          <div className="max-w-md mx-auto text-center">
+          <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-2xl font-black text-text-main mb-1">{t('newsletter.title')}</h2>
             <p className="text-text-muted text-sm mb-6">{t('newsletter.subtitle')}</p>
             {nlSuccess ? (
               <p className="text-primary font-bold">{t('newsletter.success')}</p>
             ) : (
-              <form onSubmit={handleNewsletterSubmit} noValidate className="flex flex-col gap-3 text-start">
-                <input type="text" value={nlName} onChange={e => setNlName(e.target.value)}
-                  placeholder={t('newsletter.namePlaceholder')}
-                  className="px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
-                <input type="email" value={nlEmail} onChange={e => setNlEmail(e.target.value)}
-                  placeholder={t('newsletter.placeholder')}
-                  className="px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
-                <input type="tel" value={nlPhone} onChange={e => setNlPhone(e.target.value)}
-                  placeholder={t('newsletter.phonePlaceholder')} dir="ltr"
-                  className="px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
-                {nlError && <p className="text-red-500 text-xs">{nlError}</p>}
-                <Button variant="primary" size="md" className="w-full">{t('newsletter.submit')}</Button>
+              <form onSubmit={handleNewsletterSubmit} noValidate className="flex flex-col gap-3">
+                <div className="flex gap-3">
+                  <input type="text" value={nlName} onChange={e => setNlName(e.target.value)}
+                    placeholder={t('newsletter.namePlaceholder')}
+                    className="flex-1 px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
+                  <input type="email" value={nlEmail} onChange={e => setNlEmail(e.target.value)}
+                    placeholder={t('newsletter.placeholder')}
+                    className="flex-1 px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
+                </div>
+                <div className="flex gap-3">
+                  <input type="tel" value={nlPhone} onChange={e => setNlPhone(e.target.value)}
+                    placeholder={t('newsletter.phonePlaceholder')} dir="ltr"
+                    className="flex-1 px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
+                  <Button variant="primary" size="md" className="flex-shrink-0">{t('newsletter.submit')}</Button>
+                </div>
+                {nlError && <p className="text-red-500 text-xs text-start">{nlError}</p>}
               </form>
             )}
           </div>

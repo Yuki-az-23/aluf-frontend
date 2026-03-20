@@ -90,10 +90,12 @@ export function WorkshopPage() {
   const [submitting, setSubmitting]   = useState(false);
   const [submitted, setSubmitted]     = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [prefilledFrom, setPrefilledFrom] = useState<string | null>(null);
 
   /** Click a service/biz card → pre-fill ticket + scroll */
   const prefillTicket = (serviceName: string, type: 'lab' | 'home' | 'biz' | 'other') => {
     setServiceType(type);
+    setPrefilledFrom(serviceName);
     setDesc(sanitize(serviceName) + ' — ');
     document.getElementById('ticket')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -149,6 +151,7 @@ export function WorkshopPage() {
       setSubmitted(true);
       setName(''); setPhone(''); setEmail(''); setDesc('');
       setServiceType('lab'); setDeviceType('laptop');
+      setPrefilledFrom(null);
     } catch {
       setSubmitError(t('workshop.ticket.error'));
     } finally {
@@ -322,7 +325,15 @@ export function WorkshopPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.desc')}</label>
+                    <div className="flex items-center gap-2 mb-1">
+                      <label className="text-sm font-medium text-text-main">{t('workshop.ticket.desc')}</label>
+                      {prefilledFrom && (
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary bg-primary/10 border border-primary/30 rounded-full px-2.5 py-0.5">
+                          <Icon name="auto_fix_high" className="text-xs" />
+                          {prefilledFrom}
+                        </span>
+                      )}
+                    </div>
                     <textarea rows={3} value={desc} onChange={e => setDesc(e.target.value)}
                       className={cn(inputCls, 'resize-none')} placeholder={t('workshop.ticket.desc.placeholder')} />
                   </div>

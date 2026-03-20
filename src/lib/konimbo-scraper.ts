@@ -49,6 +49,7 @@ export function parseProductElements(container: ParentNode, baseUrl: string = BA
     '.layout_list_item',
     '[id^="item_id_"]',
     '.item[data-item-id]',
+    'em.quantity_true',   // Konimbo matchingCarousel / #matchingCarouselHook items
   ];
 
   let items: NodeListOf<Element> | null = null;
@@ -59,7 +60,9 @@ export function parseProductElements(container: ParentNode, baseUrl: string = BA
   if (!items) return products;
 
   items.forEach((el) => {
-    const id = (el.id?.replace('item_id_', '') || el.getAttribute('data-item-id') || '').trim();
+    // id: standard attrs, or the hidden checkbox value used by the matchingCarousel
+    const checkboxId = el.querySelector('input.old_checkbox, input[name="item_ids[]"]')?.getAttribute('value') || '';
+    const id = (el.id?.replace('item_id_', '') || el.getAttribute('data-item-id') || checkboxId).trim();
     if (!id || seen.has(id)) return;
 
     const titleEl = el.querySelector('h4.title, .title a, .title, h4, .item_title');
@@ -93,12 +96,13 @@ export function parseProductElements(container: ParentNode, baseUrl: string = BA
       }
     });
 
-    // Find href for this product
+    // Find href for this product — strip whitespace Konimbo may inject into href attrs
     const linkEl =
       el.querySelector('a[href*="/items/"]') ||
+      el.querySelector('a[href*="items"]') ||
       el.querySelector('a.item_link') ||
       el.querySelector('a[href]');
-    const rawHref = linkEl?.getAttribute('href') || '';
+    const rawHref = (linkEl?.getAttribute('href') || '').replace(/\s/g, '');
     const href = makeAbsolute(rawHref);
 
     // Specs from list items inside the product card
@@ -392,11 +396,13 @@ export function scrapeRelatedItems(): Product[] {
     const products = parseProductElements(hook, BASE_URL, true);
     if (products.length > 0) return products;
 
-    // Fallback: extract from anchor links directly
+    // Fallback: extract from anchor links directly.
+    // Use a[href] (not just a[href*="/items/"]) because Konimbo may inject whitespace
+    // into href values (e.g. "https://aluf.co.il/\nitems/123"), breaking the CSS selector.
     const seen = new Set<string>();
     const fallback: Product[] = [];
-    hook.querySelectorAll('a[href*="/items/"]').forEach((a) => {
-      const rawHref = a.getAttribute('href') || '';
+    hook.querySelectorAll('a[href]').forEach((a) => {
+      const rawHref = (a.getAttribute('href') || '').replace(/\s/g, '');
       const urlMatch = rawHref.match(/\/items\/([^/?#]+)/);
       const id = urlMatch?.[1] || '';
       if (!id || seen.has(id)) return;

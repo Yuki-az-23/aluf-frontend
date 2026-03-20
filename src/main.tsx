@@ -205,7 +205,7 @@ if (root) {
         let carousel: Element | null = null;
         for (const sel of RELATED_CAROUSEL_SELECTORS) {
           const el = document.querySelector(sel);
-          if (el && el.querySelectorAll('a[href*="/items/"]').length > 0) { carousel = el; break; }
+          if (el && (el.querySelectorAll('a[href*="/items/"]').length > 0 || el.querySelectorAll('em.quantity_true').length > 0)) { carousel = el; break; }
         }
         const hasItems = !!carousel;
         if (hasItems) {
