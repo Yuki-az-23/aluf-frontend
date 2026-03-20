@@ -1,36 +1,26 @@
+import { useState } from 'react';
 import { Container } from '@/components/layout/Container';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Button } from '@/components/ui/Button';
 import { HeroBanner } from '@/components/commerce/HeroBanner';
-import { ServiceCard } from '@/components/commerce/ServiceCard';
 import { TierCard } from '@/components/commerce/TierCard';
 import { BlogCard } from '@/components/commerce/BlogCard';
 import { TabbedProducts } from '@/components/commerce/TabbedProducts';
+import { PCBuilderModal } from '@/components/commerce/PCBuilderModal';
 import { useLang } from '@/i18n';
 import { useStoreData } from '@/lib/StoreDataContext';
-import { services } from '@/data/services';
 import { gamingTiers } from '@/data/tiers';
 import { blogPosts } from '@/data/blog';
 
 export function HomePage() {
   const { t } = useLang();
   const { banners } = useStoreData();
+  const [pcBuilderOpen, setPcBuilderOpen] = useState(false);
 
   return (
     <>
       {/* Hero Banner Carousel */}
       <HeroBanner banners={banners} />
-
-      {/* Services */}
-      <section className="py-12">
-        <Container>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {services.map(s => (
-              <ServiceCard key={s.titleKey} service={s} />
-            ))}
-          </div>
-        </Container>
-      </section>
 
       {/* Featured Products — Tabbed by Tag */}
       <section className="py-12">
@@ -40,21 +30,28 @@ export function HomePage() {
         </Container>
       </section>
 
-      {/* PC Builder CTA — mobile only, above gaming tiers */}
-      <div className="md:hidden mx-4 mb-2 mt-6 rounded-xl overflow-hidden border border-primary/30 bg-gradient-to-r from-gray-900 to-primary/20">
-        <div className="flex items-center justify-between px-4 py-3 gap-3">
-          <div>
-            <p className="font-black text-base text-white leading-tight">יכול לבנות בעצמך</p>
-            <p className="text-xs text-white/70 mt-0.5">בחר רכיבים ובנה את המחשב שלך</p>
+      {/* PC Builder CTA */}
+      <div className="mx-4 md:mx-0 mb-2 mt-2 md:mt-0 rounded-xl md:rounded-none overflow-hidden border border-primary/30 md:border-x-0 md:border-y bg-gradient-to-l from-gray-900 to-primary/20">
+        <Container>
+          <div className="flex items-center justify-between py-4 gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl hidden sm:block">🖥️</span>
+              <div>
+                <p className="font-black text-base text-white leading-tight">בנה מחשב מותאם אישית</p>
+                <p className="text-xs text-white/70 mt-0.5">בחר רכיבים ובנה את המחשב שלך בדיוק לפי הצרכים שלך</p>
+              </div>
+            </div>
+            <button
+              className="flex-shrink-0 bg-primary hover:bg-primary/90 text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap shadow-lg"
+              onClick={() => setPcBuilderOpen(true)}
+            >
+              בנה עכשיו ←
+            </button>
           </div>
-          <button
-            className="flex-shrink-0 bg-primary hover:bg-primary/90 text-white font-bold text-sm px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
-            onClick={() => (window as any).PCConfiguratorIntegration?.open()}
-          >
-            בנה עכשיו ←
-          </button>
-        </div>
+        </Container>
       </div>
+
+      <PCBuilderModal isOpen={pcBuilderOpen} onClose={() => setPcBuilderOpen(false)} />
 
       {/* Gaming Tiers */}
       <section className="py-12">

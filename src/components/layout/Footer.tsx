@@ -24,7 +24,7 @@ const serviceLinks = [
   { key: 'support',       href: ALUF  + '/contact' },
   { key: 'orderTracking', href: ALUF  + '/customer_login' },
   { key: 'cancelOrder',   href: SHOP  + '/contact?CancellingTransaction=true&msg=%D7%9E%D7%A2%D7%95%D7%A0%D7%99%D7%99%D7%9F%20%D7%9C%D7%91%D7%98%D7%9C%20%D7%90%D7%AA%20%D7%94%D7%94%D7%96%D7%9E%D7%A0%D7%94' },
-  { key: 'contract',      href: ALUF  + '/contract' },
+  { key: 'contract',      href: '/contract' },
   { key: 'about',         href: ALUF  + '/about' },
   { key: 'directions',    href: ALUF  + '/location' },
 ];

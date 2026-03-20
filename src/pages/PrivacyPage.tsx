@@ -1,13 +1,21 @@
 import { Container } from '@/components/layout/Container';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
+import { Icon } from '@/components/ui/Icon';
 import { useLang } from '@/i18n';
 
 const LAST_UPDATED = '01/01/2026';
 const STORE_EMAIL  = 'sales@aluf.co.il';
-//dont use emoiji doent not look professional and we need to make it more legal so you may use vector icon or svg icon instead of emoiji  ---dont IGNORE ---
+
+// Material Icon names per section — professional, no emojis
 const SECTION_ICONS: Record<string, string> = {
-  s1: '🔍', s2: '🎯', s3: '🔒', s4: '🍪',
-  s5: '🤝', s6: '✏️', s7: '📅', s8: '📬',
+  s1: 'manage_search',
+  s2: 'tune',
+  s3: 'lock',
+  s4: 'cookie',
+  s5: 'share',
+  s6: 'verified_user',
+  s7: 'update',
+  s8: 'contact_mail',
 };
 const SECTION_KEYS = ['s1','s2','s3','s4','s5','s6','s7','s8'] as const;
 
@@ -18,7 +26,7 @@ export function PrivacyPage() {
     { label: t('breadcrumb.home'), href: '/' },
     { label: t('privacy.breadcrumb') },
   ];
-/// all info most be baesd on orignel text from https://www.aluf.co.il/contract and pricvry https://www.aluf.co.il/pages/54957-%D7%AA%D7%A7%D7%A0%D7%95%D7%9F-%D7%A4%D7%A8%D7%98%D7%99%D7%95%D7%AA and we need to make sure that all the legal info is correct and up to date  ---  dont IGNORE ---
+
   return (
     <Container className="py-8 lg:py-14 max-w-3xl">
       <Breadcrumbs items={crumbs} className="mb-6" />
@@ -26,7 +34,7 @@ export function PrivacyPage() {
       {/* Header */}
       <div className="mb-10">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-4">
-          <span>🔒</span>
+          <Icon name="lock" className="text-sm" />
           <span>{t('privacy.updated')}: {LAST_UPDATED}</span>
         </div>
         <h1 className="text-3xl lg:text-4xl font-black text-text-main font-display leading-tight">
@@ -43,8 +51,8 @@ export function PrivacyPage() {
         {SECTION_KEYS.map(key => (
           <section key={key} className="bg-card-bg border border-border-light rounded-2xl p-6 shadow-sm">
             <h2 className="flex items-center gap-3 text-base font-black text-text-main mb-3">
-              <span className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-lg shrink-0">
-                {SECTION_ICONS[key]}
+              <span className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Icon name={SECTION_ICONS[key]} className="text-base text-primary" />
               </span>
               {t(`privacy.${key}.title`)}
             </h2>
@@ -57,7 +65,7 @@ export function PrivacyPage() {
 
       {/* Law note */}
       <div className="mt-10 flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/20">
-        <span className="text-primary text-xl shrink-0 mt-0.5">⚖️</span>
+        <Icon name="balance" className="text-primary text-xl shrink-0 mt-0.5" />
         <p className="text-sm text-text-muted leading-relaxed">
           {t('privacy.footerNote')}
           <a href={`mailto:${STORE_EMAIL}`} className="text-primary font-semibold hover:underline">

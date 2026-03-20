@@ -48,17 +48,26 @@ const WaSvg = () => (
   </svg>
 );
 
+const TICKET_ITEM_ID = '8765261';
+
 export function WorkshopPage() {
   const { t, dir } = useLang();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [serviceType, setServiceType] = useState('lab');
   const [deviceType, setDeviceType] = useState('laptop');
   const [desc, setDesc] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
-  const handleTicketSubmit = (e: React.FormEvent) => {
+  const handleTicketSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
+    setSubmitError('');
+
     const svcLabels: Record<string, string> = {
       lab: t('workshop.ticket.type.lab'),
       home: t('workshop.ticket.type.home'),
@@ -70,16 +79,35 @@ export function WorkshopPage() {
       laptop: t('workshop.ticket.device.laptop'),
       other: t('workshop.ticket.device.other'),
     };
-    const msg = [
-      '📋 קריאת שירות – אלוף המחשבים',
-      '',
-      `👤 שם: ${name}`,
-      `📞 טלפון: ${phone}`,
-      `🛠️ סוג שירות: ${svcLabels[serviceType] ?? serviceType}`,
-      `💻 סוג מכשיר: ${devLabels[deviceType] ?? deviceType}`,
-      `📝 תיאור: ${desc}`,
+
+    const content = [
+      `סוג שירות: ${svcLabels[serviceType] ?? serviceType}`,
+      `סוג מכשיר: ${devLabels[deviceType] ?? deviceType}`,
+      `תיאור: ${desc}`,
     ].join('\n');
-    window.open(`${WA_URL}&text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+
+    const body = new URLSearchParams();
+    body.append('ticket[customer_name]', name);
+    body.append('ticket[customer_phone]', phone);
+    body.append('ticket[customer_email]', email);
+    body.append('ticket[item_id]', TICKET_ITEM_ID);
+    body.append('ticket[content]', content);
+    body.append('ticket[newsletter]', '0');
+
+    try {
+      const res = await fetch('/tickets', { method: 'POST', body });
+      if (res.ok) {
+        setSubmitted(true);
+        setName(''); setPhone(''); setEmail(''); setDesc('');
+        setServiceType('lab'); setDeviceType('laptop');
+      } else {
+        setSubmitError(t('workshop.ticket.error'));
+      }
+    } catch {
+      setSubmitError(t('workshop.ticket.error'));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const inputCls = 'w-full rounded-lg border border-border-light bg-card-bg text-text-main px-4 py-2.5 text-sm placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary transition';
@@ -233,43 +261,73 @@ export function WorkshopPage() {
               <p className="text-text-muted">{t('workshop.ticket.subtitle')}</p>
             </div>
 
-            <form onSubmit={handleTicketSubmit} className="bg-card-bg border border-border-light rounded-2xl p-6 sm:p-8 space-y-5 shadow-sm">
-              <div>
-                <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.name')}</label>
-                <input type="text" required value={name} onChange={e => setName(e.target.value)} className={inputCls} placeholder={t('workshop.ticket.name')} />
+            {submitted ? (
+              <div className="bg-card-bg border border-green-500/40 rounded-2xl p-10 text-center shadow-sm">
+                <span className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
+                  <Icon name="check_circle" className="text-green-500 text-4xl" />
+                </span>
+                <h3 className="text-xl font-bold text-text-main mb-2">{t('workshop.ticket.success.title')}</h3>
+                <p className="text-text-muted mb-6">{t('workshop.ticket.success.body')}</p>
+                <button
+                  type="button"
+                  onClick={() => setSubmitted(false)}
+                  className="px-6 py-2.5 rounded-xl border border-primary text-primary font-semibold text-sm hover:bg-primary hover:text-white transition-colors"
+                >
+                  {t('workshop.ticket.send.cta')}
+                </button>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.phone')}</label>
-                <input type="tel" required value={phone} onChange={e => setPhone(e.target.value)} className={inputCls} placeholder="05X-XXXXXXX" dir="ltr" />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            ) : (
+              <form onSubmit={handleTicketSubmit} className="bg-card-bg border border-border-light rounded-2xl p-6 sm:p-8 space-y-5 shadow-sm">
                 <div>
-                  <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.type')}</label>
-                  <select value={serviceType} onChange={e => setServiceType(e.target.value)} className={inputCls}>
-                    <option value="lab">{t('workshop.ticket.type.lab')}</option>
-                    <option value="home">{t('workshop.ticket.type.home')}</option>
-                    <option value="biz">{t('workshop.ticket.type.biz')}</option>
-                    <option value="other">{t('workshop.ticket.type.other')}</option>
-                  </select>
+                  <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.name')}</label>
+                  <input type="text" required value={name} onChange={e => setName(e.target.value)} className={inputCls} placeholder={t('workshop.ticket.name')} />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.phone')}</label>
+                    <input type="tel" required value={phone} onChange={e => setPhone(e.target.value)} className={inputCls} placeholder="05X-XXXXXXX" dir="ltr" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.email')}</label>
+                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputCls} placeholder={t('workshop.ticket.email.placeholder')} dir="ltr" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.type')}</label>
+                    <select value={serviceType} onChange={e => setServiceType(e.target.value)} className={inputCls}>
+                      <option value="lab">{t('workshop.ticket.type.lab')}</option>
+                      <option value="home">{t('workshop.ticket.type.home')}</option>
+                      <option value="biz">{t('workshop.ticket.type.biz')}</option>
+                      <option value="other">{t('workshop.ticket.type.other')}</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.device')}</label>
+                    <select value={deviceType} onChange={e => setDeviceType(e.target.value)} className={inputCls}>
+                      <option value="desktop">{t('workshop.ticket.device.desktop')}</option>
+                      <option value="laptop">{t('workshop.ticket.device.laptop')}</option>
+                      <option value="other">{t('workshop.ticket.device.other')}</option>
+                    </select>
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.device')}</label>
-                  <select value={deviceType} onChange={e => setDeviceType(e.target.value)} className={inputCls}>
-                    <option value="desktop">{t('workshop.ticket.device.desktop')}</option>
-                    <option value="laptop">{t('workshop.ticket.device.laptop')}</option>
-                    <option value="other">{t('workshop.ticket.device.other')}</option>
-                  </select>
+                  <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.desc')}</label>
+                  <textarea rows={4} required value={desc} onChange={e => setDesc(e.target.value)} className={inputCls} placeholder={t('workshop.ticket.desc.placeholder')} />
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.desc')}</label>
-                <textarea rows={4} required value={desc} onChange={e => setDesc(e.target.value)} className={inputCls} placeholder={t('workshop.ticket.desc.placeholder')} />
-              </div>
-              <button type="submit" className="w-full inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-bold rounded-xl px-6 py-3 transition">
-                <WaSvg />
-                {t('workshop.ticket.send')}
-              </button>
-            </form>
+                {submitError && (
+                  <p className="text-red-500 text-sm text-center">{submitError}</p>
+                )}
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 disabled:opacity-60 text-white font-bold rounded-xl px-6 py-3 transition"
+                >
+                  <Icon name="send" className="text-lg" />
+                  {submitting ? t('workshop.ticket.sending') : t('workshop.ticket.send')}
+                </button>
+              </form>
+            )}
           </div>
         </Container>
       </section>

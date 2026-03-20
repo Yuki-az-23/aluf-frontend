@@ -1,5 +1,6 @@
 import { Container } from '@/components/layout/Container';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
+import { Icon } from '@/components/ui/Icon';
 import { useLang } from '@/i18n';
 
 const LAST_UPDATED  = '01/01/2026';
@@ -21,7 +22,7 @@ export function TermsPage() {
       {/* Header */}
       <div className="mb-10">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-4">
-          <span>📋</span>
+          <Icon name="description" className="text-sm" />
           <span>{t('terms.updated')}: {LAST_UPDATED}</span>
         </div>
         <h1 className="text-3xl lg:text-4xl font-black text-text-main font-display leading-tight">
@@ -49,7 +50,7 @@ export function TermsPage() {
 
       {/* Footer note */}
       <div className="mt-10 flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/20">
-        <span className="text-primary text-xl shrink-0 mt-0.5">ℹ️</span>
+        <Icon name="info" className="text-primary text-xl shrink-0 mt-0.5" />
         <p className="text-sm text-text-muted leading-relaxed">
           {t('terms.footerNote')}
           <a href={`mailto:${STORE_EMAIL}`} className="text-primary font-semibold hover:underline">
