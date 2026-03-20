@@ -6,6 +6,7 @@ import { useLang } from '@/i18n';
 interface Suggestion {
   img_path: string;
   title: string;
+  url?: string;
 }
 
 interface SearchInputProps {
@@ -52,16 +53,19 @@ export function SearchInput({ className }: SearchInputProps) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const navigate = (title: string) => {
+  const navigate = (title: string, directUrl?: string) => {
     setOpen(false);
     setQuery(title);
-    window.location.href = `/search?q=${encodeURIComponent(title)}`;
+    // If the autocomplete API returned a direct item URL, go straight to that item.
+    // Otherwise fall back to the search results page.
+    window.location.href = directUrl || `/search?q=${encodeURIComponent(title)}`;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const chosen = activeIndex >= 0 ? suggestions[activeIndex]?.title : query;
-    if (chosen?.trim()) navigate(chosen.trim());
+    const active = activeIndex >= 0 ? suggestions[activeIndex] : null;
+    const chosen = active?.title ?? query;
+    if (chosen?.trim()) navigate(chosen.trim(), active?.url);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -102,7 +106,7 @@ export function SearchInput({ className }: SearchInputProps) {
             <li key={i}>
               <button
                 type="button"
-                onMouseDown={() => navigate(s.title)}
+                onMouseDown={() => navigate(s.title, s.url)}
                 className={cn(
                   'w-full flex items-center gap-3 px-3 py-2 text-right text-sm text-header-text transition-colors',
                   i === activeIndex ? 'bg-primary/20' : 'hover:bg-black/5 dark:hover:bg-white/10',

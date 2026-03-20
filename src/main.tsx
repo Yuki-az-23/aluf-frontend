@@ -12,6 +12,7 @@ import {
   scrapeCategoryTitle,
   scrapeBlogPosts,
   scrapeBlogPostDetail,
+  scrapeFilterGroups,
 } from './lib/konimbo-scraper';
 import { getPageType } from './lib/konimbo';
 import './theme/tokens.css';
@@ -51,6 +52,7 @@ if (root) {
       pageTitle: ['category', 'items', 'blog'].includes(pageType) ? scrapeCategoryTitle() : '',
       blogPosts: pageType === 'blog' ? scrapeBlogPosts() : [],
       blogPostDetail: pageType === 'blogpost' ? scrapeBlogPostDetail() : null,
+      filterGroups: ['items', 'category'].includes(pageType) ? scrapeFilterGroups() : [],
     };
 
     // Store on window so StoreDataProvider can access it synchronously

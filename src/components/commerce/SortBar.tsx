@@ -74,7 +74,7 @@ export function SortBar({ count, sort, view, onSortChange, onViewChange, onFilte
           {/* View toggles: grid | strip (mobile-only) | list */}
           <div className="flex items-center gap-0.5">
             {viewBtn('grid', 'grid_view')}
-            {viewBtn('strip', 'view_agenda', true)}
+            {viewBtn('strip', 'view_agenda')}
             {viewBtn('list', 'view_list')}
           </div>
         </div>

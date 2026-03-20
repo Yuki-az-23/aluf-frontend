@@ -8,6 +8,7 @@ export interface Product {
   originalPrice?: number;
   inStock: boolean;
   href?: string;
+  filterAttrs?: Record<string, string>;
 }
 
 export interface SpecRow {

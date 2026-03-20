@@ -32,7 +32,7 @@ function findCategoryHref(name: string, categories: KonimboCategory[]): string |
 
 export function CategoryPage() {
   const { t } = useLang();
-  const { categories, products, breadcrumbs, pageTitle, categoryGroups } = useStoreData();
+  const { categories, products, breadcrumbs, pageTitle, categoryGroups, filterGroups } = useStoreData();
 
   // ── Filter / sort / view state — hooks must be top-level (before any early returns) ──
   const [filters, setFilters] = useState<FilterState>(() => {
@@ -42,6 +42,7 @@ export function CategoryPage() {
       priceMax: prices.length ? Math.max(...prices) : 10000,
       brands: [],
       inStockOnly: false,
+      attrs: {},
     };
   });
   const [sort, setSort] = useState<SortOption>('price-asc');
@@ -58,6 +59,7 @@ export function CategoryPage() {
     const prices = products.map(p => p.price);
     const gMax = prices.length ? Math.max(...prices) : 10000;
     if (filters.priceMax < gMax) n++;
+    n += Object.values(filters.attrs).filter(v => v.length > 0).length;
     return n;
   }, [filters, products]);
 
@@ -90,6 +92,7 @@ export function CategoryPage() {
               products={products}
               filters={filters}
               onChange={handleFilterChange}
+              filterGroups={filterGroups}
               mobileOpen={filterOpen}
               onMobileClose={() => setFilterOpen(false)}
             />
@@ -110,7 +113,7 @@ export function CategoryPage() {
                   view === 'grid'
                     ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6'
                     : view === 'strip'
-                    ? 'flex flex-col gap-2'
+                    ? 'grid grid-cols-1 md:grid-cols-2 gap-2'
                     : 'flex flex-col gap-4'
                 }>
                   {sorted.map(p => (

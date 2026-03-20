@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import type { KonimboCategory, BannerData, BreadcrumbItem } from './konimbo-scraper';
+import type { KonimboCategory, BannerData, BreadcrumbItem, FilterGroup } from './konimbo-scraper';
 import type { Product, ItemDetail, BlogPostItem, BlogPostDetail } from '@/data/products';
 import { featuredProducts as fallbackProducts } from '@/data/products';
 
@@ -13,6 +13,7 @@ interface StoreData {
   pageTitle: string;
   blogPosts: BlogPostItem[];
   blogPostDetail: BlogPostDetail | null;
+  filterGroups: FilterGroup[];
 }
 
 function readScraped(): StoreData {
@@ -27,6 +28,7 @@ function readScraped(): StoreData {
     pageTitle: scraped?.pageTitle || '',
     blogPosts: scraped?.blogPosts || [],
     blogPostDetail: scraped?.blogPostDetail || null,
+    filterGroups: scraped?.filterGroups || [],
   };
 }
 
@@ -40,6 +42,7 @@ const StoreDataContext = createContext<StoreData>({
   pageTitle: '',
   blogPosts: [],
   blogPostDetail: null,
+  filterGroups: [],
 });
 
 export function StoreDataProvider({ children }: { children: ReactNode }) {

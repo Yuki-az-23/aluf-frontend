@@ -1,6 +1,7 @@
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { FloatingContact } from '@/components/ui/FloatingContact';
+import { CookieConsent } from '@/components/ui/CookieConsent';
 import { useLang } from '@/i18n';
 import type { ReactNode } from 'react';
 
@@ -22,6 +23,7 @@ export function AppShell({ children }: AppShellProps) {
       </main>
       <Footer />
       <FloatingContact />
+      <CookieConsent />
     </div>
   );
 }

@@ -13,13 +13,13 @@ const STEP = 24;
 
 export function ItemsGridPage() {
   const { t } = useLang();
-  const { products, breadcrumbs, pageTitle, categories } = useStoreData();
+  const { products, breadcrumbs, pageTitle, categories, filterGroups } = useStoreData();
 
   const [filters, setFilters] = useState<FilterState>(() => {
     const prices = products.map(p => p.price);
     const globalMin = prices.length ? Math.min(...prices) : 0;
     const globalMax = prices.length ? Math.max(...prices) : 10000;
-    return { priceMin: globalMin, priceMax: globalMax, brands: [], inStockOnly: false };
+    return { priceMin: globalMin, priceMax: globalMax, brands: [], inStockOnly: false, attrs: {} };
   });
   const [sort, setSort] = useState<SortOption>('price-asc');
   const [view, setView] = useState<ViewMode>('grid');
@@ -50,6 +50,7 @@ export function ItemsGridPage() {
     const prices = allProducts.map(p => p.price);
     const gMax = prices.length ? Math.max(...prices) : 10000;
     if (filters.priceMax < gMax) n++;
+    n += Object.values(filters.attrs).filter(v => v.length > 0).length;
     return n;
   }, [filters, allProducts]);
 
@@ -106,17 +107,24 @@ export function ItemsGridPage() {
     return () => obs.disconnect();
   }, [hasMoreDisplay, loadMore]);
 
+  // On /search?q=... show the query as the page heading
+  const searchQuery = new URLSearchParams(window.location.search).get('q') || '';
+  const isSearchPage = /^\/search(\?|$)/.test(window.location.pathname);
+  const displayTitle = isSearchPage
+    ? (searchQuery ? `${t('search.resultsFor')}: "${searchQuery}"` : t('search.results'))
+    : pageTitle;
+
   const crumbs = breadcrumbs.length > 0
     ? breadcrumbs
-    : [{ label: t('breadcrumb.home'), href: '/' }, { label: pageTitle || '' }];
+    : [{ label: t('breadcrumb.home'), href: '/' }, { label: displayTitle || '' }];
 
   return (
     <Container className="py-8">
       <Breadcrumbs items={crumbs} className="mb-4" />
 
-      {pageTitle && (
+      {displayTitle && (
         <div className="border-r-4 border-primary pr-4 mb-8">
-          <h1 className="text-3xl font-black text-text-main font-display">{pageTitle}</h1>
+          <h1 className="text-3xl font-black text-text-main font-display">{displayTitle}</h1>
         </div>
       )}
 
@@ -143,6 +151,7 @@ export function ItemsGridPage() {
             products={allProducts}
             filters={filters}
             onChange={handleFilterChange}
+            filterGroups={filterGroups}
             mobileOpen={filterOpen}
             onMobileClose={() => setFilterOpen(false)}
           />
@@ -163,7 +172,7 @@ export function ItemsGridPage() {
                 view === 'grid'
                   ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6'
                   : view === 'strip'
-                  ? 'flex flex-col gap-2'
+                  ? 'grid grid-cols-1 md:grid-cols-2 gap-2'
                   : 'flex flex-col gap-4'
               }>
                 {displayed.map(p => (

@@ -44,6 +44,7 @@ export function getPageType(): string {
 
   if (/^\/items\//.test(path)) return 'item';
   if (/^\/tags\//.test(path)) return 'items';
+  if (/^\/search(\?|$)/.test(path)) return 'items';
   if (/^\/(cart|orders)(\/|$)/.test(path)) return 'cart';
   if (/^\/632283-/.test(path)) return 'blog';
 
