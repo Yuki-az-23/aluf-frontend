@@ -480,5 +480,22 @@
   "cat.רישיונות": "Licenses",
   "footer.whatsapp": "Chat on WhatsApp",
   "footer.login": "Login",
-  "footer.myAccount": "My Account"
+  "footer.myAccount": "My Account",
+  "about.title": "About Aluf Computers",
+  "about.subtitle": "Israel's leading computer & gaming store since 2005",
+  "about.description": "Aluf Computers is a trusted and well-known computer store and service network operating from Rishon LeZion. We specialize in selling desktop and laptop computers, gaming gear, PC components, consoles and a wide range of peripherals. Alongside sales, we offer professional lab services for computer repair and upgrades.",
+  "about.stat.years": "Years of Experience",
+  "about.stat.customers": "Happy Customers",
+  "about.stat.products": "Products in Stock",
+  "about.stat.service": "Lab Service",
+  "about.value.price.title": "Fair Prices",
+  "about.value.price.body": "We work with the largest suppliers to bring you the best prices on the market.",
+  "about.value.service.title": "Uncompromising Service",
+  "about.value.service.body": "Our team of experts is available to help with selection, installation and technical support before and after purchase.",
+  "about.value.expert.title": "Real Expertise",
+  "about.value.expert.body": "Our team consists of certified computer engineers and technicians with years of experience in the field.",
+  "about.value.lab.title": "Professional Lab",
+  "about.value.lab.body": "Our repair lab handles any problem — from screen replacement to a full computer upgrade.",
+  "about.location.title": "Our Location",
+  "about.cta": "Come Visit Us"
 }

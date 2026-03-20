@@ -35,7 +35,7 @@ export function getPageType(): string {
   // 1. Explicit meta tag (set via Konimbo admin)
   const meta = document.querySelector('meta[name="aluf-page"]');
   const metaType = meta?.getAttribute('content') || '';
-  if (metaType && ['home', 'category', 'items', 'item', 'cart', 'workshop', 'blog', 'blogpost', 'terms', 'privacy'].includes(metaType)) {
+  if (metaType && ['home', 'category', 'items', 'item', 'cart', 'workshop', 'blog', 'blogpost', 'terms', 'privacy', 'contact', 'about', 'login', 'account'].includes(metaType)) {
     return metaType;
   }
 
@@ -48,6 +48,10 @@ export function getPageType(): string {
   if (/^\/pages\/54957-/.test(path)) return 'privacy';
   if (/^\/pages\/52435-/.test(path)) return 'workshop';
   if (/^\/(cart|orders)(\/|$)/.test(path)) return 'cart';
+  if (/^\/contact(\?|$)/.test(path)) return 'contact';
+  if (/^\/about(\?|$)/.test(path)) return 'about';
+  if (/^\/customer_login(\?|$)/.test(path)) return 'login';
+  if (/^\/customer_profile(\?|$)/.test(path)) return 'account';
 
   // Blog list: /632283-... (aluf.co.il) or /blog (alufshop.konimbo.co.il)
   if (/^\/632283-/.test(path) || /^\/blog\/?$/.test(path)) return 'blog';

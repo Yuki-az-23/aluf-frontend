@@ -15,6 +15,8 @@ import { BlogListPage } from '@/pages/BlogListPage';
 import { BlogPostPage } from '@/pages/BlogPostPage';
 import { TermsPage } from '@/pages/TermsPage';
 import { PrivacyPage } from '@/pages/PrivacyPage';
+import { ContactPage } from '@/pages/ContactPage';
+import { AboutPage } from '@/pages/AboutPage';
 import { getPageType } from '@/lib/konimbo';
 
 function PageRouter() {
@@ -29,6 +31,11 @@ function PageRouter() {
     case 'blogpost': return <BlogPostPage />;
     case 'terms': return <TermsPage />;
     case 'privacy': return <PrivacyPage />;
+    case 'contact': return <ContactPage />;
+    case 'about': return <AboutPage />;
+    case 'login':
+    case 'account':
+      return null; // let Konimbo's native login/profile UI show through
     case 'home':
     default:
       return <HomePage />;
