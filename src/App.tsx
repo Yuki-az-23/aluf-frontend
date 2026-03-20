@@ -32,7 +32,6 @@ function PageRouter() {
       return <HomePage />;
   }
 }
-/// we missing the popup coockie accpetncs form the wbesite we store  and the lab isnt contant .
 export function App() {
   return (
     <div data-aluf-app>

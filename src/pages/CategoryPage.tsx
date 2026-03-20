@@ -19,7 +19,7 @@ function resolveParentKey(title: string): string | null {
   return null;
 }
 
-const SHARED_GRID = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4';
+const GROUP_GRID = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4';
 
 function findCategoryHref(name: string, categories: KonimboCategory[]): string | undefined {
   for (const cat of categories) {
@@ -137,29 +137,29 @@ export function CategoryPage() {
           {pageTitle && (
             <h1 className="text-3xl font-black text-text-main mb-8 text-right">{pageTitle}</h1>
           )}
-          <div className={SHARED_GRID}>
+          <div className="space-y-8">
             {categoryGroups.map(group => (
-              <>
-                <div key={`hd-${group.group}`} className="col-span-full pt-2 first:pt-0">
-                  <h2 className="text-base font-bold text-text-main border-r-4 border-primary pr-3 inline-block">
-                    {group.group}
-                  </h2>
+              <div key={group.group}>
+                <h2 className="text-base font-bold text-text-main border-r-4 border-primary pr-3 inline-block mb-4">
+                  {group.group}
+                </h2>
+                <div className={GROUP_GRID}>
+                  {group.items.map(item => (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      className="group bg-card-bg rounded-xl p-4 border border-border-light shadow-tech hover:shadow-tech-hover hover:border-primary transition-all duration-300 flex flex-col items-center gap-3 text-center"
+                    >
+                      <div className="w-16 h-16 flex items-center justify-center rounded-lg bg-white group-hover:bg-primary/10 transition-colors">
+                        <span className="material-symbols-rounded text-4xl text-text-muted group-hover:text-primary transition-colors">category</span>
+                      </div>
+                      <span className="text-sm font-bold text-text-main group-hover:text-primary transition-colors line-clamp-2">
+                        {item.title}
+                      </span>
+                    </a>
+                  ))}
                 </div>
-                {group.items.map(item => (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    className="group bg-card-bg rounded-xl p-4 border border-border-light shadow-tech hover:shadow-tech-hover hover:border-primary transition-all duration-300 flex flex-col items-center gap-3 text-center"
-                  >
-                    <div className="w-16 h-16 flex items-center justify-center rounded-lg bg-white group-hover:bg-primary/10 transition-colors">
-                      <span className="material-symbols-rounded text-4xl text-text-muted group-hover:text-primary transition-colors">category</span>
-                    </div>
-                    <span className="text-sm font-bold text-text-main group-hover:text-primary transition-colors line-clamp-2">
-                      {item.title}
-                    </span>
-                  </a>
-                ))}
-              </>
+              </div>
             ))}
           </div>
         </Container>
@@ -191,44 +191,44 @@ export function CategoryPage() {
         </h1>
       )}
 
-      <div className={SHARED_GRID}>
+      <div className="space-y-8">
         {groups.map(group => (
-          <>
-            <div key={`hd-${group.group}`} className="col-span-full pt-2 first:pt-0">
-              <h2 className="text-base font-bold text-text-main border-r-4 border-primary pr-3 inline-block">
-                {group.group}
-              </h2>
+          <div key={group.group}>
+            <h2 className="text-base font-bold text-text-main border-r-4 border-primary pr-3 inline-block mb-4">
+              {group.group}
+            </h2>
+            <div className={GROUP_GRID}>
+              {group.items.map(itemName => {
+                const href = findCategoryHref(itemName, categories);
+                const image = ICON_MAP[itemName];
+                return (
+                  <a
+                    key={itemName}
+                    href={href || '#'}
+                    className="group bg-card-bg rounded-xl p-4 border border-border-light shadow-tech hover:shadow-tech-hover hover:border-primary transition-all duration-300 flex flex-col items-center gap-4 text-center"
+                  >
+                    <div className="w-full aspect-square bg-white rounded-lg flex items-center justify-center p-3 overflow-hidden group-hover:bg-primary/5 transition-colors">
+                      {image ? (
+                        <img
+                          src={image}
+                          alt={itemName}
+                          className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className="material-symbols-rounded text-5xl text-text-muted group-hover:text-primary transition-colors">
+                          devices
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-sm font-bold text-text-main group-hover:text-primary transition-colors leading-tight">
+                      {itemName}
+                    </span>
+                  </a>
+                );
+              })}
             </div>
-            {group.items.map(itemName => {
-              const href = findCategoryHref(itemName, categories);
-              const image = ICON_MAP[itemName];
-              return (
-                <a
-                  key={itemName}
-                  href={href || '#'}
-                  className="group bg-card-bg rounded-xl p-4 border border-border-light shadow-tech hover:shadow-tech-hover hover:border-primary transition-all duration-300 flex flex-col items-center gap-4 text-center"
-                >
-                  <div className="w-full aspect-square bg-white rounded-lg flex items-center justify-center p-3 overflow-hidden group-hover:bg-primary/5 transition-colors">
-                    {image ? (
-                      <img
-                        src={image}
-                        alt={itemName}
-                        className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-300"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span className="material-symbols-rounded text-5xl text-text-muted group-hover:text-primary transition-colors">
-                        devices
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-sm font-bold text-text-main group-hover:text-primary transition-colors leading-tight">
-                    {itemName}
-                  </span>
-                </a>
-              );
-            })}
-          </>
+          </div>
         ))}
       </div>
     </Container>

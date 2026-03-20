@@ -8,6 +8,9 @@ import { ProductCard } from '@/components/commerce/ProductCard';
 import { useStoreData } from '@/lib/StoreDataContext';
 import { useCart } from '@/lib/CartContext';
 import { useLang } from '@/i18n';
+import cartSoundUrl from '@/assets/add2cart.mp3';
+
+const cartSound = new Audio(cartSoundUrl);
 
 /** Translate a raw Hebrew warranty string (from Konimbo) into the current language */
 function translateWarranty(raw: string, lang: string, t: (k: string) => string): string {
@@ -79,6 +82,8 @@ export function ItemPage() {
       price: itemDetail.price,
       image: itemDetail.images[0],
     });
+    cartSound.currentTime = 0;
+    cartSound.play().catch(() => {});
     setAdding(false);
   };
 

@@ -18,12 +18,7 @@ const SUPPORT_PHONE = '053-336-8084';
 
 // ── Single active store. Dropdown is kept in STORES[] for future use. ────────
 const STORES = [
-  { id: 'pt', name: 'פתח תקווה – שד׳ הרצל 52' },
-  { id: 'tlv', name: 'תל אביב – רח׳ אלנבי 128' },
-  { id: 'rg',  name: 'ראשון לציון – רח׳ הרצל 18' },
-  { id: 'hfa', name: 'חיפה – שד׳ הנשיא 22' },
-  { id: 'jlm', name: 'ירושלים – רח׳ יפו 90' },
-  { id: 'bs',  name: 'באר שבע – שד׳ רגר 11' },
+  { id: 'rl', name: 'ראשון לציון – רח׳ הרצל 102' },
 ];
 const DEFAULT_STORE = STORES[0];
 
@@ -164,8 +159,8 @@ ${cust}
 }
 
 // ── Small field ───────────────────────────────────────────────────────────────
-function Field({ label, value, onChange, type='text', error, placeholder, multiline, list }: {
-  label: string; value: string; onChange:(v:string)=>void; type?:string;
+function Field({ label, value, onChange, onBlur, type='text', error, placeholder, multiline, list }: {
+  label: string; value: string; onChange:(v:string)=>void; onBlur?:()=>void; type?:string;
   error?:string; placeholder?:string; multiline?:boolean; list?:string;
 }) {
   const base = 'w-full bg-page-bg border rounded-xl px-4 py-3 text-sm text-text-main placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/40 transition-colors';
@@ -174,8 +169,8 @@ function Field({ label, value, onChange, type='text', error, placeholder, multil
     <div>
       <label className="block text-xs font-bold text-text-muted mb-1.5 uppercase tracking-wide">{label}</label>
       {multiline
-        ? <textarea rows={3} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} className={cls+' resize-none'} />
-        : <input type={type} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} className={cls} list={list} />}
+        ? <textarea rows={3} value={value} onChange={e=>onChange(e.target.value)} onBlur={onBlur} placeholder={placeholder} className={cls+' resize-none'} />
+        : <input type={type} value={value} onChange={e=>onChange(e.target.value)} onBlur={onBlur} placeholder={placeholder} className={cls} list={list} />}
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
@@ -235,10 +230,11 @@ export function CartPage() {
   const { t } = useLang();
   useStoreData();
 
-  const [cartItems,     setCartItems]     = useState<CartItem[]>(readCartItems);
-  const [tagProducts,   setTagProducts]   = useState<Product[]>([]);
-  const [modalProduct,  setModalProduct]  = useState<Product | null>(null);
-  const [termsAccepted, setTermsAccepted] = useState(true);
+  const [cartItems,        setCartItems]        = useState<CartItem[]>(readCartItems);
+  const [tagProducts,      setTagProducts]      = useState<Product[]>([]);
+  const [modalProduct,     setModalProduct]     = useState<Product | null>(null);
+  const [termsAccepted,    setTermsAccepted]    = useState(true);
+  const [streetSuggestions, setStreetSuggestions] = useState<string[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   // Shipping
@@ -258,6 +254,26 @@ export function CartPage() {
       setTagProducts(parsed.sort(() => Math.random() - 0.5).slice(0, 20));
     }).catch(() => {});
   }, []);
+
+  // Fetch street suggestions from Israel gov open-data API when city changes
+  useEffect(() => {
+    const city = contact.city.trim();
+    if (!city || !IL_CITIES.includes(city)) { setStreetSuggestions([]); return; }
+    const ctrl = new AbortController();
+    fetch(
+      `https://data.gov.il/api/3/action/datastore_search?resource_id=9ad3862c-8391-4b2f-84a4-2d4c68625f4b` +
+      `&filters={"city_name":"${encodeURIComponent(city)}"}&limit=200&fields=street_name`,
+      { signal: ctrl.signal }
+    )
+      .then(r => r.json())
+      .then(data => {
+        const records: { street_name: string }[] = data?.result?.records || [];
+        const names = [...new Set(records.map(r => r.street_name).filter(Boolean))].sort();
+        setStreetSuggestions(names);
+      })
+      .catch(() => {});
+    return () => ctrl.abort();
+  }, [contact.city]);
 
   const updateQty = useCallback((itemId: string, qty: number) => {
     setCartItems(prev => { const u = prev.map(i => i.item_id===itemId ? {...i, quantity:qty} : i); persistCartItems(u); return u; });
@@ -283,9 +299,22 @@ export function CartPage() {
     if (errors[key]) setErrors(prev => ({...prev, [key]: undefined}));
   }
 
+  function validateField(key: keyof ContactForm): string | undefined {
+    if (key === 'phone' && contact.phone.trim() && !/^0[5-9]\d{7,8}$/.test(contact.phone.replace(/[\s-]/g,'')))
+      return t('cart.phoneInvalid');
+    if (key === 'email' && contact.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email))
+      return t('cart.emailInvalid');
+    return undefined;
+  }
+
+  function handleBlur(key: keyof ContactForm) {
+    const err = validateField(key);
+    setErrors(prev => ({ ...prev, [key]: err }));
+  }
+
   function validateFields() {
     const e: Partial<Record<keyof ContactForm|'store', string>> = {};
-    if (contact.phone && !/^0[5-9]\d{7,8}$/.test(contact.phone.replace(/\s/g,''))) e.phone = t('cart.phoneInvalid');
+    if (contact.phone && !/^0[5-9]\d{7,8}$/.test(contact.phone.replace(/[\s-]/g,''))) e.phone = t('cart.phoneInvalid');
     if (contact.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) e.email = t('cart.emailInvalid');
     return e;
   }
@@ -496,8 +525,8 @@ export function CartPage() {
                 <div className="sm:col-span-2">
                   <Field label={t('cart.fullName')} value={contact.fullName} onChange={v=>setField('fullName',v)} placeholder="ישראל ישראלי" error={errors.fullName} />
                 </div>
-                <Field label={t('cart.phone')} type="tel" value={contact.phone} onChange={v=>setField('phone',v)} placeholder="05X-XXX-XXXX" error={errors.phone} />
-                <Field label={t('cart.email')} type="email" value={contact.email} onChange={v=>setField('email',v)} placeholder="example@email.com" error={errors.email} />
+                <Field label={t('cart.phone')} type="tel" value={contact.phone} onChange={v=>setField('phone',v)} onBlur={()=>handleBlur('phone')} placeholder="05X-XXX-XXXX" error={errors.phone} />
+                <Field label={t('cart.email')} type="email" value={contact.email} onChange={v=>setField('email',v)} onBlur={()=>handleBlur('email')} placeholder="example@email.com" error={errors.email} />
 
                 {/* Address — city autocomplete + street + house number */}
                 {shipping === 'delivery' && (
@@ -506,11 +535,15 @@ export function CartPage() {
                     <datalist id="il-cities">
                       {IL_CITIES.map(c => <option key={c} value={c} />)}
                     </datalist>
+                    <datalist id="il-streets">
+                      {streetSuggestions.map(s => <option key={s} value={s} />)}
+                    </datalist>
                     <div className="sm:col-span-2">
                       <Field label={t('cart.city')} value={contact.city} onChange={v=>setField('city',v)}
                         placeholder="הקלד עיר..." list="il-cities" />
                     </div>
-                    <Field label={t('cart.street')} value={contact.street} onChange={v=>setField('street',v)} placeholder="שם הרחוב" />
+                    <Field label={t('cart.street')} value={contact.street} onChange={v=>setField('street',v)}
+                      placeholder="שם הרחוב" list={contact.city && IL_CITIES.includes(contact.city) ? 'il-streets' : undefined} />
                     <Field label={t('cart.houseNum')} value={contact.houseNum} onChange={v=>setField('houseNum',v)} placeholder='מס׳ בית / דירה' />
                   </>
                 )}
@@ -568,7 +601,7 @@ export function CartPage() {
                 />
                 <span className="text-text-muted">
                   {t('cart.termsPrefix')}{' '}
-                  <a href="https://www.aluf.co.il/contract" target="_blank" rel="noopener noreferrer"
+                  <a href="/contract" target="_blank" rel="noopener noreferrer"
                     className="text-primary font-bold underline hover:opacity-80 transition-opacity"
                     onClick={e => e.stopPropagation()}>
                     {t('cart.termsLink')}
@@ -600,13 +633,20 @@ export function CartPage() {
                   <span>{t('cart.freeShippingBadge')}</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-xs text-text-muted">
-                  <Icon name="shield" className="text-lg text-brand-purple shrink-0" />
-                  <span>{t('cart.securePayment')}</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-xs text-text-muted">
                   <Icon name="undo" className="text-lg text-brand-purple shrink-0" />
                   <span>{t('cart.returnPolicy')}</span>
                 </div>
+              </div>
+
+              {/* Payment method icons */}
+              <div className="mt-4 pt-4 border-t border-border-light">
+                <p className="text-xs text-text-muted mb-2 font-semibold">{t('cart.securePayment')}</p>
+                <img
+                  src="https://konimbo-hybrid-files-production.s3-eu-west-1.amazonaws.com/konimbo_dev_main/files-uploaded-by-lambda/admin/alufshop/00e9ed12915da0ab74ddb307af89654530f704a3/2033279250.svg"
+                  alt="אמצעי תשלום מאובטחים"
+                  className="w-full max-w-[220px] h-auto object-contain"
+                  loading="lazy"
+                />
               </div>
             </div>
 

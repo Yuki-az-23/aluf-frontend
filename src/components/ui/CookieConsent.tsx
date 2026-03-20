@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLang } from '@/i18n';
 
 const STORAGE_KEY = 'aluf_cookies_accepted';
-const PRIVACY_URL = 'https://www.aluf.co.il/pages/54957-%D7%AA%D7%A7%D7%A0%D7%95%D7%9F-%D7%A4%D7%A8%D7%98%D7%99%D7%95%D7%AA';
+const PRIVACY_URL = '/pages/54957-תקנון-פרטיות';
 
 export function CookieConsent() {
   const { t } = useLang();
@@ -39,8 +39,6 @@ export function CookieConsent() {
           {t('cookie.text')}{' '}
           <a
             href={PRIVACY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
             className="text-primary underline font-semibold hover:opacity-80 transition-opacity"
           >
             {t('cookie.policyLink')}
@@ -57,8 +55,6 @@ export function CookieConsent() {
           </button>
           <a
             href={PRIVACY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
             className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl border border-white/20 text-white/70 text-sm font-semibold hover:border-white/50 hover:text-white transition-colors text-center"
           >
             {t('cookie.learnMore')}

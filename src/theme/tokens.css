@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @config "../../tailwind.config.ts";
-/*the light token for text been overrighte be somthing*/
 :root {
   --aluf-primary: #FF6B00;
   --aluf-secondary: #a855f7;
@@ -43,6 +42,12 @@ body {
   color: var(--aluf-text-main);
   font-family: 'Heebo', sans-serif;
   margin: 0;
+}
+
+/* Ensure Konimbo's body-level CSS doesn't override our text colors */
+[data-aluf-app] {
+  color: var(--aluf-text-main);
+  background-color: var(--aluf-page-bg);
 }
 
 /* Switch to Inter for Latin-script languages (EN / RU) */
