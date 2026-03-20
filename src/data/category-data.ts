@@ -10,6 +10,8 @@ export interface CategoryGroup {
 }
 
 export const CATEGORY_DATA: Record<string, CategoryGroup[]> = {
+
+  /// misiing all mapping 
   'חומרת מחשב': [
     { group: 'מעבדים', items: ['מעבדי INTEL', 'מעבדי AMD'] },
     { group: 'לוחות אם', items: ['לוחות אם INTEL', 'לוחות אם AMD'] },
@@ -20,7 +22,8 @@ export const CATEGORY_DATA: Record<string, CategoryGroup[]> = {
     { group: 'כרטיסי מסך', items: ['כרטיסי מסך NVIDIA', 'כרטיסי מסך AMD'] },
     { group: 'ספקי כוח', items: ['ספקי כוח למחשבים נייחים'] },
   ],
-  'ציוד הקפי': [
+  'ציוד הקפי': [ 
+    //missing all of the mapping 
     { group: 'ציוד הקפי למחשב', items: ['מקלדות', 'עכברים', 'סט מקלדת ועכבר', 'משטחים לעכבר', 'רמקולים', 'אוזניות', 'מצלמות', 'אביזרים', 'הגה לסימולטור'] },
     { group: 'מסכים', items: ['מסכים מחשב', 'מתקני תלייה'] },
     { group: 'תוכנות', items: ['מערכות הפעלה', 'אופיס', 'אנטי וירוס'] },

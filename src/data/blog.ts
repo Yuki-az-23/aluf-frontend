@@ -5,7 +5,7 @@ export interface BlogPost {
   excerpt: string;
   href?: string;
 }
-
+// missing the contion to the blog post , real ones form https://www.aluf.co.il/632283-%D7%91%D7%9C%D7%95%D7%92?order=down_created_at
 export const blogPosts: BlogPost[] = [
   {
     title: 'מדריך: איך לבחור כרטיס מסך ב-2024',

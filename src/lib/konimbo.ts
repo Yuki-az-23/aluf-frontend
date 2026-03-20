@@ -166,9 +166,26 @@ export interface OrderItem {
 }
 
 /**
- * Rebuild the Konimbo jStorage cart HTML from the current items array.
- * Must be called whenever the cart changes (qty update or removal) so that
- * Konimbo's checkout form reads the correct cart_content.
+ * Build the flying_cart_with_upgrades_json array Konimbo's checkout reads.
+ * Format confirmed from live Konimbo checkout HTML inspection.
+ */
+function buildFlyingCartJson(items: OrderItem[]): object[] {
+  return items.map(item => ({
+    item_id: Number(item.item_id),
+    quantity: item.quantity,
+    upgrade_topics: [],
+    upgrade_price_additions: [],
+    item_name: item.item_name || '',
+    item_price: item.price || 0,
+  }));
+}
+
+/**
+ * Rebuild ALL Konimbo jStorage cart keys from the current items array.
+ * Writes:
+ *   cart_{storeName}               — HTML <tr> rows  (cart_content)
+ *   flying_cart_with_upgrades_json — JSON array       (order payload)
+ * Must be called whenever cart changes so the checkout form has correct data.
  */
 export function syncCartToJStorage(items: OrderItem[]): void {
   try {
@@ -180,7 +197,7 @@ export function syncCartToJStorage(items: OrderItem[]): void {
       if (raw) jStorage = JSON.parse(raw);
     } catch {}
 
-    // Rebuild cart HTML from scratch for every item in the current cart
+    // 1. Rebuild HTML cart rows
     let cartHtml = '';
     for (const item of items) {
       cartHtml += buildCartRowHtml(item.item_id, item.quantity, {
@@ -191,9 +208,15 @@ export function syncCartToJStorage(items: OrderItem[]): void {
     }
     jStorage[cartKey] = cartHtml;
 
+    // 2. Rebuild flying_cart_with_upgrades_json
+    jStorage['flying_cart_with_upgrades_json'] = buildFlyingCartJson(items);
+
+    // 3. Bump CRC so Konimbo's jStorage listener picks up the change
     const meta = jStorage['__jstorage_meta'] as Record<string, Record<string, string>>;
     if (meta?.['CRC32']) {
-      meta['CRC32'][cartKey] = '2.' + Math.floor(Math.random() * 10000000000);
+      const stamp = '2.' + Math.floor(Math.random() * 10000000000);
+      meta['CRC32'][cartKey] = stamp;
+      meta['CRC32']['flying_cart_with_upgrades_json'] = stamp;
     }
     localStorage.setItem('jStorage', JSON.stringify(jStorage));
     localStorage.setItem('jStorage_update', String(+new Date()));
@@ -251,9 +274,24 @@ export async function addToCart(
     if (currentCart.indexOf('data-id="item_id_' + itemId + '"') === -1) {
       jStorage[cartKey] = currentCart + buildCartRowHtml(itemId, quantity, productInfo);
     }
+
+    // Rebuild flying_cart_with_upgrades_json from the full order_items list
+    jStorage['flying_cart_with_upgrades_json'] = buildFlyingCartJson(
+      orderItems.map(i => ({
+        item_id: String(i['item_id']),
+        item_name: String(i['item_name'] || ''),
+        price: Number(i['price'] || 0),
+        quantity: Number(i['quantity'] || 1),
+        item_image: String(i['item_image'] || ''),
+        item_category: String(i['item_category'] || ''),
+      }))
+    );
+
     const meta = jStorage['__jstorage_meta'] as Record<string, Record<string, string>>;
     if (meta?.['CRC32']) {
-      meta['CRC32'][cartKey] = '2.' + Math.floor(Math.random() * 10000000000);
+      const stamp = '2.' + Math.floor(Math.random() * 10000000000);
+      meta['CRC32'][cartKey] = stamp;
+      meta['CRC32']['flying_cart_with_upgrades_json'] = stamp;
     }
     localStorage.setItem('jStorage', JSON.stringify(jStorage));
     localStorage.setItem('jStorage_update', String(+new Date()));

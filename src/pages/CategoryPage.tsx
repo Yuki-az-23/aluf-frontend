@@ -17,13 +17,7 @@ function resolveParentKey(title: string): string | null {
   return null;
 }
 
-function gridCols(count: number): string {
-  if (count <= 2) return 'grid-cols-2';
-  if (count <= 3) return 'grid-cols-2 sm:grid-cols-3';
-  if (count <= 4) return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4';
-  if (count <= 6) return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6';
-  return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6';
-}
+const SHARED_GRID = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4';
 
 function findCategoryHref(name: string, categories: KonimboCategory[]): string | undefined {
   for (const cat of categories) {
@@ -74,12 +68,15 @@ export function CategoryPage() {
           {pageTitle && (
             <h1 className="text-3xl font-black text-text-main mb-8 text-right">{pageTitle}</h1>
           )}
-          {categoryGroups.map(group => (
-            <div key={group.group} className="mb-10">
-              <h2 className="text-xl font-bold text-text-main mb-4 text-right border-r-4 border-primary pr-3">
-                {group.group}
-              </h2>
-              <div className={`grid gap-4 ${gridCols(group.items.length)}`}>
+          <div className={SHARED_GRID}>
+            {categoryGroups.map(group => (
+              <>
+                {/* Group label spans the full row */}
+                <div key={`hd-${group.group}`} className="col-span-full pt-2 first:pt-0">
+                  <h2 className="text-base font-bold text-text-main border-r-4 border-primary pr-3 inline-block">
+                    {group.group}
+                  </h2>
+                </div>
                 {group.items.map(item => (
                   <a
                     key={item.href}
@@ -94,9 +91,9 @@ export function CategoryPage() {
                     </span>
                   </a>
                 ))}
-              </div>
-            </div>
-          ))}
+              </>
+            ))}
+          </div>
         </Container>
       );
     }
@@ -126,12 +123,15 @@ export function CategoryPage() {
         </h1>
       )}
 
-      {groups.map(group => (
-        <div key={group.group} className="mb-10">
-          <h2 className="text-xl font-bold text-text-main mb-4 text-right border-r-4 border-primary pr-3">
-            {group.group}
-          </h2>
-          <div className={`grid gap-4 ${gridCols(group.items.length)}`}>
+      <div className={SHARED_GRID}>
+        {groups.map(group => (
+          <>
+            {/* Group label spans the full row, items of all groups flow in the same grid */}
+            <div key={`hd-${group.group}`} className="col-span-full pt-2 first:pt-0">
+              <h2 className="text-base font-bold text-text-main border-r-4 border-primary pr-3 inline-block">
+                {group.group}
+              </h2>
+            </div>
             {group.items.map(itemName => {
               const href = findCategoryHref(itemName, categories);
               const image = ICON_MAP[itemName];
@@ -150,7 +150,6 @@ export function CategoryPage() {
                         loading="lazy"
                       />
                     ) : (
-                      /* Fallback: material icon that looks like design ref grey icons */
                       <span className="material-symbols-rounded text-5xl text-text-muted group-hover:text-primary transition-colors">
                         devices
                       </span>
@@ -162,9 +161,9 @@ export function CategoryPage() {
                 </a>
               );
             })}
-          </div>
-        </div>
-      ))}
+          </>
+        ))}
+      </div>
     </Container>
   );
 }

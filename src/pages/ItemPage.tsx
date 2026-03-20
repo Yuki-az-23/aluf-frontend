@@ -92,7 +92,7 @@ export function ItemPage() {
 
   return (
     <>
-      <Container className="py-6">
+      <Container className="py-6 pb-24 lg:pb-6">
         <Breadcrumbs items={crumbs} className="mb-6" />
 
         {/* ── TOP SECTION: info panel + image ── */}
@@ -439,7 +439,7 @@ export function ItemPage() {
         </section>
       )}
 
-      {/* Mobile sticky add-to-cart bar */}
+      {/* Mobile sticky buy-now bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-card-bg border-t border-border-light p-3 flex items-center justify-between gap-3 lg:hidden z-40">
         <div>
           <span className="text-xl font-black text-brand-purple">
@@ -453,8 +453,7 @@ export function ItemPage() {
           disabled={!itemDetail.inStock || adding}
           className="flex-1"
         >
-          <Icon name="shopping_cart" className={dir === 'rtl' ? 'ml-2' : 'mr-2'} />
-          {adding ? '...' : t('item.addToCart')}
+          {adding ? '...' : t('item.buyNow')}
         </Button>
       </div>
 

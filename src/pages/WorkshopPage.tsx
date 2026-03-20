@@ -31,7 +31,7 @@ const FAQ_ITEMS = [
 export function WorkshopPage() {
   const { t } = useLang();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-
+//// its not conant to the nav bar and dont rigfierct to right slug adders https://www.aluf.co.il/pages/52435-%D7%9E%D7%A2%D7%91%D7%93%D7%94-%D7%9C%D7%9E%D7%97%D7%A9%D7%91%D7%99%D7%9D and https://www.aluf.co.il/pages/52435-%D7%9E%D7%A2%D7%91%D7%93%D7%94-%D7%9C%D7%9E%D7%97%D7%A9%D7%91%D7%99%D7%9D
   return (
     <>
       {/* Hero */}
@@ -148,9 +148,9 @@ export function WorkshopPage() {
                 <Icon name="phone" className="text-primary" />
                 1-700-50-50-50
               </a>
-              <a href="mailto:lab@aluf.co.il" className="flex items-center justify-center gap-2 text-text-main hover:text-primary transition">
+              <a href="mailto:sales@aluf.co.il" className="flex items-center justify-center gap-2 text-text-main hover:text-primary transition">
                 <Icon name="email" className="text-primary" />
-                lab@aluf.co.il
+                sales@aluf.co.il
               </a>
               <p className="flex items-center justify-center gap-2 text-text-muted">
                 <Icon name="location_on" className="text-primary" />

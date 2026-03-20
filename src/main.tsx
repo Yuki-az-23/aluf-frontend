@@ -145,6 +145,33 @@ if (root) {
 
     itemObserver.observe(document.body, { childList: true, subtree: true });
   }
+
+  // 5c. Always watch for #matchingCarouselHook to populate on item pages.
+  //     The carousel widget loads independently and after price/images, so we
+  //     need a separate observer that fires once it has content.
+  if (pageType === 'item' && reactRoot) {
+    let relatedRetries = 0;
+    const relatedMaxRetries = 100; // up to 10 seconds
+
+    const relatedObserver = new MutationObserver(() => {
+      const carousel = document.querySelector('#matchingCarouselHook');
+      const hasItems = carousel && carousel.querySelectorAll('a[href*="/items/"]').length > 0;
+      if (hasItems) {
+        relatedObserver.disconnect();
+        const related = scrapeRelatedItems();
+        if (related.length > 0 && scrapedData.itemDetail) {
+          scrapedData.itemDetail.relatedItems = related;
+          (window as any).__ALUF_SCRAPED__ = { ...scrapedData };
+          window.dispatchEvent(new CustomEvent('aluf:item-ready', { detail: scrapedData.itemDetail }));
+        }
+      } else {
+        relatedRetries++;
+        if (relatedRetries >= relatedMaxRetries) relatedObserver.disconnect();
+      }
+    });
+
+    relatedObserver.observe(document.body, { childList: true, subtree: true });
+  }
 } else {
   console.error('[aluf] #aluf-root element not found');
 }

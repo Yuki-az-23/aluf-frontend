@@ -23,6 +23,7 @@ export function ItemsGridPage() {
   });
   const [sort, setSort] = useState<SortOption>('price-asc');
   const [view, setView] = useState<ViewMode>('grid');
+  const [filterOpen, setFilterOpen] = useState(false);
 
   // Extra products fetched from subsequent Konimbo pages
   const [extraProducts, setExtraProducts] = useState<Product[]>([]);
@@ -40,6 +41,17 @@ export function ItemsGridPage() {
 
   const handleFilterChange = (f: FilterState) => { setFilters(f); setShowCount(STEP); };
   const handleSortChange = (s: SortOption) => { setSort(s); setShowCount(STEP); };
+
+  // Count active filters so the mobile filter button can show a badge
+  const activeFilterCount = useMemo(() => {
+    let n = 0;
+    if (filters.brands.length) n += filters.brands.length;
+    if (filters.inStockOnly) n++;
+    const prices = allProducts.map(p => p.price);
+    const gMax = prices.length ? Math.max(...prices) : 10000;
+    if (filters.priceMax < gMax) n++;
+    return n;
+  }, [filters, allProducts]);
 
   // On mount: eagerly prefetch ALL remaining Konimbo pages in background.
   // Konimbo lazy-renders products on scroll, but once we take over the UI
@@ -127,7 +139,13 @@ export function ItemsGridPage() {
         </div>
       ) : (
         <div className="flex flex-col md:flex-row gap-8">
-          <FilterSidebar products={allProducts} filters={filters} onChange={handleFilterChange} />
+          <FilterSidebar
+            products={allProducts}
+            filters={filters}
+            onChange={handleFilterChange}
+            mobileOpen={filterOpen}
+            onMobileClose={() => setFilterOpen(false)}
+          />
 
           <div className="flex-1 min-w-0">
             <SortBar
@@ -136,11 +154,13 @@ export function ItemsGridPage() {
               view={view}
               onSortChange={handleSortChange}
               onViewChange={setView}
+              onFilterClick={() => setFilterOpen(true)}
+              activeFilterCount={activeFilterCount}
             />
 
             {displayed.length > 0 ? (
               <div className={view === 'grid'
-                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
+                ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6'
                 : 'flex flex-col gap-4'
               }>
                 {displayed.map(p => (
@@ -166,7 +186,7 @@ export function ItemsGridPage() {
                   onClick={loadMore}
                   className="px-6 py-2.5 rounded-xl border border-primary text-primary font-bold text-sm hover:bg-primary hover:text-white transition-colors"
                 >
-                  {t('products.loadMore') || 'טען עוד'}
+                  {t('products.loadMore')}
                 </button>
               </div>
             )}

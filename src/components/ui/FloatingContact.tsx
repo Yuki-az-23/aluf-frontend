@@ -1,4 +1,5 @@
 import { useLang } from '@/i18n';
+import { useStoreData } from '@/lib/StoreDataContext';
 
 const PHONE = '0533368048';
 const PHONE_DISPLAY = '053-3368048';
@@ -7,11 +8,13 @@ const TEL_URL = `tel:${PHONE}`;
 
 export function FloatingContact() {
   const { t } = useLang();
+  const { itemDetail } = useStoreData();
+  const isItemPage = itemDetail !== null;
 
   return (
     <>
-      {/* Mobile — sticky bottom bar */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-50 flex shadow-2xl">
+      {/* Mobile — sticky bottom bar (hidden on item pages — the cart bar takes this space) */}
+      <div className={`md:hidden fixed bottom-0 inset-x-0 z-50 flex shadow-2xl ${isItemPage ? 'hidden' : ''}`}>
         <a
           href={TEL_URL}
           className="flex-1 flex items-center justify-center gap-2 bg-primary text-white py-4 font-bold text-sm active:brightness-90 transition-[filter]"

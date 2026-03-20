@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @config "../../tailwind.config.ts";
 /*the light token for text been overrighte be somthing*/
-:root { 
+:root {
   --aluf-primary: #FF6B00;
   --aluf-secondary: #a855f7;
   --aluf-brand-purple: #2e1065;
@@ -15,6 +15,9 @@
   --aluf-text-muted: #64748b;
   --aluf-border-light: #e2e8f0;
   --aluf-border-accent: #cbd5e1;
+  --aluf-input-bg: #ffffff;
+  --aluf-shadow-tech: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);
+  --aluf-shadow-tech-hover: 0 10px 15px -3px rgba(0,0,0,0.12), 0 4px 6px -2px rgba(0,0,0,0.06);
 }
 
 :root.dark {
@@ -29,6 +32,10 @@
   --aluf-text-muted: #94a3b8;
   --aluf-border-light: #2d2d3d;
   --aluf-border-accent: #4a4a5a;
+  --aluf-input-bg: #1a1a24;
+  /* Dark mode: near-invisible drop-shadows are replaced with a subtle inset glow + stronger drop */
+  --aluf-shadow-tech: 0 0 0 1px rgba(255,255,255,0.04), 0 4px 12px rgba(0,0,0,0.45);
+  --aluf-shadow-tech-hover: 0 0 0 1px rgba(255,255,255,0.07), 0 10px 24px rgba(0,0,0,0.6);
 }
 
 body {

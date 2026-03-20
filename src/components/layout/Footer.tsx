@@ -21,7 +21,7 @@ const serviceLinks = [
   { key: 'support', href: BASE },
   { key: 'terms', href: BASE },
 ];
-
+// we are misiing the contrct https://www.aluf.co.il/contract page and page for https://alufshop.konimbo.co.il/contact?CancellingTransaction=true&msg=%D7%9E%D7%A2%D7%95%D7%A0%D7%99%D7%99%D7%9F%20%D7%9C%D7%91%D7%98%D7%9C%20%D7%90%D7%AA%20%D7%94%D7%94%D7%96%D7%9E%D7%A0%D7%94 canecl an order as well the contion for contant -https://www.aluf.co.il/contact 
 export function Footer() {
   const { t } = useLang();
   return (

@@ -48,7 +48,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           <button
             type="button"
             onClick={() => addToCart(product.id, 1, { title: product.title, price: product.price, image: product.image, category: product.category })}
-            className="absolute top-2 right-2 bg-primary text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white transition-opacity shadow-lg z-10"
+            className="absolute top-2 right-2 bg-primary text-white p-2 rounded-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white transition-opacity shadow-lg z-10"
             aria-label={t('products.addToCart')}
           >
             <Icon name="add_shopping_cart" className="text-lg" />
@@ -59,8 +59,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
       <a href={product.href || '#'} className="block">
         <h3 className="font-bold text-sm mb-2 line-clamp-2 text-text-main">{product.title}</h3>
       </a>
-      <ul className="text-xs text-text-muted space-y-1 mb-4">
-        {product.specs.map((spec, i) => (
+      <ul className="hidden sm:block text-xs text-text-muted space-y-1 mb-4">
+        {product.specs.slice(0, 3).map((spec, i) => (
           <li key={i} className="flex items-center gap-1">
             <Icon name="check" className="text-text-muted text-xs flex-shrink-0" />
             {spec}
