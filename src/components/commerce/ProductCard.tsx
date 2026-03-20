@@ -96,16 +96,18 @@ export function ProductCard({ product, className, viewMode = 'grid' }: ProductCa
           {/* Bottom: price + add-to-cart — in RTL flex: [CartBtn (far-left)][Price] */}
           <div className="flex items-center gap-2 justify-end mt-1">
             {/* Price — DOM first → visual RIGHT in RTL (next to cart) */}
-            <div className="min-w-0">
-              {product.originalPrice && (
-                <span className="text-[9px] text-text-muted line-through leading-none block">
-                  {t('price.currency')}{product.originalPrice.toLocaleString()}
+            {product.price > 0 && (
+              <div className="min-w-0">
+                {product.originalPrice && (
+                  <span className="text-[9px] text-text-muted line-through leading-none block">
+                    {t('price.currency')}{product.originalPrice.toLocaleString()}
+                  </span>
+                )}
+                <span className="font-black text-sm text-brand-purple leading-tight">
+                  {t('price.currency')}{product.price.toLocaleString()}
                 </span>
-              )}
-              <span className="font-black text-sm text-brand-purple leading-tight">
-                {t('price.currency')}{product.price.toLocaleString()}
-              </span>
-            </div>
+              </div>
+            )}
             {/* Cart button — DOM second → visual LEFT in RTL (far left) */}
             <button
               type="button"
@@ -180,14 +182,18 @@ export function ProductCard({ product, className, viewMode = 'grid' }: ProductCa
 
       <div className="mt-auto flex items-center justify-between pt-3 border-t border-border-light">
         <div>
-          {product.originalPrice && (
-            <span className="text-xs text-text-muted line-through block">
-              {t('price.currency')}{product.originalPrice.toLocaleString()}
-            </span>
+          {product.price > 0 && (
+            <>
+              {product.originalPrice && (
+                <span className="text-xs text-text-muted line-through block">
+                  {t('price.currency')}{product.originalPrice.toLocaleString()}
+                </span>
+              )}
+              <span className="text-lg font-black text-brand-purple">
+                {t('price.currency')}{product.price.toLocaleString()}
+              </span>
+            </>
           )}
-          <span className="text-lg font-black text-brand-purple">
-            {t('price.currency')}{product.price.toLocaleString()}
-          </span>
         </div>
         <button
           type="button"

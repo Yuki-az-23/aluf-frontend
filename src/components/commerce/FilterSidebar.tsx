@@ -64,7 +64,17 @@ export function FilterSidebar({ products, filters, onChange, filterGroups = [], 
     onChange({ ...filters, brands: next });
   };
 
-  const reset = () => onChange({ priceMin: globalMin, priceMax: globalMax, brands: [], inStockOnly: false, attrs: {} });
+  const reset = () => {
+    onChange({ priceMin: globalMin, priceMax: globalMax, brands: [], inStockOnly: false, attrs: {} });
+    // If URL-based filter groups are present, also navigate to the base category URL
+    // (strips Konimbo filter path segments like /300,500/מקלדות,mid)
+    if (filterGroups.length > 0) {
+      const segments = window.location.pathname.replace(/\/$/, '').split('/').filter(Boolean);
+      if (segments.length > 1) {
+        window.location.href = window.location.origin + '/' + segments[0];
+      }
+    }
+  };
 
   /** Shared filter form — used in both desktop sidebar and mobile drawer */
   const filterBody = (
@@ -157,16 +167,18 @@ export function FilterSidebar({ products, filters, onChange, filterGroups = [], 
         </div>
       )}
 
-      {/* In stock only */}
-      <label className="flex items-center gap-3 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={filters.inStockOnly}
-          onChange={e => onChange({ ...filters, inStockOnly: e.target.checked })}
-          className="w-4 h-4 rounded border-border-light text-primary focus:ring-primary"
-        />
-        <span className="text-sm text-text-main">{t('filters.inStock')}</span>
-      </label>
+      {/* In stock only — hidden when Konimbo server-side filter groups handle stock */}
+      {filterGroups.length === 0 && (
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={filters.inStockOnly}
+            onChange={e => onChange({ ...filters, inStockOnly: e.target.checked })}
+            className="w-4 h-4 rounded border-border-light text-primary focus:ring-primary"
+          />
+          <span className="text-sm text-text-main">{t('filters.inStock')}</span>
+        </label>
+      )}
     </>
   );
 

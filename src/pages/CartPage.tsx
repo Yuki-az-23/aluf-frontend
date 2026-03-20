@@ -10,7 +10,8 @@ import { syncCartToJStorage, addToCart } from '@/lib/konimbo';
 import { parseProductElements } from '@/lib/konimbo-scraper';
 import type { Product } from '@/data/products';
 
-const CHECKOUT_URL = '/orders/alufshop/new#secureHook';
+const CHECKOUT_URL       = '/orders/alufshop/new#secureHook';
+const CHECKOUT_PHONE_URL = '/orders/alufshop/new';
 const VAT_RATE     = 0.18;
 const TAG_URL      = '/tags/246669-tag5';
 const LOGO_URL     = 'https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/src/assets/logo.png';
@@ -339,6 +340,25 @@ export function CartPage() {
     window.location.href = CHECKOUT_URL;
   }
 
+  function handlePhoneCheckout() {
+    if (!termsAccepted) {
+      document.getElementById('cart-terms-checkbox')?.focus();
+      return;
+    }
+    setErrors(validateFields());
+    const fullAddress = [contact.city, contact.street, contact.houseNum].filter(Boolean).join(', ');
+    const storeName   = DEFAULT_STORE.name;
+    const note = ['תשלום בטלפון', shipping==='pickup' ? `איסוף מהחנות: ${storeName}` : '', contact.note].filter(Boolean).join(' | ');
+    try {
+      sessionStorage.setItem('aluf_checkout_prefill', JSON.stringify({
+        full_name: contact.fullName, mobile_phone: contact.phone, email: contact.email,
+        full_address: shipping==='delivery' ? fullAddress : storeName, note,
+      }));
+    } catch {}
+    syncCartToJStorage(cartItems);
+    window.location.href = CHECKOUT_PHONE_URL;
+  }
+
   function scrollCarousel(dir: 'left'|'right') {
     carouselRef.current?.scrollBy({ left: dir==='left' ? -290 : 290, behavior: 'smooth' });
   }
@@ -611,13 +631,25 @@ export function CartPage() {
                 </span>
               </label>
 
-              {/* Checkout CTA */}
-              <Button variant="primary" size="lg"
-                className={`w-full text-base lg:text-lg py-3.5 flex items-center justify-center gap-2 group transition-opacity ${!termsAccepted ? 'opacity-50 cursor-not-allowed' : ''}`}
-                onClick={handleCheckout}>
-                {t('cart.checkout')}
-                <Icon name="arrow_back" className="group-hover:-translate-x-1 transition-transform" />
-              </Button>
+              {/* Checkout CTAs — card + phone (mirrors Konimbo production checkout) */}
+              <div className="flex flex-col gap-2">
+                <Button variant="primary" size="lg"
+                  className={`w-full text-base py-3.5 flex items-center justify-center gap-2 group transition-opacity ${!termsAccepted ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  onClick={handleCheckout}>
+                  <Icon name="credit_card" className="text-base" />
+                  {t('cart.checkout')}
+                  <Icon name="arrow_back" className="group-hover:-translate-x-1 transition-transform" />
+                </Button>
+                <button type="button"
+                  onClick={handlePhoneCheckout}
+                  className={`w-full flex flex-col items-center justify-center gap-0.5 py-3 rounded-xl border-2 border-text-main bg-text-main text-white font-bold text-sm hover:bg-transparent hover:text-text-main transition-colors ${!termsAccepted ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <span className="flex items-center gap-2">
+                    <Icon name="phone" className="text-base" />
+                    {t('cart.checkoutPhone')}
+                  </span>
+                  <span className="text-xs font-normal opacity-75">{t('cart.checkoutPhoneNote')}</span>
+                </button>
+              </div>
 
               {/* Print */}
               <button type="button"

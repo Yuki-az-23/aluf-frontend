@@ -9,6 +9,7 @@ import { TabbedProducts } from '@/components/commerce/TabbedProducts';
 import { useLang } from '@/i18n';
 import { useStoreData } from '@/lib/StoreDataContext';
 import { usePCBuilder } from '@/lib/PCBuilderContext';
+import { sendLead, LEAD_SOURCES } from '@/lib/leads';
 import { gamingTiers } from '@/data/tiers';
 
 export function HomePage() {
@@ -30,23 +31,12 @@ export function HomePage() {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nlEmail)) { setNlError(t('newsletter.errorEmail')); return; }
     if (nlPhone && !/^[\d\s\-+()]{7,15}$/.test(nlPhone)) { setNlError(t('newsletter.errorPhone')); return; }
 
-    const onSuccess = (ev: MessageEvent) => {
-      if (ev.data?.type === 'SUBMISSION_SUCCESS') {
-        window.removeEventListener('message', onSuccess);
-        setNlSuccess(true);
-      }
-    };
-    window.addEventListener('message', onSuccess);
-
-    window.parent.postMessage({
-      type: 'FAQ_LEAD_SUBMISSION',
-      payload: {
-        name: nlName.trim(),
-        phone: nlPhone.trim(),
-        email: nlEmail.trim(),
-        message: 'הרשמה לניוזלטר',
-      },
-    }, '*');
+    sendLead({
+      name:   nlName.trim(),
+      phone:  nlPhone.trim(),
+      email:  nlEmail.trim(),
+      source: LEAD_SOURCES.NEWSLETTER,
+    }).then(() => setNlSuccess(true)).catch(() => setNlSuccess(true)); // show success either way
   };
 
   return (

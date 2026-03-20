@@ -36,8 +36,10 @@ function makeAbsolute(href: string): string {
   return href;
 }
 
-/** Parse product elements from a given container */
-export function parseProductElements(container: ParentNode, baseUrl: string = BASE_URL): Product[] {
+/** Parse product elements from a given container.
+ * @param allowZeroPrice  Pass true for carousel/related contexts where prices may not be rendered.
+ */
+export function parseProductElements(container: ParentNode, baseUrl: string = BASE_URL, allowZeroPrice = false): Product[] {
   const products: Product[] = [];
   const seen = new Set<string>();
 
@@ -106,7 +108,7 @@ export function parseProductElements(container: ParentNode, baseUrl: string = BA
       if (text) specs.push(text);
     });
 
-    if (title && price > 0) {
+    if (title && (price > 0 || allowZeroPrice)) {
       seen.add(id);
       products.push({
         id, title, category, image, specs, price, originalPrice, inStock: true, href,
@@ -366,19 +368,37 @@ export function scrapeItemDetail(): ItemDetail | null {
   };
 }
 
+/** All Konimbo carousel / related-items container selectors, in priority order */
+export const RELATED_CAROUSEL_SELECTORS = [
+  '#matchingCarouselHook',
+  '#alsoViewed',
+  '#related_items',
+  '.matching_items',
+  '.related_items',
+  '.related_products',
+  '.related-products',
+  '[data-module-type="related_items"]',
+  '.module_related_items',
+];
+
 /** Scrape related products from item detail page */
 export function scrapeRelatedItems(): Product[] {
-  // Konimbo "also bought" — #matchingCarouselHook (XPath: #matchingCarouselHook/div/div[1])
-  const carouselHook = document.querySelector('#matchingCarouselHook');
-  if (carouselHook) {
-    // Try parseProductElements first (handles .layout_list_item / [id^="item_id_"])
-    const products = parseProductElements(carouselHook);
+  for (const hookSel of RELATED_CAROUSEL_SELECTORS) {
+    const hook = document.querySelector(hookSel);
+    if (!hook) continue;
+
+    // Has any item links at all?
+    const hasLinks = hook.querySelectorAll('a[href*="/items/"]').length > 0;
+    if (!hasLinks) continue;
+
+    // Try parseProductElements (allowZeroPrice so carousel thumbnails aren't filtered out)
+    const products = parseProductElements(hook, BASE_URL, true);
     if (products.length > 0) return products;
 
-    // Fallback: extract from anchor links inside the carousel
+    // Fallback: extract from anchor links directly
     const seen = new Set<string>();
     const fallback: Product[] = [];
-    carouselHook.querySelectorAll('a[href*="/items/"]').forEach((a) => {
+    hook.querySelectorAll('a[href*="/items/"]').forEach((a) => {
       const rawHref = a.getAttribute('href') || '';
       const urlMatch = rawHref.match(/\/items\/([^/?#]+)/);
       const id = urlMatch?.[1] || '';
@@ -388,37 +408,15 @@ export function scrapeRelatedItems(): Product[] {
       const container = a.closest('li, tr, div[id^="item_id_"], .layout_list_item') || a.parentElement;
       const title = container?.querySelector('b, h4, .title')?.textContent?.trim() || a.textContent?.trim() || '';
       const imgEl = container?.querySelector('img') as HTMLImageElement | null;
-      const image = imgEl?.getAttribute('src') || imgEl?.getAttribute('data-src') || '';
+      const image =
+        imgEl?.getAttribute('data-src') ||
+        imgEl?.getAttribute('data-large') ||
+        imgEl?.getAttribute('src') || '';
       const priceText = container?.querySelector('.price, .item_price, i')?.textContent?.replace(/[^\d]/g, '') || '0';
       const price = parseInt(priceText, 10) || 0;
       if (title) fallback.push({ id, title, category: '', image, specs: [], price, inStock: true, href });
     });
     if (fallback.length > 0) return fallback;
-  }
-
-  // Fallback: legacy Konimbo layouts using .layout_list_item
-  const selectors = [
-    '.related_items .layout_list_item',
-    '.related_products .layout_list_item',
-    '#related_items .item',
-    '.related-products .item',
-    '[data-module-type="related_items"] .layout_list_item',
-    '.module_related_items .layout_list_item',
-  ];
-
-  for (const sel of selectors) {
-    const container = document.querySelector(sel.split(' ')[0]);
-    if (container) {
-      const products = parseProductElements(container.parentElement || document);
-      if (products.length > 0) return products;
-    }
-    const direct = document.querySelectorAll(sel);
-    if (direct.length > 0) {
-      const fakeContainer = document.createElement('div');
-      direct.forEach((el) => fakeContainer.appendChild(el.cloneNode(true)));
-      const products = parseProductElements(fakeContainer);
-      if (products.length > 0) return products;
-    }
   }
 
   return [];
@@ -470,9 +468,22 @@ export function scrapeBreadcrumbs(): BreadcrumbItem[] {
 
 /** Get the next pagination page URL from Konimbo DOM */
 export function getNextPageUrl(): string | null {
-  const sel = '.pagination a[rel="next"], .next_page a, a.pagination_next, .pagination .next a, .pages_navigation a[rel="next"]';
-  const nextLink = document.querySelector<HTMLAnchorElement>(sel);
-  return nextLink?.href || null;
+  const selectors = [
+    '.pagination a[rel="next"]',
+    '.next_page a',
+    'a.pagination_next',
+    '.pagination .next a',
+    '.pages_navigation a[rel="next"]',
+    'a.next_page',
+    '[data-action="infinite-scroll"]',
+    '.infinite_scroll_trigger a',
+    'a[data-infinite-scroll]',
+  ];
+  for (const sel of selectors) {
+    const el = document.querySelector<HTMLAnchorElement>(sel);
+    if (el?.href) return el.href;
+  }
+  return null;
 }
 
 /** Fetch a Konimbo category page and parse its products + next page link */

@@ -71,11 +71,11 @@ export function SortBar({ count, sort, view, onSortChange, onViewChange, onFilte
 
           <div className="h-5 w-px bg-border-light" />
 
-          {/* View toggles: grid | strip (mobile-only) | list */}
+          {/* View toggles: grid + strip on all sizes; list on mobile only */}
           <div className="flex items-center gap-0.5">
             {viewBtn('grid', 'grid_view')}
             {viewBtn('strip', 'view_agenda')}
-            {viewBtn('list', 'view_list')}
+            {viewBtn('list', 'view_list', true)}
           </div>
         </div>
       </div>
