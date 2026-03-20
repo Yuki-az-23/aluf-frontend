@@ -1,14 +1,14 @@
 import { useLang } from '@/i18n';
-import type { BlogPost } from '@/data/blog';
+import type { BlogPostItem } from '@/data/products';
 
 interface BlogCardProps {
-  post: BlogPost;
+  post: BlogPostItem;
   featured?: boolean;
 }
 
 export function BlogCard({ post, featured = false }: BlogCardProps) {
   const { t } = useLang();
-  const href = post.href || 'https://alufshop.konimbo.co.il/blog/'; ///+ post.slug; /// missing here the contion to url base and to the blog post.
+  const href = post.href || '/632283-%D7%91%D7%9C%D7%95%D7%92';
 
   if (featured) {
     return (

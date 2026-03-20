@@ -91,11 +91,6 @@ export const mainNavItems: NavItem[] = [
     ],
   },
   {
-    labelKey: 'nav.lab',
-    icon: 'build',
-    href: '/pages/52435-%D7%9E%D7%A2%D7%91%D7%93%D7%94-%D7%9C%D7%9E%D7%97%D7%A9%D7%91%D7%99%D7%9D',
-  },
-  {
     labelKey: 'nav.gaming',
     icon: 'stadia_controller',
     href: '/596731-גיימינג',

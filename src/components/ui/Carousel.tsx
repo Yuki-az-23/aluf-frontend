@@ -176,7 +176,6 @@ export function Carousel({
           gap,
           scrollSnapType: isDragging ? 'none' : 'x mandatory',
           WebkitOverflowScrolling: 'touch',
-          touchAction: 'pan-x',
           cursor: isDragging ? 'grabbing' : 'grab',
         }}
       >

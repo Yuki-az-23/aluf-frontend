@@ -9,11 +9,10 @@ import { useLang } from '@/i18n';
 import { useStoreData } from '@/lib/StoreDataContext';
 import { usePCBuilder } from '@/lib/PCBuilderContext';
 import { gamingTiers } from '@/data/tiers';
-import { blogPosts } from '@/data/blog';
 
 export function HomePage() {
   const { t } = useLang();
-  const { banners } = useStoreData();
+  const { banners, blogPosts } = useStoreData();
   const { open: openPcBuilder } = usePCBuilder();
 
   return (
@@ -63,20 +62,22 @@ export function HomePage() {
         </Container>
       </section>
 
-      {/* Blog */}
-      <section className="py-12">
-        <Container>
-          <SectionHeader title={t('blog.title')} linkText={t('blog.readMore')} />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {blogPosts.slice(0, 1).map(post => (
-              <BlogCard key={post.title} post={post} featured />
-            ))}
-            {blogPosts.slice(1, 3).map(post => (
-              <BlogCard key={post.title} post={post} />
-            ))}
-          </div>
-        </Container>
-      </section>
+      {/* Blog — shown only when real posts are scraped from Konimbo */}
+      {blogPosts.length > 0 && (
+        <section className="py-12">
+          <Container>
+            <SectionHeader title={t('blog.title')} linkText={t('blog.readMore')} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {blogPosts.slice(0, 1).map(post => (
+                <BlogCard key={post.title} post={post} featured />
+              ))}
+              {blogPosts.slice(1, 3).map(post => (
+                <BlogCard key={post.title} post={post} />
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
 
       {/* Newsletter */}
       <section className="py-16 bg-card-bg border-t border-border-light">

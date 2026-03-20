@@ -556,16 +556,33 @@ export function scrapeCategoryGroups(): { group: string; items: KonimboCategory[
   return groups;
 }
 
-/** Scrape blog post listings from Konimbo DOM */
+/** Scrape blog post listings from Konimbo DOM.
+ *  Works on the blog list page (.layout_list_item.item) and also
+ *  on home-page blog widgets (.homepage_blog, .blog_widget, etc.)
+ */
 export function scrapeBlogPosts(): BlogPostItem[] {
   const posts: BlogPostItem[] = [];
-  const items = document.querySelectorAll('.layout_list_item.item');
 
-  items.forEach((el) => {
-    const id = el.id?.replace('item_id_', '') || '';
-    if (!id) return;
+  // Selectors tried in order — first one that yields items wins
+  const candidateSelectors = [
+    '.layout_list_item.item',           // blog list page
+    '.homepage_blog .item',             // Konimbo home blog widget
+    '.blog_widget .item',
+    '.blog_items .item',
+    '.home_blog_item',
+  ];
 
-    const titleEl = el.querySelector('h4.title, .title');
+  let items: NodeListOf<Element> | null = null;
+  for (const sel of candidateSelectors) {
+    const found = document.querySelectorAll(sel);
+    if (found.length > 0) { items = found; break; }
+  }
+  if (!items) return posts;
+
+  items.forEach((el, idx) => {
+    const id = el.id?.replace('item_id_', '') || String(idx);
+
+    const titleEl = el.querySelector('h4.title, .title, h3, h4');
     const title = titleEl?.textContent?.trim() || '';
 
     const imgEl = el.querySelector('img');

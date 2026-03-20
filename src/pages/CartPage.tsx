@@ -260,9 +260,10 @@ export function CartPage() {
     const city = contact.city.trim();
     if (!city || !IL_CITIES.includes(city)) { setStreetSuggestions([]); return; }
     const ctrl = new AbortController();
+    const filters = encodeURIComponent(JSON.stringify({ city_name: city }));
     fetch(
       `https://data.gov.il/api/3/action/datastore_search?resource_id=9ad3862c-8391-4b2f-84a4-2d4c68625f4b` +
-      `&filters={"city_name":"${encodeURIComponent(city)}"}&limit=200&fields=street_name`,
+      `&filters=${filters}&limit=500&fields=street_name`,
       { signal: ctrl.signal }
     )
       .then(r => r.json())
