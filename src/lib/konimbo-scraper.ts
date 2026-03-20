@@ -371,6 +371,7 @@ export function scrapeItemDetail(): ItemDetail | null {
 /** All Konimbo carousel / related-items container selectors, in priority order */
 export const RELATED_CAROUSEL_SELECTORS = [
   '#matchingCarouselHook',
+  '#item_also_buy',
   '#alsoViewed',
   '#related_items',
   '.matching_items',
