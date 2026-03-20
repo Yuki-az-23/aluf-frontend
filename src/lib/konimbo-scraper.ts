@@ -606,74 +606,77 @@ export function scrapeBlogPostDetail(): BlogPostDetail | null {
   return { title, image, date, contentHtml };
 }
 
+export interface FilterOption {
+  label: string;
+  /** Full URL to navigate to when this option is selected */
+  href: string;
+}
+
 export interface FilterGroup {
   id: string;
   title: string;
-  options: string[];
+  options: FilterOption[];
 }
 
 /**
- * Scrape filter groups from Konimbo's filter sidebar + product data-filter-* attributes.
- * Konimbo embeds data-filter-N="value" on each product element; the filter sidebar
- * maps these IDs to human-readable group titles.
+ * Scrape filter groups from Konimbo's own filter sidebar.
+ * Konimbo renders a `.show_filters .group` list where each group has a `<b>` title
+ * and `.group_values` anchors with pre-built filtered URLs.
+ * Selecting a filter navigates to Konimbo's filtered URL (server-side filtering).
  */
 export function scrapeFilterGroups(): FilterGroup[] {
-  // 1. Try to extract group title mapping from Konimbo's filter sidebar
-  const titleMap: Record<string, string> = {};
-  const filterGroupSelectors = [
-    '.store_filter_group',
+  const groups: FilterGroup[] = [];
+
+  // Primary: Konimbo subcategory pages — .show_filters .group
+  const groupEls = document.querySelectorAll('.show_filters .group');
+  groupEls.forEach((groupEl, idx) => {
+    const titleEl = groupEl.querySelector('b');
+    const title = titleEl?.textContent?.trim() || '';
+    if (!title) return;
+
+    const options: FilterOption[] = [];
+    groupEl.querySelectorAll('.group_values a[href], .group_value a[href]').forEach((a) => {
+      const label = a.textContent?.trim() || '';
+      const href = makeAbsolute(a.getAttribute('href') || '');
+      if (label && href) options.push({ label, href });
+    });
+
+    if (options.length > 0) {
+      groups.push({ id: String(idx), title, options });
+    }
+  });
+
+  if (groups.length > 0) return groups;
+
+  // Fallback: alternative Konimbo filter sidebar layouts
+  const altSelectors = [
     '.filter_categories_list .filter_group',
+    '.store_filter_group',
     '.filter_list .filter_group',
-    '[data-filter-group-id]',
   ];
-  for (const sel of filterGroupSelectors) {
-    document.querySelectorAll(sel).forEach(el => {
-      const id = el.getAttribute('data-filter-group-id') ||
-                 el.getAttribute('data-filter-id') || '';
-      const titleEl = el.querySelector(
-        '.filter_group_title, .filter_title, .store_filter_group_title, h3, h4'
+  for (const sel of altSelectors) {
+    document.querySelectorAll(sel).forEach((groupEl, idx) => {
+      const titleEl = groupEl.querySelector(
+        '.filter_group_title, .store_filter_group_title, h3, h4, b'
       );
       const title = titleEl?.textContent?.trim() || '';
-      if (id && title) titleMap[id] = title;
-    });
-    if (Object.keys(titleMap).length > 0) break;
-  }
+      if (!title) return;
 
-  // 2. Collect all unique data-filter-* values from product elements in the DOM
-  const attrGroups: Record<string, Set<string>> = {};
-  const productSelectors = [
-    '.layout_list_item.item',
-    '.layout_list_item',
-    '[id^="item_id_"]',
-    '.item[data-item-id]',
-  ];
-  let productEls: NodeListOf<Element> | null = null;
-  for (const sel of productSelectors) {
-    const found = document.querySelectorAll(sel);
-    if (found.length > 0) { productEls = found; break; }
-  }
-  if (productEls) {
-    productEls.forEach(el => {
-      Array.from(el.attributes).forEach(attr => {
-        if (!attr.name.startsWith('data-filter-') || !attr.value) return;
-        const key = attr.name.replace('data-filter-', '');
-        if (!attrGroups[key]) attrGroups[key] = new Set<string>();
-        // Konimbo values may be comma-separated
-        attr.value.split(',').forEach(v => {
-          const trimmed = v.trim();
-          if (trimmed) attrGroups[key].add(trimmed);
-        });
+      const options: FilterOption[] = [];
+      groupEl.querySelectorAll('a[href]').forEach((a) => {
+        const label = a.textContent?.trim() || '';
+        const href = makeAbsolute(a.getAttribute('href') || '');
+        if (label && href) options.push({ label, href });
       });
+
+      if (options.length > 0) {
+        groups.push({ id: String(idx), title, options });
+      }
     });
+    if (groups.length > 0) break;
   }
 
-  return Object.entries(attrGroups)
-    .filter(([, vals]) => vals.size > 0)
-    .map(([id, vals]) => ({
-      id,
-      title: titleMap[id] || id,
-      options: Array.from(vals).sort((a, b) => a.localeCompare(b, 'he')),
-    }));
+  return groups;
 }
 
 /** Scrape banner carousel slides from Konimbo Splide modules */

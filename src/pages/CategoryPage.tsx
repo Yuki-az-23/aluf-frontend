@@ -1,4 +1,4 @@
-import { useState, useMemo, type CSSProperties } from 'react';
+import { useState, useMemo } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ProductCard } from '@/components/commerce/ProductCard';
@@ -19,12 +19,6 @@ function resolveParentKey(title: string): string | null {
   return null;
 }
 
-// Returns the number of grid columns to use for a group, based on item count.
-// Capped at 6; never more columns than items (prevents empty RTL gaps).
-function groupCols(count: number): number {
-  return Math.max(2, Math.min(count, 6));
-}
-
 function findCategoryHref(name: string, categories: KonimboCategory[]): string | undefined {
   for (const cat of categories) {
     if (cat.title === name || cat.title.includes(name) || name.includes(cat.title)) {
@@ -32,6 +26,20 @@ function findCategoryHref(name: string, categories: KonimboCategory[]): string |
     }
   }
   return undefined;
+}
+
+// Single responsive grid used for all category icon layouts.
+// Items from consecutive groups flow into the same rows — no empty column gaps.
+const FLAT_GRID = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4';
+
+// Tiny group-name badge shown on the first item of each group.
+function GroupBadge({ name }: { name: string }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-xs font-bold text-primary">
+      <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+      {name}
+    </span>
+  );
 }
 
 export function CategoryPage() {
@@ -133,40 +141,38 @@ export function CategoryPage() {
       );
     }
 
-    // No products yet — show scraped subcategory groups
+    // No products yet — show scraped subcategory groups in one flat grid
     if (categoryGroups.length > 0) {
+      const flatItems = categoryGroups.flatMap(g =>
+        g.items.map((item, idx) => ({ item, groupName: g.group, isFirst: idx === 0 }))
+      );
+
       return (
         <Container className="py-8">
           <Breadcrumbs items={crumbs} className="mb-4" />
           {pageTitle && (
             <h1 className="text-3xl font-black text-text-main mb-8 text-right">{pageTitle}</h1>
           )}
-          <div className="space-y-8">
-            {categoryGroups.map(group => (
-              <div key={group.group}>
-                <h2 className="text-base font-bold text-text-main border-r-4 border-primary pr-3 inline-block mb-4">
-                  {group.group}
-                </h2>
-                <div
-                  className="category-group-grid grid gap-4"
-                  style={{ '--cols': groupCols(group.items.length) } as CSSProperties}
-                >
-                  {group.items.map(item => (
-                    <a
-                      key={item.href}
-                      href={item.href}
-                      className="group bg-card-bg rounded-xl p-4 border border-border-light shadow-tech hover:shadow-tech-hover hover:border-primary transition-all duration-300 flex flex-col items-center gap-3 text-center"
-                    >
-                      <div className="w-16 h-16 flex items-center justify-center rounded-lg bg-white group-hover:bg-primary/10 transition-colors">
-                        <span className="material-symbols-rounded text-4xl text-text-muted group-hover:text-primary transition-colors">category</span>
-                      </div>
-                      <span className="text-sm font-bold text-text-main group-hover:text-primary transition-colors line-clamp-2">
-                        {item.title}
-                      </span>
-                    </a>
-                  ))}
+          <div className={FLAT_GRID}>
+            {flatItems.map(({ item, groupName, isFirst }) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="group bg-card-bg rounded-xl border border-border-light shadow-tech hover:shadow-tech-hover hover:border-primary transition-all duration-300 flex flex-col text-center overflow-hidden"
+              >
+                {/* Group label row — always rendered for consistent card height */}
+                <div className="px-3 pt-2 min-h-[22px] flex items-center justify-end">
+                  {isFirst && <GroupBadge name={groupName} />}
                 </div>
-              </div>
+                <div className="flex-1 flex items-center justify-center p-3">
+                  <span className="material-symbols-rounded text-5xl text-text-muted group-hover:text-primary transition-colors">category</span>
+                </div>
+                <div className="px-3 pb-3">
+                  <span className="text-sm font-bold text-text-main group-hover:text-primary transition-colors leading-tight line-clamp-2 block">
+                    {item.title}
+                  </span>
+                </div>
+              </a>
             ))}
           </div>
         </Container>
@@ -185,8 +191,17 @@ export function CategoryPage() {
     );
   }
 
-  // Parent category page: show subcategory grid with icons
+  // Parent category page: show subcategory grid with icons — flat grid, groups flow into same rows
   const groups = CATEGORY_DATA[parentKey];
+  const flatItems = groups.flatMap(g =>
+    g.items.map((itemName, idx) => ({
+      itemName,
+      groupName: g.group,
+      isFirst: idx === 0,
+      href: findCategoryHref(itemName, categories) || '#',
+      image: ICON_MAP[itemName],
+    }))
+  );
 
   return (
     <Container className="py-8">
@@ -198,47 +213,37 @@ export function CategoryPage() {
         </h1>
       )}
 
-      <div className="space-y-8">
-        {groups.map(group => (
-          <div key={group.group}>
-            <h2 className="text-base font-bold text-text-main border-r-4 border-primary pr-3 inline-block mb-4">
-              {group.group}
-            </h2>
-            <div
-              className="category-group-grid grid gap-4"
-              style={{ '--cols': groupCols(group.items.length) } as CSSProperties}
-            >
-              {group.items.map(itemName => {
-                const href = findCategoryHref(itemName, categories);
-                const image = ICON_MAP[itemName];
-                return (
-                  <a
-                    key={itemName}
-                    href={href || '#'}
-                    className="group bg-card-bg rounded-xl p-4 border border-border-light shadow-tech hover:shadow-tech-hover hover:border-primary transition-all duration-300 flex flex-col items-center gap-4 text-center"
-                  >
-                    <div className="w-full aspect-square bg-white rounded-lg flex items-center justify-center p-3 overflow-hidden group-hover:bg-primary/5 transition-colors">
-                      {image ? (
-                        <img
-                          src={image}
-                          alt={itemName}
-                          className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-300"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <span className="material-symbols-rounded text-5xl text-text-muted group-hover:text-primary transition-colors">
-                          devices
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-sm font-bold text-text-main group-hover:text-primary transition-colors leading-tight">
-                      {itemName}
-                    </span>
-                  </a>
-                );
-              })}
+      <div className={FLAT_GRID}>
+        {flatItems.map(({ itemName, groupName, isFirst, href, image }) => (
+          <a
+            key={itemName}
+            href={href}
+            className="group bg-card-bg rounded-xl border border-border-light shadow-tech hover:shadow-tech-hover hover:border-primary transition-all duration-300 flex flex-col text-center overflow-hidden"
+          >
+            {/* Group label row — always rendered for consistent card height */}
+            <div className="px-3 pt-2 min-h-[22px] flex items-center justify-end">
+              {isFirst && <GroupBadge name={groupName} />}
             </div>
-          </div>
+            <div className="w-full aspect-square flex items-center justify-center p-3 bg-white group-hover:bg-primary/5 transition-colors overflow-hidden">
+              {image ? (
+                <img
+                  src={image}
+                  alt={itemName}
+                  className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-300"
+                  loading="lazy"
+                />
+              ) : (
+                <span className="material-symbols-rounded text-5xl text-text-muted group-hover:text-primary transition-colors">
+                  devices
+                </span>
+              )}
+            </div>
+            <div className="px-3 py-2">
+              <span className="text-sm font-bold text-text-main group-hover:text-primary transition-colors leading-tight block">
+                {itemName}
+              </span>
+            </div>
+          </a>
         ))}
       </div>
     </Container>

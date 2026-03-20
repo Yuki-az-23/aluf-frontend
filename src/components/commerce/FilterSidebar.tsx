@@ -3,6 +3,34 @@ import type { Product } from '@/data/products';
 import type { FilterGroup } from '@/lib/konimbo-scraper';
 import { useLang } from '@/i18n';
 
+/** Returns true if the given absolute href matches the current page path */
+function isActiveFilter(href: string): boolean {
+  try {
+    return new URL(href).pathname === window.location.pathname;
+  } catch {
+    return href === window.location.pathname;
+  }
+}
+
+/** Returns the URL to navigate to when toggling an option:
+ *  - if already active → strip the last path segment (deactivate)
+ *  - otherwise → navigate to the option href
+ */
+function toggleFilterHref(href: string): string {
+  if (!isActiveFilter(href)) return href;
+  // Deactivate: go up one path segment
+  try {
+    const u = new URL(href);
+    const parts = u.pathname.replace(/\/$/, '').split('/');
+    parts.pop();
+    return u.origin + parts.join('/');
+  } catch {
+    const parts = href.replace(/\/$/, '').split('/');
+    parts.pop();
+    return parts.join('/') || '/';
+  }
+}
+
 export interface FilterState {
   priceMin: number;
   priceMax: number;
@@ -36,22 +64,7 @@ export function FilterSidebar({ products, filters, onChange, filterGroups = [], 
     onChange({ ...filters, brands: next });
   };
 
-  const toggleAttr = (groupId: string, value: string) => {
-    const current = filters.attrs[groupId] || [];
-    const next = current.includes(value)
-      ? current.filter(v => v !== value)
-      : [...current, value];
-    onChange({ ...filters, attrs: { ...filters.attrs, [groupId]: next } });
-  };
-
   const reset = () => onChange({ priceMin: globalMin, priceMax: globalMax, brands: [], inStockOnly: false, attrs: {} });
-
-  /** Count how many products match a given filter-group option */
-  const countForAttr = (groupId: string, value: string): number =>
-    products.filter(p => {
-      const pVal = p.filterAttrs?.[groupId] || '';
-      return pVal.split(',').map(v => v.trim()).includes(value);
-    }).length;
 
   /** Shared filter form — used in both desktop sidebar and mobile drawer */
   const filterBody = (
@@ -91,25 +104,29 @@ export function FilterSidebar({ products, filters, onChange, filterGroups = [], 
         </div>
       </div>
 
-      {/* Dynamic Konimbo filter groups */}
+      {/* Konimbo URL-redirect filter groups — clicking navigates to Konimbo's server-filtered URL */}
       {filterGroups.map(group => (
         <div key={group.id} className="mb-6">
           <h3 className="font-bold text-sm mb-3">{group.title}</h3>
-          <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
+          <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
             {group.options.map(option => {
-              const count = countForAttr(group.id, option);
-              const checked = (filters.attrs[group.id] || []).includes(option);
+              const active = isActiveFilter(option.href);
               return (
-                <label key={option} className="flex items-center gap-3 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() => toggleAttr(group.id, option)}
-                    className="w-4 h-4 rounded border-border-light text-primary focus:ring-primary"
-                  />
-                  <span className="text-sm text-text-main group-hover:text-primary transition-colors flex-1 line-clamp-1">{option}</span>
-                  <span className="text-xs text-text-muted flex-shrink-0">({count})</span>
-                </label>
+                <a
+                  key={option.href}
+                  href={toggleFilterHref(option.href)}
+                  className={`flex items-center gap-3 px-2 py-1.5 rounded-lg text-sm transition-colors group no-underline ${
+                    active
+                      ? 'text-primary font-semibold bg-primary/8'
+                      : 'text-text-main hover:text-primary hover:bg-black/5 dark:hover:bg-white/5'
+                  }`}
+                >
+                  <span className={`w-3.5 h-3.5 rounded-full border-2 flex-shrink-0 transition-colors ${
+                    active ? 'border-primary bg-primary' : 'border-border-accent group-hover:border-primary'
+                  }`} />
+                  <span className="flex-1 line-clamp-1">{option.label}</span>
+                  {active && <Icon name="close" className="text-xs text-primary/70 flex-shrink-0" />}
+                </a>
               );
             })}
           </div>
@@ -201,13 +218,6 @@ export function applyFilters(products: Product[], filters: FilterState): Product
     if (p.price < filters.priceMin || p.price > filters.priceMax) return false;
     if (filters.brands.length && !filters.brands.includes(p.category)) return false;
     if (filters.inStockOnly && !p.inStock) return false;
-    // Dynamic attribute filters — each selected group must match at least one selected value
-    for (const [key, vals] of Object.entries(filters.attrs)) {
-      if (!vals.length) continue;
-      const pVal = p.filterAttrs?.[key] || '';
-      const pVals = pVal.split(',').map(v => v.trim()).filter(Boolean);
-      if (!vals.some(v => pVals.includes(v))) return false;
-    }
     return true;
   });
 }
