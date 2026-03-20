@@ -15,8 +15,15 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
       <a href={href}
         className="bg-card-bg rounded-xl border border-border-light overflow-hidden hover:shadow-tech-hover hover:border-primary transition-all group flex flex-col sm:flex-row lg:col-span-2">
         <div className="sm:w-2/5 aspect-video sm:aspect-auto overflow-hidden flex-shrink-0">
-          <img src={post.image} alt={post.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+          <img
+            src={post.image}
+            alt={post.title}
+            width={480}
+            height={270}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
         <div className="flex-1 p-6 flex flex-col justify-center text-right">
           <span className="inline-flex items-center gap-1 text-xs font-bold bg-primary text-white px-2 py-0.5 rounded mb-3 w-fit mr-auto">
@@ -35,8 +42,15 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
     <a href={href}
       className="bg-card-bg rounded-xl border border-border-light overflow-hidden hover:shadow-tech-hover hover:border-primary transition-all group block">
       <div className="aspect-video overflow-hidden">
-        <img src={post.image} alt={post.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+        <img
+          src={post.image}
+          alt={post.title}
+          width={480}
+          height={270}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          loading="lazy"
+          decoding="async"
+        />
       </div>
       <div className="p-5">
         <span className="text-xs text-text-muted">{post.date}</span>

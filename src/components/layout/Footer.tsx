@@ -21,18 +21,13 @@ const deptLinks = [
 ];
 
 const serviceLinks: { key: string; href: string; bold?: boolean; external?: boolean }[] = [
-  { key: 'login',         href: '/customer_login' },
-  { key: 'myAccount',     href: '/customer_profile' },
   { key: 'contactPage',   href: '/contact' },
-  { key: 'whatsapp',      href: WA_LINK,    external: true },
   { key: 'support',       href: '/pages/52435-%D7%9E%D7%A2%D7%91%D7%93%D7%94-%D7%9C%D7%9E%D7%97%D7%A9%D7%91%D7%99%D7%9D' },
-  { key: 'orderTracking', href: '/customer_login' },
-  { key: 'tracking',      href: '/customer_login' },
-  { key: 'cancelOrder',   href: SHOP + '/contact?CancellingTransaction=true&msg=%D7%9E%D7%A2%D7%95%D7%A0%D7%99%D7%99%D7%9F%20%D7%9C%D7%91%D7%98%D7%9C%20%D7%90%D7%AA%20%D7%94%D7%94%D7%96%D7%9E%D7%A0%D7%94', bold: true, external: true },
-  { key: 'returns',       href: '/contract' },
+  { key: 'cancelOrder',   href: '/contact', bold: true },
   { key: 'contract',      href: '/contract' },
   { key: 'privacy',       href: '/pages/54957-תקנון-פרטיות' },
   { key: 'about',         href: '/about' },
+  { key: 'careers',       href: '/careers' },
 ];
 
 export function Footer() {
@@ -48,6 +43,8 @@ export function Footer() {
               <img
                 src={logoSrc}
                 alt={t('site.name')}
+                width={80}
+                height={24}
                 className="h-6 w-auto object-contain bg-white p-0.5 rounded-sm"
               />
               <span className="font-display font-bold text-xl text-text-main">

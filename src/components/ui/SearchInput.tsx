@@ -116,8 +116,11 @@ export function SearchInput({ className }: SearchInputProps) {
                   <img
                     src={s.img_path}
                     alt=""
+                    width={40}
+                    height={40}
                     className="w-10 h-10 object-contain rounded flex-shrink-0 bg-white/5"
                     loading="lazy"
+                    decoding="async"
                   />
                 )}
                 <span className="flex-1 text-right leading-snug">{s.title}</span>
