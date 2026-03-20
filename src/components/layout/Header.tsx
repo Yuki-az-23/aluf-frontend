@@ -47,10 +47,10 @@ export function Header() {
               <span className="hidden md:inline-flex"><ThemeToggle /></span>
 
               <div className="flex items-center gap-4 pl-2 border-r border-header-border pr-4">
-                <button className="text-header-text-muted hover:text-header-text transition flex flex-col items-center gap-0.5 group">
+                <a href="/customer_login" className="text-header-text-muted hover:text-header-text transition flex flex-col items-center gap-0.5 group">
                   <Icon name="person" className="transition-colors" />
                   <span className="text-[10px] hidden sm:block font-medium">{t('header.login')}</span>
-                </button>
+                </a>
                 <a href="/cart" className="text-header-text-muted hover:text-header-text transition relative flex flex-col items-center gap-0.5 group">
                   <div className="relative">
                     <Icon name="shopping_cart" className="group-hover:text-primary transition-colors" />

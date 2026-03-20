@@ -12,24 +12,27 @@ const WA_LINK = 'https://api.whatsapp.com/send?phone=972533368048';
 const logoSrc = 'https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/src/assets/logo.png';
 
 const deptLinks = [
-  { key: 'desktops',    href: '/596696-מחשבים' },
-  { key: 'laptops',     href: '/617479-מחשב-נייד' },
-  { key: 'components',  href: '/585802-חומרת-מחשב' },
-  { key: 'gamingGear',  href: '/596731-גיימינג' },
+  { key: 'computers',    href: '/596696-מחשבים' },
+  { key: 'components',   href: '/585802-חומרת-מחשב' },
+  { key: 'peripherals',  href: '/585876-ציוד-היקפי' },
+  { key: 'networking',   href: '/649010-ציוד-רשת' },
+  { key: 'consoles',     href: '/596717-קונסולות' },
+  { key: 'gamingGear',   href: '/596731-גיימינג' },
 ];
 
-const serviceLinks = [
+const serviceLinks: { key: string; href: string; bold?: boolean; external?: boolean }[] = [
+  { key: 'login',         href: '/customer_login' },
+  { key: 'myAccount',     href: '/customer_profile' },
   { key: 'contactPage',   href: '/contact' },
+  { key: 'whatsapp',      href: WA_LINK,    external: true },
   { key: 'support',       href: '/pages/52435-%D7%9E%D7%A2%D7%91%D7%93%D7%94-%D7%9C%D7%9E%D7%97%D7%A9%D7%91%D7%99%D7%9D' },
   { key: 'orderTracking', href: '/customer_login' },
   { key: 'tracking',      href: '/customer_login' },
-  { key: 'cancelOrder',   href: SHOP + '/contact?CancellingTransaction=true&msg=%D7%9E%D7%A2%D7%95%D7%A0%D7%99%D7%99%D7%9F%20%D7%9C%D7%91%D7%98%D7%9C%20%D7%90%D7%AA%20%D7%94%D7%94%D7%96%D7%9E%D7%A0%D7%94' },
+  { key: 'cancelOrder',   href: SHOP + '/contact?CancellingTransaction=true&msg=%D7%9E%D7%A2%D7%95%D7%A0%D7%99%D7%99%D7%9F%20%D7%9C%D7%91%D7%98%D7%9C%20%D7%90%D7%AA%20%D7%94%D7%94%D7%96%D7%9E%D7%A0%D7%94', bold: true, external: true },
   { key: 'returns',       href: '/contract' },
   { key: 'contract',      href: '/contract' },
-  { key: 'terms',         href: '/contract' },
   { key: 'privacy',       href: '/pages/54957-תקנון-פרטיות' },
   { key: 'about',         href: '/about' },
-  { key: 'directions',    href: '/location' },
 ];
 
 export function Footer() {
@@ -104,8 +107,16 @@ export function Footer() {
             <div>
               <h3 className="text-text-main font-bold mb-4 text-base">{t('footer.customerService')}</h3>
               <ul className="space-y-2 text-sm text-text-muted">
-                {serviceLinks.map(({ key, href }) => (
-                  <li key={key}><a className="hover:text-primary transition" href={href}>{t(`footer.${key}`)}</a></li>
+                {serviceLinks.map(({ key, href, bold, external }) => (
+                  <li key={key}>
+                    <a
+                      className={`hover:text-primary transition${bold ? ' font-bold text-primary' : ''}`}
+                      href={href}
+                      {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    >
+                      {t(`footer.${key}`)}
+                    </a>
+                  </li>
                 ))}
               </ul>
             </div>

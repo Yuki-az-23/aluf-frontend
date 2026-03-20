@@ -212,7 +212,9 @@ export function CategoryPage() {
   const flatItems = groups.flatMap(g =>
     g.items.map((itemName, idx) => ({
       itemName,
+      itemLabel: t('cat.' + itemName),
       groupName: g.group,
+      groupLabel: t('cat.' + g.group),
       isFirst: idx === 0,
       href: findCategoryHref(itemName, categories) || '#',
       image: ICON_MAP[itemName],
@@ -230,7 +232,7 @@ export function CategoryPage() {
       )}
 
       <div className={FLAT_GRID}>
-        {flatItems.map(({ itemName, groupName, isFirst, href, image }) => (
+        {flatItems.map(({ itemName, itemLabel, groupLabel, isFirst, href, image }) => (
           <a
             key={itemName}
             href={href}
@@ -238,13 +240,13 @@ export function CategoryPage() {
           >
             {/* Group label row — always rendered for consistent card height */}
             <div className="px-3 pt-2 min-h-[22px] flex items-center justify-end">
-              {isFirst && <GroupBadge name={groupName} />}
+              {isFirst && <GroupBadge name={groupLabel} />}
             </div>
             <div className="w-full aspect-square flex items-center justify-center p-3 bg-card-bg group-hover:bg-primary/5 transition-colors overflow-hidden">
               {image ? (
                 <img
                   src={image}
-                  alt={itemName}
+                  alt={itemLabel}
                   className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-300"
                   loading="lazy"
                 />
@@ -256,7 +258,7 @@ export function CategoryPage() {
             </div>
             <div className="px-3 py-2">
               <span className="text-sm font-bold text-text-main group-hover:text-primary transition-colors leading-tight block">
-                {itemName}
+                {itemLabel}
               </span>
             </div>
           </a>
