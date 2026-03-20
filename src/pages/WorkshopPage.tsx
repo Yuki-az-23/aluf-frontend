@@ -34,11 +34,18 @@ const HOME_INCLUDES = [
   'workshop.home.inc5',
 ];
 
-const FAQ_ITEMS = [
+const CUSTOMER_FAQ = [
   { q: 'workshop.faq.q1', a: 'workshop.faq.a1' },
   { q: 'workshop.faq.q2', a: 'workshop.faq.a2' },
   { q: 'workshop.faq.q3', a: 'workshop.faq.a3' },
   { q: 'workshop.faq.q4', a: 'workshop.faq.a4' },
+];
+
+const BUSINESS_FAQ = [
+  { q: 'workshop.faq.bq1', a: 'workshop.faq.ba1' },
+  { q: 'workshop.faq.bq2', a: 'workshop.faq.ba2' },
+  { q: 'workshop.faq.bq3', a: 'workshop.faq.ba3' },
+  { q: 'workshop.faq.bq4', a: 'workshop.faq.ba4' },
 ];
 
 const WaSvg = () => (
@@ -71,7 +78,7 @@ export function WorkshopPage() {
   const waBaseUrl = `https://api.whatsapp.com/send?phone=${WA_NUM}`;
   const waHomeUrl = `${waBaseUrl}&text=${encodeURIComponent(t('workshop.home.waMessage'))}`;
 
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | string | null>(null);
 
   // Ticket form state
   const [name, setName]           = useState('');
@@ -253,64 +260,62 @@ export function WorkshopPage() {
         </Container>
       </section>
 
-      {/* ── 3. HOME TECHNICIAN — info + 2-column CTA row ── */}
+      {/* ── 3. HOME TECHNICIAN — left: ticket card | right: all info + WhatsApp ── */}
       <section className="py-16">
         <Container>
-          <div className="max-w-3xl mx-auto">
-            <span className="inline-flex items-center gap-1 text-xs font-bold text-primary uppercase tracking-wider mb-3">
-              <Icon name="home_repair_service" className="text-base" />
-              {t('workshop.home.title')}
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-text-main mb-3">{t('workshop.home.title')}</h2>
-            <p className="text-text-muted mb-5">{t('workshop.home.subtitle')}</p>
-            <ul className="space-y-2.5 mb-4">
-              {HOME_INCLUDES.map(key => (
-                <li key={key} className="flex items-start gap-2 text-sm text-text-main">
-                  <Icon name="check_circle" className="text-green-500 text-base mt-0.5 shrink-0" />
-                  {t(key)}
-                </li>
-              ))}
-            </ul>
-            <p className="text-xs text-text-muted border-s-2 border-border-light ps-3 mb-8 leading-relaxed">
-              {t('workshop.home.note')}
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-            {/* 2-column CTA row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* LEFT — ticket creation card (pink area) */}
+            <a href="#ticket"
+              onClick={() => prefillTicket(t('workshop.ticket.type.home'), 'home')}
+              className="bg-card-bg border-2 border-primary/30 rounded-2xl p-8 flex flex-col items-center text-center hover:border-primary hover:shadow-lg transition group h-full justify-center">
+              <span className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition">
+                <Icon name="build_circle" className="text-primary text-4xl" />
+              </span>
+              <h3 className="font-black text-xl text-text-main mb-2 group-hover:text-primary transition">{t('workshop.home.ticketCta')}</h3>
+              <p className="text-text-muted text-sm leading-relaxed mb-6">{t('workshop.home.ticketDesc')}</p>
+              <span className="inline-flex w-full items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-5 py-3 transition">
+                <Icon name="edit_note" className="text-lg" />
+                {t('workshop.ticket.send.cta')}
+              </span>
+            </a>
 
-              {/* WhatsApp — direct with language-based message */}
+            {/* RIGHT — home tech info + WhatsApp CTA (green area) */}
+            <div>
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-primary uppercase tracking-wider mb-3">
+                <Icon name="home_repair_service" className="text-base" />
+                {t('workshop.home.title')}
+              </span>
+              <h2 className="text-2xl font-bold text-text-main mb-2">{t('workshop.home.title')}</h2>
+              <p className="text-text-muted text-sm mb-4">{t('workshop.home.subtitle')}</p>
+              <ul className="space-y-2 mb-3">
+                {HOME_INCLUDES.map(key => (
+                  <li key={key} className="flex items-start gap-2 text-sm text-text-main">
+                    <Icon name="check_circle" className="text-green-500 text-base mt-0.5 shrink-0" />
+                    {t(key)}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-text-muted border-s-2 border-border-light ps-3 mb-5 leading-relaxed">
+                {t('workshop.home.note')}
+              </p>
+
+              {/* WhatsApp ₪300 card */}
               <a href={waHomeUrl} target="_blank" rel="noopener noreferrer"
-                className="bg-card-bg border border-border-light rounded-2xl p-6 flex flex-col items-center text-center hover:border-[#25D366]/60 hover:shadow-md transition group">
-                <span className="w-14 h-14 rounded-full bg-[#25D366]/10 flex items-center justify-center mb-3 group-hover:bg-[#25D366]/20 transition text-[#25D366]">
-                  <WaSvg />
-                </span>
-                <div className="mb-1">
-                  <span className="text-3xl font-extrabold text-primary">₪300</span>
+                className="flex items-center justify-between bg-card-bg border border-border-light rounded-xl px-5 py-4 hover:border-[#25D366]/60 hover:shadow-md transition group">
+                <div className="flex items-center gap-4">
+                  <span className="w-11 h-11 rounded-full bg-[#25D366]/10 flex items-center justify-center shrink-0 group-hover:bg-[#25D366]/20 transition text-[#25D366]">
+                    <WaSvg />
+                  </span>
+                  <div className="text-start">
+                    <p className="font-bold text-sm text-text-main">{t('workshop.home.cta')}</p>
+                    <p className="text-xs text-amber-500 font-semibold">{t('workshop.home.centerOnly')}</p>
+                  </div>
                 </div>
-                <p className="text-xs text-amber-500 font-semibold mb-1">{t('workshop.home.centerOnly')}</p>
-                <p className="text-text-muted text-xs mb-4">{t('workshop.home.region')}</p>
-                <span className="inline-flex w-full items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-semibold rounded-xl px-4 py-2.5 transition text-sm">
-                  <WaSvg />
-                  {t('workshop.home.cta')}
-                </span>
+                <span className="text-2xl font-extrabold text-primary shrink-0">₪300</span>
               </a>
-
-              {/* Ticket creation */}
-              <a href="#ticket"
-                onClick={() => prefillTicket(t('workshop.ticket.type.home'), 'home')}
-                className="bg-card-bg border border-border-light rounded-2xl p-6 flex flex-col items-center text-center hover:border-primary/60 hover:shadow-md transition group">
-                <span className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition">
-                  <Icon name="build_circle" className="text-primary text-3xl" />
-                </span>
-                <h3 className="font-bold text-text-main mb-1">{t('workshop.home.ticketCta')}</h3>
-                <p className="text-text-muted text-xs leading-relaxed mb-4">{t('workshop.home.ticketDesc')}</p>
-                <span className="inline-flex w-full items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl px-4 py-2.5 transition text-sm">
-                  <Icon name="edit_note" className="text-base" />
-                  {t('workshop.ticket.send.cta')}
-                </span>
-              </a>
-
             </div>
+
           </div>
         </Container>
       </section>
@@ -392,27 +397,67 @@ export function WorkshopPage() {
         </Container>
       </section>
 
-      {/* ── 5. FAQ ── */}
+      {/* ── 5. FAQ — 2 columns: customer | business ── */}
       <section className="py-16">
         <Container>
           <h2 className="text-2xl sm:text-3xl font-bold text-text-main text-center mb-10">{t('workshop.faq.title')}</h2>
-          <div className="max-w-2xl mx-auto space-y-3">
-            {FAQ_ITEMS.map(({ q, a }, i) => (
-              <div key={q} className="bg-card-bg border border-border-light rounded-xl overflow-hidden">
-                <button type="button"
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between px-5 py-4 text-start font-semibold text-sm text-text-main hover:bg-primary/5 transition"
-                  aria-expanded={openFaq === i}>
-                  {t(q)}
-                  <Icon name={openFaq === i ? 'expand_less' : 'expand_more'} className="text-text-muted text-xl shrink-0" />
-                </button>
-                {openFaq === i && (
-                  <div className="px-5 pb-5 pt-3 text-sm text-text-muted leading-relaxed border-t border-border-light">
-                    {t(a)}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+            {/* Customer FAQ */}
+            <div>
+              <h3 className="text-base font-bold text-text-main mb-4 flex items-center gap-2">
+                <Icon name="person" className="text-primary text-xl" />
+                {t('workshop.faq.customer.title')}
+              </h3>
+              <div className="space-y-3">
+                {CUSTOMER_FAQ.map(({ q, a }, i) => (
+                  <div key={q} className="bg-card-bg border border-border-light rounded-xl overflow-hidden">
+                    <button type="button"
+                      onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                      className="w-full flex items-center justify-between px-5 py-4 text-start font-semibold text-sm text-text-main hover:bg-primary/5 transition"
+                      aria-expanded={openFaq === i}>
+                      {t(q)}
+                      <Icon name={openFaq === i ? 'expand_less' : 'expand_more'} className="text-text-muted text-xl shrink-0" />
+                    </button>
+                    {openFaq === i && (
+                      <div className="px-5 pb-5 pt-3 text-sm text-text-muted leading-relaxed border-t border-border-light">
+                        {t(a)}
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
+            </div>
+
+            {/* Business FAQ */}
+            <div>
+              <h3 className="text-base font-bold text-text-main mb-4 flex items-center gap-2">
+                <Icon name="business" className="text-primary text-xl" />
+                {t('workshop.faq.business.title')}
+              </h3>
+              <div className="space-y-3">
+                {BUSINESS_FAQ.map(({ q, a }, i) => {
+                  const key = `biz-${i}`;
+                  return (
+                    <div key={q} className="bg-card-bg border border-border-light rounded-xl overflow-hidden">
+                      <button type="button"
+                        onClick={() => setOpenFaq(openFaq === key ? null : key)}
+                        className="w-full flex items-center justify-between px-5 py-4 text-start font-semibold text-sm text-text-main hover:bg-primary/5 transition"
+                        aria-expanded={openFaq === key}>
+                        {t(q)}
+                        <Icon name={openFaq === key ? 'expand_less' : 'expand_more'} className="text-text-muted text-xl shrink-0" />
+                      </button>
+                      {openFaq === key && (
+                        <div className="px-5 pb-5 pt-3 text-sm text-text-muted leading-relaxed border-t border-border-light">
+                          {t(a)}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
           </div>
         </Container>
       </section>
