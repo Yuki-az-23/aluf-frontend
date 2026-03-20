@@ -42,13 +42,27 @@ export function getPageType(): string {
   // 2. URL-based auto-detection fallback
   const path = window.location.pathname;
 
-  if (/^\/items\//.test(path)) return 'item';
   if (/^\/tags\//.test(path)) return 'items';
   if (/^\/search(\?|$)/.test(path)) return 'items';
   if (/^\/contract(\?|$)/.test(path)) return 'terms';
   if (/^\/pages\/54957-/.test(path)) return 'privacy';
+  if (/^\/pages\/52435-/.test(path)) return 'workshop';
   if (/^\/(cart|orders)(\/|$)/.test(path)) return 'cart';
-  if (/^\/632283-/.test(path)) return 'blog';
+
+  // Blog list: /632283-... (aluf.co.il) or /blog (alufshop.konimbo.co.il)
+  if (/^\/632283-/.test(path) || /^\/blog\/?$/.test(path)) return 'blog';
+
+  // Blog post detail: /blog/SLUG on alufshop.konimbo.co.il
+  if (/^\/blog\/.+/.test(path)) return 'blogpost';
+
+  // /items/ can be either a product or a blog post — check DOM to distinguish
+  if (/^\/items\//.test(path)) {
+    // Blog post items have no add-to-cart form; products do
+    const hasCart = !!document.querySelector('.add_to_cart, #add_to_cart_button, .cart_options, form[action*="/orders"]');
+    const isBlogLayout = !!document.querySelector('.blog_post, .blog_item, .post_content, [class*="blog"]');
+    if (!hasCart || isBlogLayout) return 'blogpost';
+    return 'item';
+  }
 
   // 3. DOM-based detection for category vs item pages
   if (document.getElementById('layout_x_item')) return 'item';

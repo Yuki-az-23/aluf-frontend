@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Container } from '@/components/layout/Container';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Button } from '@/components/ui/Button';
@@ -14,6 +15,39 @@ export function HomePage() {
   const { t } = useLang();
   const { banners, blogPosts } = useStoreData();
   const { open: openPcBuilder } = usePCBuilder();
+
+  // Newsletter form state
+  const [nlName, setNlName] = useState('');
+  const [nlEmail, setNlEmail] = useState('');
+  const [nlPhone, setNlPhone] = useState('');
+  const [nlError, setNlError] = useState('');
+  const [nlSuccess, setNlSuccess] = useState(false);
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setNlError('');
+    if (!nlName.trim()) { setNlError(t('newsletter.errorName')); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nlEmail)) { setNlError(t('newsletter.errorEmail')); return; }
+    if (nlPhone && !/^[\d\s\-+()]{7,15}$/.test(nlPhone)) { setNlError(t('newsletter.errorPhone')); return; }
+
+    const onSuccess = (ev: MessageEvent) => {
+      if (ev.data?.type === 'SUBMISSION_SUCCESS') {
+        window.removeEventListener('message', onSuccess);
+        setNlSuccess(true);
+      }
+    };
+    window.addEventListener('message', onSuccess);
+
+    window.parent.postMessage({
+      type: 'FAQ_LEAD_SUBMISSION',
+      payload: {
+        name: nlName.trim(),
+        phone: nlPhone.trim(),
+        email: nlEmail.trim(),
+        message: 'הרשמה לניוזלטר',
+      },
+    }, '*');
+  };
 
   return (
     <>
@@ -88,16 +122,40 @@ export function HomePage() {
                 <h2 className="text-3xl font-black text-text-main mb-3">{t('newsletter.title')}</h2>
                 <p className="text-text-muted">{t('newsletter.subtitle')}</p>
               </div>
-              <div className="flex gap-3 w-full md:w-auto md:min-w-[340px]">
-                <input
-                  type="email"
-                  placeholder={t('newsletter.placeholder')}
-                  className="flex-1 px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-gray-50"
-                />
-                <Button variant="primary" size="md">
-                  {t('newsletter.submit')}
-                </Button>
-              </div>
+              {nlSuccess ? (
+                <p className="text-primary font-bold text-sm md:min-w-[340px]">{t('newsletter.success')}</p>
+              ) : (
+                <form onSubmit={handleNewsletterSubmit} noValidate className="flex flex-col gap-2 w-full md:w-auto md:min-w-[340px]">
+                  <input
+                    type="text"
+                    value={nlName}
+                    onChange={e => setNlName(e.target.value)}
+                    placeholder={t('newsletter.namePlaceholder')}
+                    className="px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg"
+                  />
+                  <input
+                    type="email"
+                    value={nlEmail}
+                    onChange={e => setNlEmail(e.target.value)}
+                    placeholder={t('newsletter.placeholder')}
+                    className="px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg"
+                  />
+                  <div className="flex gap-3">
+                    <input
+                      type="tel"
+                      value={nlPhone}
+                      onChange={e => setNlPhone(e.target.value)}
+                      placeholder={t('newsletter.phonePlaceholder')}
+                      className="flex-1 px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg"
+                      dir="ltr"
+                    />
+                    <Button variant="primary" size="md">
+                      {t('newsletter.submit')}
+                    </Button>
+                  </div>
+                  {nlError && <p className="text-red-500 text-xs">{nlError}</p>}
+                </form>
+              )}
             </div>
           </div>
         </Container>

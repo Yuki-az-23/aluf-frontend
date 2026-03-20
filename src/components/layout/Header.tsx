@@ -35,7 +35,7 @@ export function Header() {
 
             {/* Right side */}
             <div className="flex items-center gap-6">
-              <a className="hidden lg:flex text-header-text-muted hover:text-primary hover:bg-black/5 dark:hover:bg-white/5 px-3 py-2 rounded-md transition font-medium text-sm items-center gap-2" href="https://alufshop.konimbo.co.il">
+              <a className="hidden lg:flex text-header-text-muted hover:text-primary hover:bg-black/5 dark:hover:bg-white/5 px-3 py-2 rounded-md transition font-medium text-sm items-center gap-2" href="/pages/52435-%D7%9E%D7%A2%D7%91%D7%93%D7%94-%D7%9C%D7%9E%D7%97%D7%A9%D7%91%D7%99%D7%9D">
                 <Icon name="handyman" className="text-primary" />
                 {t('nav.lab')}
               </a>
