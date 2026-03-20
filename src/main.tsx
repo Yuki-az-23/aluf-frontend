@@ -76,7 +76,7 @@ if (root) {
         ? scrapeBreadcrumbs()
         : [],
       pageTitle: ['category', 'items', 'blog'].includes(pageType) ? scrapeCategoryTitle() : '',
-      blogPosts: ['blog', 'home'].includes(pageType) ? scrapeBlogPosts() : [],
+      blogPosts: pageType === 'blog' ? scrapeBlogPosts() : [],
       blogPostDetail: pageType === 'blogpost' ? scrapeBlogPostDetail() : null,
       filterGroups: ['items', 'category'].includes(pageType) ? scrapeFilterGroups() : [],
     };

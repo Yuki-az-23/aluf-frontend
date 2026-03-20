@@ -6,16 +6,21 @@ import { FilterSidebar, applyFilters, type FilterState } from '@/components/comm
 import { SortBar, applySorting, type SortOption, type ViewMode } from '@/components/commerce/SortBar';
 import { useStoreData } from '@/lib/StoreDataContext';
 import { useLang } from '@/i18n';
-import { CATEGORY_DATA, CATEGORY_ALIASES, ICON_MAP } from '@/data/category-data';
+import { CATEGORY_DATA, CATEGORY_ALIASES, ICON_MAP, PARENT_CATEGORY_IDS } from '@/data/category-data';
 import type { KonimboCategory } from '@/lib/konimbo-scraper';
 
 function resolveParentKey(title: string): string | null {
+  // 1. Slug-ID from URL — authoritative; prevents subcategory titles that contain
+  //    a parent keyword (e.g. "מחשבים ניידים גיימינג") from matching their parent.
+  const idMatch = window.location.pathname.match(/^\/(\d+)-/);
+  if (idMatch) {
+    const fromId = PARENT_CATEGORY_IDS[idMatch[1]];
+    if (fromId) return fromId;
+  }
+  // 2. Exact title / alias match — used in dev/mock environments
   if (!title) return null;
   if (CATEGORY_DATA[title]) return title;
   if (CATEGORY_ALIASES[title] && CATEGORY_DATA[CATEGORY_ALIASES[title]]) return CATEGORY_ALIASES[title];
-  for (const key of Object.keys(CATEGORY_DATA)) {
-    if (title.includes(key) || key.includes(title)) return key;
-  }
   return null;
 }
 

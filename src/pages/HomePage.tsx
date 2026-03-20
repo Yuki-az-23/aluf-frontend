@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import type { BlogPostItem } from '@/data/products';
 import { Container } from '@/components/layout/Container';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Button } from '@/components/ui/Button';
@@ -13,10 +14,44 @@ import { sendLead, LEAD_SOURCES } from '@/lib/leads';
 import { gamingTiers } from '@/data/tiers';
 
 
+const BLOG_URL = '/632283-%D7%91%D7%9C%D7%95%D7%92?order=down_created_at';
+
+function parseBlogPosts(html: string): BlogPostItem[] {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const items = doc.querySelectorAll('.layout_list_item.item');
+  const posts: BlogPostItem[] = [];
+  items.forEach((el, idx) => {
+    const titleEl = el.querySelector('h4.title, .title, h3, h4');
+    const title = titleEl?.textContent?.trim() || '';
+    if (!title) return;
+    const imgEl = el.querySelector('img');
+    const rawSrc = imgEl?.getAttribute('src') || imgEl?.getAttribute('data-src') || '';
+    const image = rawSrc.startsWith('http') ? rawSrc : (rawSrc ? window.location.origin + rawSrc : '');
+    const dateEl = el.querySelector('.date, .item_date, .created_at');
+    const date = dateEl?.textContent?.trim() || '';
+    const excerptEl = el.querySelector('.description, .item_description, .excerpt');
+    const excerpt = excerptEl?.textContent?.trim() || '';
+    const linkEl = el.querySelector('a');
+    const rawHref = linkEl?.getAttribute('href') || '';
+    const href = rawHref.startsWith('http') ? new URL(rawHref).pathname : (rawHref || BLOG_URL);
+    posts.push({ id: String(idx), title, image, excerpt, date, href });
+  });
+  return posts;
+}
+
 export function HomePage() {
   const { t } = useLang();
-  const { banners, blogPosts } = useStoreData();
+  const { banners } = useStoreData();
   const { open: openPcBuilder } = usePCBuilder();
+
+  const [blogPosts, setBlogPosts] = useState<BlogPostItem[]>([]);
+
+  useEffect(() => {
+    fetch(BLOG_URL)
+      .then(r => r.text())
+      .then(html => setBlogPosts(parseBlogPosts(html)))
+      .catch(() => {});
+  }, []);
 
   // ── Newsletter state ────────────────────────────────────────────────────
   const [nlName, setNlName] = useState('');
@@ -83,17 +118,14 @@ export function HomePage() {
         </Container>
       </section>
 
-      {/* Blog — shown only when real posts are scraped from Konimbo */}
+      {/* Blog — fetched from the blog listing page */}
       {blogPosts.length > 0 && (
         <section className="py-12">
           <Container>
             <SectionHeader title={t('blog.title')} linkText={t('blog.readMore')} />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {blogPosts.slice(0, 1).map(post => (
-                <BlogCard key={post.title} post={post} featured />
-              ))}
-              {blogPosts.slice(1, 3).map(post => (
-                <BlogCard key={post.title} post={post} />
+              {blogPosts.slice(0, 6).map(post => (
+                <BlogCard key={post.id} post={post} />
               ))}
             </div>
           </Container>

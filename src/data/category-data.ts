@@ -56,6 +56,26 @@ export const CATEGORY_ALIASES: Record<string, string> = {
   'ציוד היקפי': 'ציוד הקפי',
 };
 
+/**
+ * Maps the Konimbo numeric category ID (extracted from the URL path) to the
+ * corresponding CATEGORY_DATA key.  This is the authoritative way to detect
+ * parent-category pages — it never false-positively matches subcategory titles
+ * that happen to contain a parent keyword (e.g. "מחשבים ניידים גיימינג").
+ *
+ * IDs come from the live Konimbo category URLs:
+ *   https://www.aluf.co.il/596731-גיימינג
+ *   https://www.aluf.co.il/596696-מחשבים
+ *   etc.
+ */
+export const PARENT_CATEGORY_IDS: Record<string, string> = {
+  '596696': 'מחשבים',
+  '585802': 'חומרת מחשב',
+  '585876': 'ציוד הקפי',
+  '649010': 'ציוד רשת',
+  '596717': 'קונסולות',
+  '596731': 'גיימינג',
+};
+
 /** Subcategory name -> product image URL */
 export const ICON_MAP: Record<string, string> = {
   'מעבדי INTEL': 'https://d3m9l0v76dty0.cloudfront.net/system/photos/1043080/original/520819385efdf35da102e10cbaa406f9.png?1770287961',
