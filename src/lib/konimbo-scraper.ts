@@ -608,8 +608,11 @@ export function scrapeBlogPosts(): BlogPostItem[] {
     const excerptEl = el.querySelector('.description, .item_description, .excerpt');
     const excerpt = excerptEl?.textContent?.trim() || '';
 
-    const linkEl = el.querySelector('a[href*="/items/"]');
-    const href = makeAbsolute(linkEl?.getAttribute('href') || '');
+    // Use a[href] + whitespace-strip (same pattern as scrapeRelatedItems) because
+    // Konimbo may inject newlines into href attributes, breaking the CSS *="/items/" selector.
+    const linkEl = el.querySelector('a[href]');
+    const rawHref = (linkEl?.getAttribute('href') || '').replace(/\s/g, '');
+    const href = makeAbsolute(rawHref);
 
     if (title) {
       posts.push({ id, title, image, excerpt, date, href });
@@ -625,13 +628,15 @@ export function scrapeBlogPostDetail(): BlogPostDetail | null {
   const title = titleEl?.textContent?.trim() || '';
   if (!title) return null;
 
-  const imgEl = document.querySelector('.item_image img, .product-gallery img, img.img-responsive');
-  const image = imgEl?.getAttribute('src') || '';
+  const imgEl = document.querySelector('.item_image img, .product-gallery img, img.img-responsive, .item_show_images img');
+  const image = imgEl?.getAttribute('data-src') || imgEl?.getAttribute('src') || '';
 
   const dateEl = document.querySelector('.date, .item_date, .created_at');
   const date = dateEl?.textContent?.trim() || '';
 
-  const contentEl = document.querySelector('.item_description, .product-description');
+  const contentEl = document.querySelector(
+    '#item_content .desc, .item_description, .product-description, .item_content, .blog_post_content, .post_content'
+  );
   const contentHtml = contentEl?.innerHTML?.trim() || '';
 
   return { title, image, date, contentHtml };

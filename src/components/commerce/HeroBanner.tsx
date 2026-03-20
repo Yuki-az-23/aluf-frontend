@@ -28,7 +28,7 @@ export function HeroBanner({ banners }: HeroBannerProps) {
   // Fallback: no banner data — show static hero
   if (!slides.length) {
     return (
-      <section className="bg-header-bg text-white overflow-hidden relative">
+      <section className="bg-slate-900 dark:bg-header-bg text-white overflow-hidden relative">
         <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] bg-[size:32px_32px]" />
         <Container className="py-16 md:py-24 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">

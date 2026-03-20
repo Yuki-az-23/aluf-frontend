@@ -97,25 +97,27 @@ export function HomePage() {
       </section>
 
       {/* PC Builder CTA */}
-      <div className="mx-4 md:mx-0 mb-2 mt-2 md:mt-0 rounded-xl md:rounded-none overflow-hidden border border-primary/30 md:border-x-0 md:border-y bg-gradient-to-l from-gray-900 to-primary/20">
+      <section className="py-4">
         <Container>
-          <div className="flex items-center justify-between py-4 gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl hidden sm:block">🖥️</span>
-              <div>
-                <p className="font-black text-base text-white leading-tight">בנה מחשב מותאם אישית</p>
-                <p className="text-xs text-white/70 mt-0.5">בחר רכיבים ובנה את המחשב שלך בדיוק לפי הצרכים שלך</p>
+          <div className="rounded-2xl overflow-hidden border border-primary/30 bg-gradient-to-l from-slate-900 to-primary/20 shadow-tech">
+            <div className="flex items-center justify-between px-6 py-5 gap-4">
+              <div className="flex items-center gap-4">
+                <span className="text-4xl hidden sm:block">🖥️</span>
+                <div>
+                  <p className="font-black text-base text-white leading-tight">בנה מחשב מותאם אישית</p>
+                  <p className="text-xs text-white/70 mt-1">בחר רכיבים ובנה את המחשב שלך בדיוק לפי הצרכים שלך</p>
+                </div>
               </div>
+              <button
+                className="flex-shrink-0 bg-primary hover:bg-primary/90 text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors whitespace-nowrap shadow-lg"
+                onClick={openPcBuilder}
+              >
+                בנה עכשיו ←
+              </button>
             </div>
-            <button
-              className="flex-shrink-0 bg-primary hover:bg-primary/90 text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap shadow-lg"
-              onClick={openPcBuilder}
-            >
-              בנה עכשיו ←
-            </button>
           </div>
         </Container>
-      </div>
+      </section>
 
 
       {/* Gaming Tiers */}
@@ -134,7 +136,7 @@ export function HomePage() {
       {blogPosts.length > 0 && (
         <section className="py-12">
           <Container>
-            <SectionHeader title={t('blog.title')} linkText={t('blog.readMore')} />
+            <SectionHeader title={t('blog.title')} linkText={t('blog.readMore')} linkHref={BLOG_URL} />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {blogPosts.slice(0, 6).map(post => (
                 <BlogCard key={post.id} post={post} />

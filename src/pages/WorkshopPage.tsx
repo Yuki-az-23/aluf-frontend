@@ -9,21 +9,21 @@ const WA_NUM = '972533368048';
 const WAZE_URL = 'https://waze.com/ul?ll=31.961256,34.802603&navigate=yes';
 
 const LAB_SERVICES = [
-  { icon: 'monitor',                nameKey: 'workshop.svc.screen',     descKey: 'workshop.svc.screen.desc' },
-  { icon: 'memory',                 nameKey: 'workshop.svc.upgrade',    descKey: 'workshop.svc.upgrade.desc' },
-  { icon: 'ac_unit',                nameKey: 'workshop.svc.cooling',    descKey: 'workshop.svc.cooling.desc' },
-  { icon: 'battery_charging_full',  nameKey: 'workshop.svc.battery',    descKey: 'workshop.svc.battery.desc' },
-  { icon: 'folder_special',         nameKey: 'workshop.svc.recovery',   descKey: 'workshop.svc.recovery.desc' },
-  { icon: 'security',               nameKey: 'workshop.svc.virus',      descKey: 'workshop.svc.virus.desc' },
-  { icon: 'install_desktop',        nameKey: 'workshop.svc.os',         descKey: 'workshop.svc.os.desc' },
-  { icon: 'wifi',                   nameKey: 'workshop.svc.networkSvc', descKey: 'workshop.svc.networkSvc.desc' },
+  { icon: 'monitor',                nameKey: 'workshop.svc.screen',     descKey: 'workshop.svc.screen.desc',      value: 'svc.screen' },
+  { icon: 'memory',                 nameKey: 'workshop.svc.upgrade',    descKey: 'workshop.svc.upgrade.desc',     value: 'svc.upgrade' },
+  { icon: 'ac_unit',                nameKey: 'workshop.svc.cooling',    descKey: 'workshop.svc.cooling.desc',     value: 'svc.cooling' },
+  { icon: 'battery_charging_full',  nameKey: 'workshop.svc.battery',    descKey: 'workshop.svc.battery.desc',     value: 'svc.battery' },
+  { icon: 'folder_special',         nameKey: 'workshop.svc.recovery',   descKey: 'workshop.svc.recovery.desc',   value: 'svc.recovery' },
+  { icon: 'security',               nameKey: 'workshop.svc.virus',      descKey: 'workshop.svc.virus.desc',       value: 'svc.virus' },
+  { icon: 'install_desktop',        nameKey: 'workshop.svc.os',         descKey: 'workshop.svc.os.desc',          value: 'svc.os' },
+  { icon: 'wifi',                   nameKey: 'workshop.svc.networkSvc', descKey: 'workshop.svc.networkSvc.desc',  value: 'svc.networkSvc' },
 ];
 
 const BIZ_CARDS = [
-  { icon: 'router',        nameKey: 'workshop.biz.network',     descKey: 'workshop.biz.network.desc' },
-  { icon: 'shield',        nameKey: 'workshop.biz.security',    descKey: 'workshop.biz.security.desc' },
-  { icon: 'handyman',      nameKey: 'workshop.biz.maintenance', descKey: 'workshop.biz.maintenance.desc' },
-  { icon: 'support_agent', nameKey: 'workshop.biz.consult',     descKey: 'workshop.biz.consult.desc' },
+  { icon: 'router',        nameKey: 'workshop.biz.network',     descKey: 'workshop.biz.network.desc',     value: 'biz.network' },
+  { icon: 'shield',        nameKey: 'workshop.biz.security',    descKey: 'workshop.biz.security.desc',    value: 'biz.security' },
+  { icon: 'handyman',      nameKey: 'workshop.biz.maintenance', descKey: 'workshop.biz.maintenance.desc', value: 'biz.maintenance' },
+  { icon: 'support_agent', nameKey: 'workshop.biz.consult',     descKey: 'workshop.biz.consult.desc',     value: 'biz.consult' },
 ];
 
 const HOME_INCLUDES = [
@@ -56,10 +56,22 @@ const WaSvg = () => (
 );
 
 const SERVICE_TYPE_SOURCE: Record<string, LeadSource> = {
-  lab:   LEAD_SOURCES.WORKSHOP_LAB,
-  home:  LEAD_SOURCES.WORKSHOP_HOME,
-  biz:   LEAD_SOURCES.WORKSHOP_BIZ,
-  other: LEAD_SOURCES.GENERAL,
+  lab:            LEAD_SOURCES.WORKSHOP_LAB,
+  'svc.screen':   LEAD_SOURCES.WORKSHOP_LAB,
+  'svc.upgrade':  LEAD_SOURCES.WORKSHOP_LAB,
+  'svc.cooling':  LEAD_SOURCES.WORKSHOP_LAB,
+  'svc.battery':  LEAD_SOURCES.WORKSHOP_LAB,
+  'svc.recovery': LEAD_SOURCES.WORKSHOP_LAB,
+  'svc.virus':    LEAD_SOURCES.WORKSHOP_LAB,
+  'svc.os':       LEAD_SOURCES.WORKSHOP_LAB,
+  'svc.networkSvc': LEAD_SOURCES.WORKSHOP_LAB,
+  home:             LEAD_SOURCES.WORKSHOP_HOME,
+  biz:              LEAD_SOURCES.WORKSHOP_BIZ,
+  'biz.network':    LEAD_SOURCES.WORKSHOP_BIZ,
+  'biz.security':   LEAD_SOURCES.WORKSHOP_BIZ,
+  'biz.maintenance':LEAD_SOURCES.WORKSHOP_BIZ,
+  'biz.consult':    LEAD_SOURCES.WORKSHOP_BIZ,
+  other:            LEAD_SOURCES.GENERAL,
 };
 
 /** Strip HTML/script tags and dangerous characters to prevent injection */
@@ -93,8 +105,8 @@ export function WorkshopPage() {
   const [prefilledFrom, setPrefilledFrom] = useState<string | null>(null);
 
   /** Click a service/biz card → pre-fill ticket + scroll */
-  const prefillTicket = (serviceName: string, type: 'lab' | 'home' | 'biz' | 'other') => {
-    setServiceType(type);
+  const prefillTicket = (serviceName: string, serviceValue: string) => {
+    setServiceType(serviceValue);
     setPrefilledFrom(serviceName);
     setDesc(sanitize(serviceName) + ' — ');
     document.getElementById('ticket')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -126,15 +138,30 @@ export function WorkshopPage() {
     setSubmitting(true);
 
     const svcLabels: Record<string, string> = {
-      lab:   t('workshop.ticket.type.lab'),
-      home:  t('workshop.ticket.type.home'),
-      biz:   t('workshop.ticket.type.biz'),
-      other: t('workshop.ticket.type.other'),
+      lab:              t('workshop.ticket.type.lab'),
+      'svc.screen':     t('workshop.svc.screen'),
+      'svc.upgrade':    t('workshop.svc.upgrade'),
+      'svc.cooling':    t('workshop.svc.cooling'),
+      'svc.battery':    t('workshop.svc.battery'),
+      'svc.recovery':   t('workshop.svc.recovery'),
+      'svc.virus':      t('workshop.svc.virus'),
+      'svc.os':         t('workshop.svc.os'),
+      'svc.networkSvc': t('workshop.svc.networkSvc'),
+      home:             t('workshop.ticket.type.home'),
+      biz:              t('workshop.ticket.type.biz'),
+      'biz.network':    t('workshop.biz.network'),
+      'biz.security':   t('workshop.biz.security'),
+      'biz.maintenance':t('workshop.biz.maintenance'),
+      'biz.consult':    t('workshop.biz.consult'),
+      other:            t('workshop.ticket.type.other'),
     };
     const devLabels: Record<string, string> = {
-      desktop: t('workshop.ticket.device.desktop'),
-      laptop:  t('workshop.ticket.device.laptop'),
-      other:   t('workshop.ticket.device.other'),
+      desktop:  t('workshop.ticket.device.desktop'),
+      laptop:   t('workshop.ticket.device.laptop'),
+      allinone: t('workshop.ticket.device.allinone'),
+      tablet:   t('workshop.ticket.device.tablet'),
+      server:   t('workshop.ticket.device.server'),
+      other:    t('workshop.ticket.device.other'),
     };
 
     const message = [
@@ -217,9 +244,9 @@ export function WorkshopPage() {
               <h2 className="text-xl font-bold text-text-main mb-2">{t('workshop.lab.title')}</h2>
               <p className="text-text-muted text-sm mb-6">{t('workshop.lab.subtitle')}</p>
               <div className="grid grid-cols-2 gap-3">
-                {LAB_SERVICES.map(({ icon, nameKey, descKey }) => (
+                {LAB_SERVICES.map(({ icon, nameKey, descKey, value }) => (
                   <button key={nameKey} type="button"
-                    onClick={() => prefillTicket(t(nameKey), 'lab')}
+                    onClick={() => prefillTicket(t(nameKey), value)}
                     className="bg-card-bg border border-border-light rounded-xl p-3 sm:p-4 flex flex-col items-center text-center hover:shadow-md hover:border-primary/60 hover:bg-primary/5 transition group cursor-pointer">
                     <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2 group-hover:bg-primary/20 transition">
                       <Icon name={icon} className="text-primary text-xl" />
@@ -240,9 +267,9 @@ export function WorkshopPage() {
               <h2 className="text-xl font-bold text-text-main mb-2">{t('workshop.biz.title')}</h2>
               <p className="text-text-muted text-sm mb-6">{t('workshop.biz.subtitle')}</p>
               <div className="grid grid-cols-1 gap-4">
-                {BIZ_CARDS.map(({ icon, nameKey, descKey }) => (
+                {BIZ_CARDS.map(({ icon, nameKey, descKey, value }) => (
                   <button key={nameKey} type="button"
-                    onClick={() => prefillTicket(t(nameKey), 'biz')}
+                    onClick={() => prefillTicket(t(nameKey), value)}
                     className="bg-card-bg border border-border-light rounded-xl p-5 flex gap-4 hover:shadow-md hover:border-primary/60 hover:bg-primary/5 transition text-start group cursor-pointer">
                     <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition">
                       <Icon name={icon} className="text-primary text-xl" />
@@ -309,9 +336,19 @@ export function WorkshopPage() {
                     <div>
                       <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.type')}</label>
                       <select value={serviceType} onChange={e => setServiceType(e.target.value)} className={inputCls}>
-                        <option value="lab">{t('workshop.ticket.type.lab')}</option>
+                        <optgroup label={t('workshop.ticket.type.lab')}>
+                          <option value="lab">{t('workshop.ticket.type.lab.general')}</option>
+                          {LAB_SERVICES.map(({ nameKey, value }) => (
+                            <option key={value} value={value}>{t(nameKey)}</option>
+                          ))}
+                        </optgroup>
                         <option value="home">{t('workshop.ticket.type.home')}</option>
-                        <option value="biz">{t('workshop.ticket.type.biz')}</option>
+                        <optgroup label={t('workshop.ticket.type.biz')}>
+                          <option value="biz">{t('workshop.ticket.type.biz.general')}</option>
+                          {BIZ_CARDS.map(({ nameKey, value }) => (
+                            <option key={value} value={value}>{t(nameKey)}</option>
+                          ))}
+                        </optgroup>
                         <option value="other">{t('workshop.ticket.type.other')}</option>
                       </select>
                     </div>
@@ -320,6 +357,9 @@ export function WorkshopPage() {
                       <select value={deviceType} onChange={e => setDeviceType(e.target.value)} className={inputCls}>
                         <option value="desktop">{t('workshop.ticket.device.desktop')}</option>
                         <option value="laptop">{t('workshop.ticket.device.laptop')}</option>
+                        <option value="allinone">{t('workshop.ticket.device.allinone')}</option>
+                        <option value="tablet">{t('workshop.ticket.device.tablet')}</option>
+                        <option value="server">{t('workshop.ticket.device.server')}</option>
                         <option value="other">{t('workshop.ticket.device.other')}</option>
                       </select>
                     </div>

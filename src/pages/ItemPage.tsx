@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { Icon } from '@/components/ui/Icon';
@@ -39,6 +39,12 @@ export function ItemPage() {
   const [specsExpanded, setSpecsExpanded] = useState(false);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [hoverZoom, setHoverZoom] = useState<{ mx: number; my: number; bgX: number; bgY: number } | null>(null);
+  const relatedScrollRef = useRef<HTMLDivElement>(null);
+  const scrollRelated = (dir: 'prev' | 'next') => {
+    const el = relatedScrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir === 'next' ? 280 : -280, behavior: 'smooth' });
+  };
 
   const images = itemDetail?.images ?? [];
   const prevImage = useCallback(() => setActiveImage(i => (i - 1 + images.length) % images.length), [images.length]);
@@ -427,17 +433,42 @@ export function ItemPage() {
         </div>
       </Container>
 
-      {/* ── Related Items ── */}
+      {/* ── Related Items Carousel ── */}
       {hasRelated && (
         <section className="py-10 bg-card-bg border-t border-border-light mt-8">
           <Container>
-            <h2 className="text-2xl font-black text-text-main mb-6 text-start flex items-center gap-3">
-              <span className="w-1 h-7 bg-primary rounded-full inline-block" />
-              {t('item.related')}
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {itemDetail.relatedItems.slice(0, 4).map((p) => (
-                <ProductCard key={p.id} product={p} />
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-black text-text-main text-start flex items-center gap-3">
+                <span className="w-1 h-7 bg-primary rounded-full inline-block" />
+                {t('item.related')}
+              </h2>
+              {itemDetail.relatedItems.length > 4 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => scrollRelated('prev')}
+                    className="w-9 h-9 rounded-full border border-border-light bg-card-bg hover:bg-primary hover:text-white hover:border-primary transition-colors flex items-center justify-center text-text-muted"
+                    aria-label="Previous"
+                  >
+                    <Icon name="chevron_right" className="text-lg" />
+                  </button>
+                  <button
+                    onClick={() => scrollRelated('next')}
+                    className="w-9 h-9 rounded-full border border-border-light bg-card-bg hover:bg-primary hover:text-white hover:border-primary transition-colors flex items-center justify-center text-text-muted"
+                    aria-label="Next"
+                  >
+                    <Icon name="chevron_left" className="text-lg" />
+                  </button>
+                </div>
+              )}
+            </div>
+            <div
+              ref={relatedScrollRef}
+              className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2"
+            >
+              {itemDetail.relatedItems.map((p) => (
+                <div key={p.id} className="snap-start flex-shrink-0 w-[calc(50%-8px)] sm:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)]">
+                  <ProductCard product={p} />
+                </div>
               ))}
             </div>
           </Container>
