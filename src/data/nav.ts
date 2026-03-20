@@ -19,7 +19,7 @@ export const mainNavItems: NavItem[] = [
     icon: 'computer',
     href: '/596696-מחשבים',
     subItems: [
-      { label: 'הרכבות מבית אלוף המחשבים', href: '/636802-הרכבות-מביתא-אלוף-המחשבים/536380' },
+      { label: 'הרכבות מבית אלוף המחשבים', href: '/636802-הרכבות-מבית-אלוף-המחשבים/536380' },
       { label: 'מחשב נייד', href: '/617479-מחשב-נייד/536380' },
       { label: 'מחשבי All In One (AIO)', href: '/616403-מחשבי-All-In-One-AIO/536380' },
       { label: 'מחשבי MiniPC', href: '/616392-מחשבי-MiniPC/536380' },

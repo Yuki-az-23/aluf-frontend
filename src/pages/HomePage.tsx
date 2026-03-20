@@ -26,14 +26,26 @@ function parseBlogPosts(html: string): BlogPostItem[] {
     if (!title) return;
     const imgEl = el.querySelector('img');
     const rawSrc = imgEl?.getAttribute('src') || imgEl?.getAttribute('data-src') || '';
-    const image = rawSrc.startsWith('http') ? rawSrc : (rawSrc ? window.location.origin + rawSrc : '');
+    let image = '';
+    if (rawSrc) {
+      try {
+        const normalized = rawSrc.startsWith('//') ? 'https:' + rawSrc : rawSrc;
+        image = new URL(normalized, window.location.origin).href;
+      } catch { image = rawSrc; }
+    }
     const dateEl = el.querySelector('.date, .item_date, .created_at');
     const date = dateEl?.textContent?.trim() || '';
     const excerptEl = el.querySelector('.description, .item_description, .excerpt');
     const excerpt = excerptEl?.textContent?.trim() || '';
     const linkEl = el.querySelector('a');
     const rawHref = linkEl?.getAttribute('href') || '';
-    const href = rawHref.startsWith('http') ? new URL(rawHref).pathname : (rawHref || BLOG_URL);
+    let href = BLOG_URL;
+    if (rawHref) {
+      try {
+        const normalized = rawHref.startsWith('//') ? 'https:' + rawHref : rawHref;
+        href = new URL(normalized, window.location.origin).pathname;
+      } catch { href = rawHref; }
+    }
     posts.push({ id: String(idx), title, image, excerpt, date, href });
   });
   return posts;

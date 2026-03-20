@@ -34,6 +34,15 @@ export function ItemsGridPage() {
   const prefetchCancelRef = useRef(false);
 
   const allProducts = useMemo(() => [...products, ...extraProducts], [products, extraProducts]);
+
+  // When real scraped products arrive (replacing fallback) or extra pages load, extend priceMax
+  useEffect(() => {
+    const prices = allProducts.map(p => p.price);
+    if (!prices.length) return;
+    const newMax = Math.max(...prices);
+    setFilters(prev => newMax > prev.priceMax ? { ...prev, priceMax: newMax } : prev);
+  }, [allProducts]);
+
   const filtered = useMemo(() => applyFilters(allProducts, filters), [allProducts, filters]);
   const sorted = useMemo(() => applySorting(filtered, sort), [filtered, sort]);
   const displayed = sorted.slice(0, showCount);

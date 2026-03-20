@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ProductCard } from '@/components/commerce/ProductCard';
@@ -6,7 +6,7 @@ import { FilterSidebar, applyFilters, type FilterState } from '@/components/comm
 import { SortBar, applySorting, type SortOption, type ViewMode } from '@/components/commerce/SortBar';
 import { useStoreData } from '@/lib/StoreDataContext';
 import { useLang } from '@/i18n';
-import { CATEGORY_DATA, CATEGORY_ALIASES, ICON_MAP, PARENT_CATEGORY_IDS } from '@/data/category-data';
+import { CATEGORY_DATA, CATEGORY_ALIASES, ICON_MAP, PARENT_CATEGORY_IDS, SUBCATEGORY_HREF_MAP } from '@/data/category-data';
 import type { KonimboCategory } from '@/lib/konimbo-scraper';
 
 function resolveParentKey(title: string): string | null {
@@ -25,6 +25,9 @@ function resolveParentKey(title: string): string | null {
 }
 
 function findCategoryHref(name: string, categories: KonimboCategory[]): string | undefined {
+  // Static map is the primary source — always correct, no DOM dependency
+  if (SUBCATEGORY_HREF_MAP[name]) return SUBCATEGORY_HREF_MAP[name];
+  // Fall back to scraped Konimbo categories for entries not yet in the map
   for (const cat of categories) {
     if (cat.title === name || cat.title.includes(name) || name.includes(cat.title)) {
       return cat.href;
@@ -65,6 +68,14 @@ export function CategoryPage() {
   const [sort, setSort] = useState<SortOption>('price-asc');
   const [view, setView] = useState<ViewMode>('grid');
   const [filterOpen, setFilterOpen] = useState(false);
+
+  // When real scraped products arrive (replacing fallback), extend priceMax to the new range
+  useEffect(() => {
+    const prices = products.map(p => p.price);
+    if (!prices.length) return;
+    const newMax = Math.max(...prices);
+    setFilters(prev => newMax > prev.priceMax ? { ...prev, priceMax: newMax } : prev);
+  }, [products]);
 
   const filtered = useMemo(() => applyFilters(products, filters), [products, filters]);
   const sorted = useMemo(() => applySorting(filtered, sort), [filtered, sort]);
