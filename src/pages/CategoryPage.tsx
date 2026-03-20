@@ -1,6 +1,9 @@
+import { useState, useMemo } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ProductCard } from '@/components/commerce/ProductCard';
+import { FilterSidebar, applyFilters, type FilterState } from '@/components/commerce/FilterSidebar';
+import { SortBar, applySorting, type SortOption, type ViewMode } from '@/components/commerce/SortBar';
 import { useStoreData } from '@/lib/StoreDataContext';
 import { useLang } from '@/i18n';
 import { CATEGORY_DATA, CATEGORY_ALIASES, ICON_MAP } from '@/data/category-data';
@@ -10,7 +13,6 @@ function resolveParentKey(title: string): string | null {
   if (!title) return null;
   if (CATEGORY_DATA[title]) return title;
   if (CATEGORY_ALIASES[title] && CATEGORY_DATA[CATEGORY_ALIASES[title]]) return CATEGORY_ALIASES[title];
-  // Fuzzy: check if any key is contained in the title or vice-versa
   for (const key of Object.keys(CATEGORY_DATA)) {
     if (title.includes(key) || key.includes(title)) return key;
   }
@@ -32,35 +34,99 @@ export function CategoryPage() {
   const { t } = useLang();
   const { categories, products, breadcrumbs, pageTitle, categoryGroups } = useStoreData();
 
+  // ── Filter / sort / view state — hooks must be top-level (before any early returns) ──
+  const [filters, setFilters] = useState<FilterState>(() => {
+    const prices = products.map(p => p.price);
+    return {
+      priceMin: prices.length ? Math.min(...prices) : 0,
+      priceMax: prices.length ? Math.max(...prices) : 10000,
+      brands: [],
+      inStockOnly: false,
+    };
+  });
+  const [sort, setSort] = useState<SortOption>('price-asc');
+  const [view, setView] = useState<ViewMode>('grid');
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  const filtered = useMemo(() => applyFilters(products, filters), [products, filters]);
+  const sorted = useMemo(() => applySorting(filtered, sort), [filtered, sort]);
+
+  const activeFilterCount = useMemo(() => {
+    let n = 0;
+    if (filters.brands.length) n += filters.brands.length;
+    if (filters.inStockOnly) n++;
+    const prices = products.map(p => p.price);
+    const gMax = prices.length ? Math.max(...prices) : 10000;
+    if (filters.priceMax < gMax) n++;
+    return n;
+  }, [filters, products]);
+
+  const handleFilterChange = (f: FilterState) => setFilters(f);
+  const handleSortChange = (s: SortOption) => setSort(s);
+
+  // ── Routing ──
   const crumbs = breadcrumbs.length > 0
     ? breadcrumbs
     : [{ label: t('breadcrumb.home'), href: '/' }, { label: pageTitle || '' }];
 
   const parentKey = resolveParentKey(pageTitle);
 
-  // Leaf page: no matching parent data — if we have products show them, otherwise try category sub-grid
+  // Leaf page: no matching parent data
   if (!parentKey) {
-    // If products loaded, show product grid (normal items page)
+    // Products available → show filterable/sortable grid
     if (products.length > 0) {
       return (
         <Container className="py-8">
           <Breadcrumbs items={crumbs} className="mb-4" />
-          <div className="flex items-center justify-between mb-6">
-            {pageTitle && (
+
+          {pageTitle && (
+            <div className="border-r-4 border-primary pr-4 mb-6">
               <h1 className="text-3xl font-black text-text-main">{pageTitle}</h1>
-            )}
-            <span className="text-sm text-text-muted">{products.length} מוצרים</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map(p => (
-              <ProductCard key={p.id} product={p} />
-            ))}
+            </div>
+          )}
+
+          <div className="flex flex-col md:flex-row gap-8">
+            <FilterSidebar
+              products={products}
+              filters={filters}
+              onChange={handleFilterChange}
+              mobileOpen={filterOpen}
+              onMobileClose={() => setFilterOpen(false)}
+            />
+
+            <div className="flex-1 min-w-0">
+              <SortBar
+                count={sorted.length}
+                sort={sort}
+                view={view}
+                onSortChange={handleSortChange}
+                onViewChange={setView}
+                onFilterClick={() => setFilterOpen(true)}
+                activeFilterCount={activeFilterCount}
+              />
+
+              {sorted.length > 0 ? (
+                <div className={
+                  view === 'grid'
+                    ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6'
+                    : view === 'strip'
+                    ? 'flex flex-col gap-2'
+                    : 'flex flex-col gap-4'
+                }>
+                  {sorted.map(p => (
+                    <ProductCard key={p.id} product={p} viewMode={view} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-text-muted py-16">{t('products.empty')}</p>
+              )}
+            </div>
           </div>
         </Container>
       );
     }
 
-    // No products yet — check if we have scraped category groups to show sub-grid
+    // No products yet — show scraped subcategory groups
     if (categoryGroups.length > 0) {
       return (
         <Container className="py-8">
@@ -71,7 +137,6 @@ export function CategoryPage() {
           <div className={SHARED_GRID}>
             {categoryGroups.map(group => (
               <>
-                {/* Group label spans the full row */}
                 <div key={`hd-${group.group}`} className="col-span-full pt-2 first:pt-0">
                   <h2 className="text-base font-bold text-text-main border-r-4 border-primary pr-3 inline-block">
                     {group.group}
@@ -126,7 +191,6 @@ export function CategoryPage() {
       <div className={SHARED_GRID}>
         {groups.map(group => (
           <>
-            {/* Group label spans the full row, items of all groups flow in the same grid */}
             <div key={`hd-${group.group}`} className="col-span-full pt-2 first:pt-0">
               <h2 className="text-base font-bold text-text-main border-r-4 border-primary pr-3 inline-block">
                 {group.group}

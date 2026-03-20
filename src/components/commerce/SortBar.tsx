@@ -3,7 +3,7 @@ import { useLang } from '@/i18n';
 import type { Product } from '@/data/products';
 
 export type SortOption = 'price-asc' | 'price-desc' | 'name';
-export type ViewMode = 'grid' | 'list';
+export type ViewMode = 'grid' | 'strip' | 'list';
 
 interface SortBarProps {
   count: number;
@@ -19,11 +19,23 @@ interface SortBarProps {
 
 export function SortBar({ count, sort, view, onSortChange, onViewChange, onFilterClick, activeFilterCount = 0 }: SortBarProps) {
   const { t } = useLang();
+
+  const viewBtn = (mode: ViewMode, icon: string, mobileOnly = false) => (
+    <button
+      type="button"
+      onClick={() => onViewChange(mode)}
+      className={`${mobileOnly ? 'md:hidden ' : ''}p-1.5 rounded transition-colors ${view === mode ? 'text-primary bg-primary/10' : 'text-text-muted hover:text-primary'}`}
+    >
+      <Icon name={icon} className="text-xl" />
+    </button>
+  );
+
   return (
-    <div className="flex items-center justify-between mb-6 gap-3">
+    <div className="flex items-center justify-between mb-4 gap-3">
       <p className="text-sm text-text-muted hidden sm:block">
         {t('products.showingPrefix')} <span className="font-bold text-text-main">{count}</span> {t('products.showingSuffix')}
       </p>
+
       <div className="flex items-center gap-2 flex-1 sm:flex-none justify-between sm:justify-end">
         {/* Filter button — mobile only */}
         {onFilterClick && (
@@ -41,37 +53,31 @@ export function SortBar({ count, sort, view, onSortChange, onViewChange, onFilte
             )}
           </button>
         )}
-      <div className="flex items-center gap-3 bg-card-bg border border-border-light rounded-xl p-2 shadow-tech">
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-text-muted whitespace-nowrap text-xs">{t('sort.label')}:</span>
-          <select
-            value={sort}
-            onChange={e => onSortChange(e.target.value as SortOption)}
-            className="border-none focus:ring-0 text-sm font-bold bg-transparent py-0 cursor-pointer text-text-main"
-          >
-            <option value="price-asc">{t('sort.priceAsc')}</option>
-            <option value="price-desc">{t('sort.priceDesc')}</option>
-            <option value="name">{t('sort.name')}</option>
-          </select>
+
+        <div className="flex items-center gap-3 bg-card-bg border border-border-light rounded-xl p-2 shadow-tech">
+          {/* Sort select */}
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-text-muted whitespace-nowrap text-xs hidden sm:inline">{t('sort.label')}:</span>
+            <select
+              value={sort}
+              onChange={e => onSortChange(e.target.value as SortOption)}
+              className="border-none focus:ring-0 text-xs sm:text-sm font-bold bg-transparent py-0 cursor-pointer text-text-main"
+            >
+              <option value="price-asc">{t('sort.priceAsc')}</option>
+              <option value="price-desc">{t('sort.priceDesc')}</option>
+              <option value="name">{t('sort.name')}</option>
+            </select>
+          </div>
+
+          <div className="h-5 w-px bg-border-light" />
+
+          {/* View toggles: grid | strip (mobile-only) | list */}
+          <div className="flex items-center gap-0.5">
+            {viewBtn('grid', 'grid_view')}
+            {viewBtn('strip', 'view_agenda', true)}
+            {viewBtn('list', 'view_list')}
+          </div>
         </div>
-        <div className="h-5 w-px bg-border-light" />
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => onViewChange('grid')}
-            className={`p-1.5 rounded transition-colors ${view === 'grid' ? 'text-primary bg-primary/10' : 'text-text-muted hover:text-primary'}`}
-          >
-            <Icon name="grid_view" className="text-xl" />
-          </button>
-          <button
-            type="button"
-            onClick={() => onViewChange('list')}
-            className={`p-1.5 rounded transition-colors ${view === 'list' ? 'text-primary bg-primary/10' : 'text-text-muted hover:text-primary'}`}
-          >
-            <Icon name="view_list" className="text-xl" />
-          </button>
-        </div>
-      </div>
       </div>
     </div>
   );

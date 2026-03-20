@@ -300,115 +300,53 @@ export function CartPage() {
     if (errors[key]) setErrors(prev => ({ ...prev, [key]: undefined }));
   }
 
-  function validate(): boolean {
+  /** Validate inline fields — marks errors but does NOT block checkout */
+  function validateFields(): Partial<ContactForm & { store: string }> {
     const e: Partial<ContactForm & { store: string }> = {};
-    if (!contact.fullName.trim())                               e.fullName = t('cart.fieldRequired');
-    if (!/^0[5-9]\d{7,8}$/.test(contact.phone.replace(/\s/g, ''))) e.phone = t('cart.phoneInvalid');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email))    e.email = t('cart.emailInvalid');
-    if (shipping === 'delivery' && !contact.address.trim())    e.address = t('cart.fieldRequired');
-    if (shipping === 'pickup'   && !storeId)                   e.store = t('cart.fieldRequired');
-    setErrors(e);
-    return Object.keys(e).length === 0;
+    if (contact.phone && !/^0[5-9]\d{7,8}$/.test(contact.phone.replace(/\s/g, '')))
+      e.phone = t('cart.phoneInvalid');
+    if (contact.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email))
+      e.email = t('cart.emailInvalid');
+    if (shipping === 'pickup' && !storeId)
+      e.store = t('cart.fieldRequired');
+    return e;
   }
 
   function handleCheckout() {
-    if (!validate()) {
+    const fieldErrors = validateFields();
+    setErrors(fieldErrors);
+
+    // Only hard-block if pickup store isn't selected — everything else
+    // can be completed on Konimbo's own checkout form
+    if (fieldErrors.store) {
       document.querySelector('[data-form-section]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
 
-    const storeName   = STORES.find(s => s.id === storeId)?.name ?? '';
-    const noteWithShipping = [
+    const storeName = STORES.find(s => s.id === storeId)?.name ?? '';
+    const note = [
       shipping === 'pickup' ? `איסוף מהחנות: ${storeName}` : '',
       contact.note,
     ].filter(Boolean).join(' | ');
 
-    const fullAddress = shipping === 'delivery'
-      ? contact.address
-      : storeName;
+    // Persist contact prefill in sessionStorage.
+    // A Konimbo admin JS snippet can read this to pre-fill the order form.
+    try {
+      sessionStorage.setItem('aluf_checkout_prefill', JSON.stringify({
+        full_name:    contact.fullName,
+        mobile_phone: contact.phone,
+        email:        contact.email,
+        full_address: shipping === 'delivery' ? contact.address : storeName,
+        note,
+      }));
+    } catch {}
 
-    // Build the cart_content HTML string (same as jStorage cart_alufshop)
-    // and the JSON payload — submitted as hidden form fields so Konimbo
-    // receives everything in a single POST without depending on jStorage
-    // being pre-populated on the server side.
-    const cartHtmlParts = cartItems.map(item => {
-      const tr = document.createElement('tr');
-      tr.setAttribute('data-id', 'item_id_' + item.item_id);
-      tr.setAttribute('style', 'height:auto;max-height:999px;');
+    // Ensure jStorage is fully up to date before leaving the page.
+    // Konimbo's checkout page JS reads cart_alufshop + flying_cart_with_upgrades_json
+    // from localStorage on load — the cookie (num_of_cart_items) is sent automatically.
+    syncCartToJStorage(cartItems);
 
-      const td1 = document.createElement('td');
-      const qDiv = document.createElement('div');
-      qDiv.className = 'quantity';
-      qDiv.textContent = String(item.quantity);
-      td1.appendChild(qDiv);
-
-      const td2 = document.createElement('td');
-      td2.className = 'img_item';
-      if (item.item_image) {
-        const img = document.createElement('img');
-        img.src = item.item_image;
-        td2.appendChild(img);
-      }
-
-      const td3 = document.createElement('td');
-      td3.className = 'title';
-      const a = document.createElement('a');
-      a.href = '/items/' + item.item_id;
-      a.textContent = item.item_name;
-      td3.appendChild(a);
-
-      const td4 = document.createElement('td');
-      td4.className = 'delete_btn';
-      td4.appendChild(document.createElement('a'));
-
-      const td5 = document.createElement('td');
-      td5.className = 'price_item_x';
-      td5.textContent = item.price.toLocaleString('he-IL') + ' ₪';
-
-      tr.append(td1, td2, td3, td4, td5);
-      return tr.outerHTML;
-    });
-    const cartHtml = cartHtmlParts.join('');
-
-    const flyingJson = JSON.stringify(
-      cartItems.map(item => ({
-        item_id: Number(item.item_id),
-        quantity: item.quantity,
-        upgrade_topics: [],
-        upgrade_price_additions: [],
-        item_name: item.item_name,
-        item_price: item.price,
-      }))
-    );
-
-    // Submit hidden form — same-domain POST so no CORS issue
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = CHECKOUT_URL;
-    form.style.display = 'none';
-
-    const fields: Record<string, string> = {
-      'cart_content':                  cartHtml,
-      'cart_content_with_upgrades':    cartHtml,
-      'cart_key':                      'cart_alufshop',
-      'flying_cart_with_upgrades_json': flyingJson,
-      'order[full_name]':              contact.fullName,
-      'order[mobile_phone]':           contact.phone,
-      'order[email]':                  contact.email,
-      'order[full_address]':           fullAddress,
-      'order[note]':                   noteWithShipping,
-    };
-
-    for (const [name, value] of Object.entries(fields)) {
-      const input = document.createElement('input');
-      input.type  = 'hidden';
-      input.name  = name;
-      input.value = value;
-      form.appendChild(input);
-    }
-
-    document.body.appendChild(form);
-    form.submit();
+    window.location.href = CHECKOUT_URL;
   }
 
   function scrollCarousel(dir: 'left' | 'right') {

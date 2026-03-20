@@ -159,12 +159,15 @@ export function ItemsGridPage() {
             />
 
             {displayed.length > 0 ? (
-              <div className={view === 'grid'
-                ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6'
-                : 'flex flex-col gap-4'
+              <div className={
+                view === 'grid'
+                  ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6'
+                  : view === 'strip'
+                  ? 'flex flex-col gap-2'
+                  : 'flex flex-col gap-4'
               }>
                 {displayed.map(p => (
-                  <ProductCard key={p.id} product={p} />
+                  <ProductCard key={p.id} product={p} viewMode={view} />
                 ))}
               </div>
             ) : (
