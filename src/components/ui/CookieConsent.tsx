@@ -22,7 +22,7 @@ export function CookieConsent() {
   }
 
   if (!visible) return null;
-
+  /// by law i t most have a only nccsry we cant not give no option for user 
   return (
     <div
       role="dialog"

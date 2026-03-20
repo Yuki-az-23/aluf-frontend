@@ -4,7 +4,7 @@ import { useLang } from '@/i18n';
 
 const LAST_UPDATED = '01/01/2026';
 const STORE_EMAIL  = 'sales@aluf.co.il';
-
+//dont use emoiji doent not look professional and we need to make it more legal so you may use vector icon or svg icon instead of emoiji  ---dont IGNORE ---
 const SECTION_ICONS: Record<string, string> = {
   s1: '🔍', s2: '🎯', s3: '🔒', s4: '🍪',
   s5: '🤝', s6: '✏️', s7: '📅', s8: '📬',
@@ -18,7 +18,7 @@ export function PrivacyPage() {
     { label: t('breadcrumb.home'), href: '/' },
     { label: t('privacy.breadcrumb') },
   ];
-
+/// all info most be baesd on orignel text from https://www.aluf.co.il/contract and pricvry https://www.aluf.co.il/pages/54957-%D7%AA%D7%A7%D7%A0%D7%95%D7%9F-%D7%A4%D7%A8%D7%98%D7%99%D7%95%D7%AA and we need to make sure that all the legal info is correct and up to date  ---  dont IGNORE ---
   return (
     <Container className="py-8 lg:py-14 max-w-3xl">
       <Breadcrumbs items={crumbs} className="mb-6" />
