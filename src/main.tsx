@@ -202,16 +202,43 @@ if (root) {
     }
   }
 
-  // For items/category pages: Konimbo lazy-renders products on scroll.
-  // Scroll to the bottom BEFORE hiding Konimbo content so its IntersectionObserver
-  // fires and renders all items into the DOM. Re-scrape after 600ms then mount.
+  // For items/category pages: Konimbo lazy-renders products on scroll via IntersectionObserver/AJAX.
+  // Repeatedly scroll down to trigger each batch, then wait for the DOM to stabilize
+  // (no new items for 400 ms) before mounting React. Cap at 4 seconds total.
   if (isProductListPage && !usingMock) {
-    const savedScrollY = window.scrollY;
+    const STABLE_MS  = 400;  // ms without new items → consider fully loaded
+    const MAX_MS     = 4000; // hard cap regardless of stability
+    const TICK_MS    = 200;  // check interval
+
+    const countItems = () =>
+      document.querySelectorAll('.layout_list_item.item, .layout_list_item, [id^="item_id_"]').length;
+
+    let lastCount  = countItems();
+    let stableFor  = 0;
+    const start    = Date.now();
+
+    // Scroll to bottom immediately to trigger first batch
     window.scrollTo(0, document.body.scrollHeight);
-    setTimeout(() => {
-      window.scrollTo(0, savedScrollY);
-      mountReactApp();
-    }, 600);
+
+    const ticker = setInterval(() => {
+      // Keep scrolling — each new batch extends the page height
+      window.scrollTo(0, document.body.scrollHeight);
+
+      const now = countItems();
+      if (now !== lastCount) {
+        lastCount = now;
+        stableFor = 0;          // new items appeared — reset stability clock
+      } else {
+        stableFor += TICK_MS;
+      }
+
+      const elapsed = Date.now() - start;
+      if (stableFor >= STABLE_MS || elapsed >= MAX_MS) {
+        clearInterval(ticker);
+        window.scrollTo(0, 0);
+        mountReactApp();
+      }
+    }, TICK_MS);
   } else {
     mountReactApp();
   }

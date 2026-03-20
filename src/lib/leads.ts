@@ -30,12 +30,22 @@ export interface LeadPayload {
 
 /** All placement sources in one place — add new ones here as forms are built */
 export const LEAD_SOURCES = {
-  NEWSLETTER:    { placement: 'newsletter-homepage',  label: 'ניוזלטר — דף הבית',     page: 'home'     },
-  ITEM_FAQ:      { placement: 'item-faq',             label: 'שאלת מוצר — עמוד פריט', page: 'item'     },
-  ITEM_CONTACT:  { placement: 'item-contact',         label: 'צור קשר — עמוד פריט',   page: 'item'     },
-  CART_CONTACT:  { placement: 'cart-contact',         label: 'צור קשר — עגלה',        page: 'cart'     },
-  PC_BUILDER:    { placement: 'pc-builder',           label: 'בנה מחשב — מבנה',       page: 'builder'  },
-  GENERAL:       { placement: 'general-contact',      label: 'צור קשר כללי',           page: 'contact'  },
+  // Homepage forms
+  NEWSLETTER:    { placement: 'newsletter-homepage',  label: 'ניוזלטר — דף הבית',       page: 'home'     },
+  // Homepage contact — service-specific
+  LAB_SERVICE:   { placement: 'contact-lab',          label: 'שירותי מעבדה — דף הבית',  page: 'home'     },
+  GAMING_PC:     { placement: 'contact-gaming',       label: 'מחשב גיימינג — דף הבית',  page: 'home'     },
+  CONSULTATION:  { placement: 'contact-consult',      label: 'ייעוץ טכני — דף הבית',    page: 'home'     },
+  ORDER_SUPPORT: { placement: 'contact-order',        label: 'תמיכה בהזמנה — דף הבית',  page: 'home'     },
+  BUSINESS:      { placement: 'contact-business',     label: 'פנייה עסקית — דף הבית',   page: 'home'     },
+  BULK_ORDER:    { placement: 'contact-bulk',         label: 'הזמנה כמותית — דף הבית',  page: 'home'     },
+  // Item page
+  ITEM_FAQ:      { placement: 'item-faq',             label: 'שאלת מוצר — עמוד פריט',   page: 'item'     },
+  ITEM_CONTACT:  { placement: 'item-contact',         label: 'צור קשר — עמוד פריט',     page: 'item'     },
+  // Other pages
+  CART_CONTACT:  { placement: 'cart-contact',         label: 'צור קשר — עגלה',          page: 'cart'     },
+  PC_BUILDER:    { placement: 'pc-builder',           label: 'בנה מחשב — מבנה',         page: 'builder'  },
+  GENERAL:       { placement: 'general-contact',      label: 'צור קשר כללי',             page: 'contact'  },
 } as const satisfies Record<string, LeadSource>;
 
 /**
