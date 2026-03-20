@@ -95,7 +95,9 @@ export function HeroBanner({ banners }: HeroBannerProps) {
               src={slide.image}
               alt={slide.alt || `Banner ${i + 1}`}
               className="w-full h-auto object-cover"
-              loading={i < 2 ? 'eager' : 'lazy'}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchPriority={i === 0 ? 'high' : 'auto'}
+              decoding={i === 0 ? 'sync' : 'async'}
             />
           </a>
         ))}

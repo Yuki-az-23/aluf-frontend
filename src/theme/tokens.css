@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @config "../../tailwind.config.ts";
 :root {
-  --aluf-primary: #FF6B00;
+  --aluf-primary: #CC4400;
   --aluf-secondary: #a855f7;
   --aluf-brand-purple: #2e1065;
   --aluf-header-bg: #ffffff;
@@ -20,6 +20,7 @@
 }
 
 :root.dark {
+  --aluf-primary: #FF7A20;  /* Lighter orange for dark backgrounds — passes 4.5:1 on dark surfaces */
   --aluf-header-bg: #0f172a;
   --aluf-header-text: #f1f5f9;
   --aluf-header-text-muted: #94a3b8;

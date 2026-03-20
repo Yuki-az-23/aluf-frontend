@@ -224,7 +224,7 @@ export function CategoryPage() {
             <div className="px-3 pt-2 min-h-[22px] flex items-center justify-end">
               {isFirst && <GroupBadge name={groupName} />}
             </div>
-            <div className="w-full aspect-square flex items-center justify-center p-3 bg-white group-hover:bg-primary/5 transition-colors overflow-hidden">
+            <div className="w-full aspect-square flex items-center justify-center p-3 bg-card-bg group-hover:bg-primary/5 transition-colors overflow-hidden">
               {image ? (
                 <img
                   src={image}

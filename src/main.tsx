@@ -18,6 +18,27 @@ import {
 import { getPageType } from './lib/konimbo';
 import './theme/tokens.css';
 
+// ── Patch Konimbo's native HTML for accessibility & SEO ──────────────────────
+// 1. Remove maximum-scale=1 so users can pinch-zoom (WCAG 1.4.4)
+(function patchViewport() {
+  const vp = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
+  if (vp) {
+    vp.content = vp.content
+      .replace(/,?\s*maximum-scale=\d+(\.\d+)?/gi, '')
+      .replace(/,?\s*user-scalable=no/gi, '');
+  }
+})();
+
+// 2. Konimbo's quantity widget uses bare <a class="reduce/plus"> without href —
+//    give them role="button" so they are treated as interactive elements by crawlers.
+(function patchBareAnchors() {
+  document.querySelectorAll<HTMLAnchorElement>('a:not([href])').forEach(a => {
+    if (!a.getAttribute('role')) a.setAttribute('role', 'button');
+    if (!a.getAttribute('tabindex')) a.setAttribute('tabindex', '0');
+  });
+})();
+// ─────────────────────────────────────────────────────────────────────────────
+
 const root = document.getElementById('aluf-root');
 if (root) {
   // Dev mock: if public/dev-mock.local.js pre-loaded data, use it and skip scraping
@@ -102,7 +123,7 @@ if (root) {
         '<div style="text-align:center;padding:40px;font-family:Heebo,sans-serif;">' +
         '<p style="font-size:18px;margin-bottom:16px;">\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05D8\u05E2\u05D9\u05E0\u05EA \u05D4\u05D0\u05EA\u05E8</p>' +
         '<p style="font-size:14px;color:#666;">' + (err instanceof Error ? err.message : String(err)) + '</p>' +
-        '<a href="javascript:location.reload()" style="color:#FF6B00;font-weight:bold;">\u05DC\u05D7\u05E5 \u05DB\u05D0\u05DF \u05DC\u05E8\u05E2\u05E0\u05D5\u05DF</a></div>';
+        '<a href="javascript:location.reload()" style="color:#CC4400;font-weight:bold;">\u05DC\u05D7\u05E5 \u05DB\u05D0\u05DF \u05DC\u05E8\u05E2\u05E0\u05D5\u05DF</a></div>';
     }
 
     // 5a. MutationObserver: watch for Konimbo lazy-loading products into the DOM.

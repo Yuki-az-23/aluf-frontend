@@ -5,10 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Aluf - ecommerce</title>
   <meta name="description" content="אלוף - חנות מחשבים, רכיבים, ציוד גיימינג ושירותי מחשוב מקצועיים. מחירים הכי טובים, משלוח חינם." />
+  <!-- Preconnect to font origins so DNS/TLS is resolved before the CSS fires -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&family=Assistant:wght@600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <!-- Non-render-blocking async font load (rel=preload → onload swap) -->
+  <link rel="preload" as="style"
+    href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&family=Assistant:wght@600;700&display=swap"
+    onload="this.onload=null;this.rel='stylesheet'" />
+  <link rel="preload" as="style"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+    onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&family=Assistant:wght@600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+  </noscript>
   <meta name="aluf-page" content="home" />
   <script src="https://cdn.enable.co.il/licenses/enable-L43358p0k3qo8zaw-0525-71066/init.js"></script>
 </head>

@@ -387,11 +387,7 @@ export function scrapeRelatedItems(): Product[] {
     const hook = document.querySelector(hookSel);
     if (!hook) continue;
 
-    // Has any item links at all?
-    const hasLinks = hook.querySelectorAll('a[href*="/items/"]').length > 0;
-    if (!hasLinks) continue;
-
-    // Try parseProductElements (allowZeroPrice so carousel thumbnails aren't filtered out)
+    // Try parseProductElements first (allowZeroPrice so carousel thumbnails aren't filtered out)
     const products = parseProductElements(hook, BASE_URL, true);
     if (products.length > 0) return products;
 

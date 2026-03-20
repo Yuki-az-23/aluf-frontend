@@ -62,8 +62,11 @@ export function ProductCard({ product, className, viewMode = 'grid' }: ProductCa
           <img
             src={product.image}
             alt={product.title}
+            width={88}
+            height={88}
             className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
+            decoding="async"
             onError={e => {
               const el = e.currentTarget;
               el.style.display = 'none';
@@ -138,8 +141,11 @@ export function ProductCard({ product, className, viewMode = 'grid' }: ProductCa
             <img
               src={product.image}
               alt={product.title}
+              width={300}
+              height={300}
               className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 p-4"
               loading="lazy"
+              decoding="async"
               onError={e => {
                 const el = e.currentTarget;
                 el.style.display = 'none';

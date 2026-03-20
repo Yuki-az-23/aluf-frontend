@@ -162,7 +162,7 @@ export function WorkshopPage() {
     <div dir={dir}>
 
       {/* ── 1. HERO ── */}
-      <section className="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-20">
+      <section className="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-12 sm:py-20">
         <Container className="text-center">
           <span className="inline-block text-xs font-bold tracking-widest text-primary bg-primary/10 border border-primary/30 rounded-full px-4 py-1 mb-5 uppercase">
             PRO LAB SOLUTIONS
@@ -205,7 +205,7 @@ export function WorkshopPage() {
       </section>
 
       {/* ── 2. LAB SERVICES (left) + BUSINESS SOLUTIONS (right) — 2 columns ── */}
-      <section className="bg-page-bg py-16">
+      <section className="bg-page-bg py-10 sm:py-16">
         <Container>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
@@ -217,7 +217,7 @@ export function WorkshopPage() {
                 {LAB_SERVICES.map(({ icon, nameKey, descKey }) => (
                   <button key={nameKey} type="button"
                     onClick={() => prefillTicket(t(nameKey), 'lab')}
-                    className="bg-card-bg border border-border-light rounded-xl p-4 flex flex-col items-center text-center hover:shadow-md hover:border-primary/60 hover:bg-primary/5 transition group cursor-pointer">
+                    className="bg-card-bg border border-border-light rounded-xl p-3 sm:p-4 flex flex-col items-center text-center hover:shadow-md hover:border-primary/60 hover:bg-primary/5 transition group cursor-pointer">
                     <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2 group-hover:bg-primary/20 transition">
                       <Icon name={icon} className="text-primary text-xl" />
                     </span>
@@ -260,27 +260,83 @@ export function WorkshopPage() {
         </Container>
       </section>
 
-      {/* ── 3. HOME TECHNICIAN — left: ticket card | right: all info + WhatsApp ── */}
-      <section className="py-16">
+      {/* ── 3. HOME TECHNICIAN — left: ticket form | right: info + WhatsApp ── */}
+      <section id="ticket" className="py-10 sm:py-16">
         <Container>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-            {/* LEFT — ticket creation card (pink area) */}
-            <a href="#ticket"
-              onClick={() => prefillTicket(t('workshop.ticket.type.home'), 'home')}
-              className="bg-card-bg border-2 border-primary/30 rounded-2xl p-8 flex flex-col items-center text-center hover:border-primary hover:shadow-lg transition group h-full justify-center">
-              <span className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition">
-                <Icon name="build_circle" className="text-primary text-4xl" />
-              </span>
-              <h3 className="font-black text-xl text-text-main mb-2 group-hover:text-primary transition">{t('workshop.home.ticketCta')}</h3>
-              <p className="text-text-muted text-sm leading-relaxed mb-6">{t('workshop.home.ticketDesc')}</p>
-              <span className="inline-flex w-full items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-5 py-3 transition">
-                <Icon name="edit_note" className="text-lg" />
-                {t('workshop.ticket.send.cta')}
-              </span>
-            </a>
+            {/* LEFT — full ticket form */}
+            <div>
+              <h2 className="text-xl font-bold text-text-main mb-1">{t('workshop.ticket.title')}</h2>
+              <p className="text-text-muted text-sm mb-5">{t('workshop.ticket.subtitle')}</p>
 
-            {/* RIGHT — home tech info + WhatsApp CTA (green area) */}
+              {submitted ? (
+                <div className="bg-card-bg border border-green-500/40 rounded-2xl p-8 text-center shadow-sm">
+                  <span className="w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-3">
+                    <Icon name="check_circle" className="text-green-500 text-4xl" />
+                  </span>
+                  <h3 className="text-lg font-bold text-text-main mb-2">{t('workshop.ticket.success.title')}</h3>
+                  <p className="text-text-muted text-sm mb-5">{t('workshop.ticket.success.body')}</p>
+                  <button type="button" onClick={() => setSubmitted(false)}
+                    className="px-6 py-2.5 rounded-xl border border-primary text-primary font-semibold text-sm hover:bg-primary hover:text-white transition-colors">
+                    {t('workshop.ticket.send.cta')}
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleTicketSubmit} noValidate
+                  className="bg-card-bg border border-border-light rounded-2xl p-5 space-y-4 shadow-sm">
+                  <div>
+                    <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.name')}</label>
+                    <input type="text" value={name} onChange={e => setName(e.target.value)}
+                      className={inputCls} placeholder={t('workshop.ticket.name')} />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.phone')}</label>
+                      <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+                        className={inputCls} placeholder="05X-XXXXXXX" dir="ltr" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.email')}</label>
+                      <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                        className={inputCls} placeholder={t('workshop.ticket.email.placeholder')} dir="ltr" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.type')}</label>
+                      <select value={serviceType} onChange={e => setServiceType(e.target.value)} className={inputCls}>
+                        <option value="lab">{t('workshop.ticket.type.lab')}</option>
+                        <option value="home">{t('workshop.ticket.type.home')}</option>
+                        <option value="biz">{t('workshop.ticket.type.biz')}</option>
+                        <option value="other">{t('workshop.ticket.type.other')}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.device')}</label>
+                      <select value={deviceType} onChange={e => setDeviceType(e.target.value)} className={inputCls}>
+                        <option value="desktop">{t('workshop.ticket.device.desktop')}</option>
+                        <option value="laptop">{t('workshop.ticket.device.laptop')}</option>
+                        <option value="other">{t('workshop.ticket.device.other')}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.desc')}</label>
+                    <textarea rows={3} value={desc} onChange={e => setDesc(e.target.value)}
+                      className={cn(inputCls, 'resize-none')} placeholder={t('workshop.ticket.desc.placeholder')} />
+                  </div>
+                  {submitError && <p className="text-red-500 text-sm text-center">{submitError}</p>}
+                  <button type="submit" disabled={submitting}
+                    className="w-full inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 disabled:opacity-60 text-white font-bold rounded-xl px-6 py-3 transition">
+                    <Icon name="send" className="text-lg" />
+                    {submitting ? t('workshop.ticket.sending') : t('workshop.ticket.send')}
+                  </button>
+                </form>
+              )}
+            </div>
+
+            {/* RIGHT — home tech info + WhatsApp CTA */}
             <div>
               <span className="inline-flex items-center gap-1 text-xs font-bold text-primary uppercase tracking-wider mb-3">
                 <Icon name="home_repair_service" className="text-base" />
@@ -302,13 +358,13 @@ export function WorkshopPage() {
 
               {/* WhatsApp ₪300 card */}
               <a href={waHomeUrl} target="_blank" rel="noopener noreferrer"
-                className="flex items-center justify-between bg-card-bg border border-border-light rounded-xl px-5 py-4 hover:border-[#25D366]/60 hover:shadow-md transition group">
-                <div className="flex items-center gap-4">
+                className="flex items-center justify-between gap-3 bg-card-bg border border-border-light rounded-xl px-4 py-4 hover:border-[#25D366]/60 hover:shadow-md transition group">
+                <div className="flex items-center gap-3 min-w-0">
                   <span className="w-11 h-11 rounded-full bg-[#25D366]/10 flex items-center justify-center shrink-0 group-hover:bg-[#25D366]/20 transition text-[#25D366]">
                     <WaSvg />
                   </span>
-                  <div className="text-start">
-                    <p className="font-bold text-sm text-text-main">{t('workshop.home.cta')}</p>
+                  <div className="text-start min-w-0">
+                    <p className="font-bold text-sm text-text-main leading-snug">{t('workshop.home.cta')}</p>
                     <p className="text-xs text-amber-500 font-semibold">{t('workshop.home.centerOnly')}</p>
                   </div>
                 </div>
@@ -320,85 +376,8 @@ export function WorkshopPage() {
         </Container>
       </section>
 
-      {/* ── 4. TICKET FORM ── */}
-      <section id="ticket" className="bg-page-bg py-16">
-        <Container>
-          <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold text-text-main mb-3">{t('workshop.ticket.title')}</h2>
-              <p className="text-text-muted">{t('workshop.ticket.subtitle')}</p>
-            </div>
-
-            {submitted ? (
-              <div className="bg-card-bg border border-green-500/40 rounded-2xl p-10 text-center shadow-sm">
-                <span className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
-                  <Icon name="check_circle" className="text-green-500 text-4xl" />
-                </span>
-                <h3 className="text-xl font-bold text-text-main mb-2">{t('workshop.ticket.success.title')}</h3>
-                <p className="text-text-muted mb-6">{t('workshop.ticket.success.body')}</p>
-                <button type="button" onClick={() => setSubmitted(false)}
-                  className="px-6 py-2.5 rounded-xl border border-primary text-primary font-semibold text-sm hover:bg-primary hover:text-white transition-colors">
-                  {t('workshop.ticket.send.cta')}
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleTicketSubmit} noValidate
-                className="bg-card-bg border border-border-light rounded-2xl p-6 sm:p-8 space-y-5 shadow-sm">
-                <div>
-                  <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.name')}</label>
-                  <input type="text" value={name} onChange={e => setName(e.target.value)}
-                    className={inputCls} placeholder={t('workshop.ticket.name')} />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.phone')}</label>
-                    <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
-                      className={inputCls} placeholder="05X-XXXXXXX" dir="ltr" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.email')}</label>
-                    <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-                      className={inputCls} placeholder={t('workshop.ticket.email.placeholder')} dir="ltr" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.type')}</label>
-                    <select value={serviceType} onChange={e => setServiceType(e.target.value)} className={inputCls}>
-                      <option value="lab">{t('workshop.ticket.type.lab')}</option>
-                      <option value="home">{t('workshop.ticket.type.home')}</option>
-                      <option value="biz">{t('workshop.ticket.type.biz')}</option>
-                      <option value="other">{t('workshop.ticket.type.other')}</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.device')}</label>
-                    <select value={deviceType} onChange={e => setDeviceType(e.target.value)} className={inputCls}>
-                      <option value="desktop">{t('workshop.ticket.device.desktop')}</option>
-                      <option value="laptop">{t('workshop.ticket.device.laptop')}</option>
-                      <option value="other">{t('workshop.ticket.device.other')}</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.desc')}</label>
-                  <textarea rows={4} value={desc} onChange={e => setDesc(e.target.value)}
-                    className={cn(inputCls, 'resize-none')} placeholder={t('workshop.ticket.desc.placeholder')} />
-                </div>
-                {submitError && <p className="text-red-500 text-sm text-center">{submitError}</p>}
-                <button type="submit" disabled={submitting}
-                  className="w-full inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 disabled:opacity-60 text-white font-bold rounded-xl px-6 py-3 transition">
-                  <Icon name="send" className="text-lg" />
-                  {submitting ? t('workshop.ticket.sending') : t('workshop.ticket.send')}
-                </button>
-              </form>
-            )}
-          </div>
-        </Container>
-      </section>
-
       {/* ── 5. FAQ — 2 columns: customer | business ── */}
-      <section className="py-16">
+      <section className="py-10 sm:py-16">
         <Container>
           <h2 className="text-2xl sm:text-3xl font-bold text-text-main text-center mb-10">{t('workshop.faq.title')}</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

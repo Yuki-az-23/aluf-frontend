@@ -214,7 +214,7 @@ export function Carousel({
       )}
 
       {showDots && totalSlides > 1 && (
-        <div className="flex justify-center gap-1.5 mt-4">
+        <div className="flex justify-center mt-4">
           {Array.from({ length: totalSlides }, (_, i) => (
             <button
               key={i}
@@ -229,12 +229,16 @@ export function Carousel({
                   behavior: 'smooth',
                 });
               }}
-              className={cn(
-                'w-2.5 h-2.5 rounded-full transition-colors',
-                i === activeIndex ? 'bg-primary' : 'bg-border-accent',
-              )}
+              /* 44×44 tap target (WCAG 2.5.5) — visual dot is an inner span */
+              className="w-11 h-11 flex items-center justify-center rounded-full"
               aria-label={`Slide ${i + 1}`}
-            />
+              aria-current={i === activeIndex ? 'true' : undefined}
+            >
+              <span className={cn(
+                'block w-2.5 h-2.5 rounded-full transition-colors',
+                i === activeIndex ? 'bg-primary' : 'bg-border-accent',
+              )} />
+            </button>
           ))}
         </div>
       )}
