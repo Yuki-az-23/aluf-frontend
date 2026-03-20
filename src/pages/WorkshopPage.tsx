@@ -6,26 +6,24 @@ import { cn } from '@/lib/cn';
 import { sendLead, LEAD_SOURCES, type LeadSource } from '@/lib/leads';
 
 const WA_NUM = '972533368048';
-const WA_URL = `https://api.whatsapp.com/send?phone=${WA_NUM}`;
 const WAZE_URL = 'https://waze.com/ul?ll=31.961256,34.802603&navigate=yes';
-const MAPS_URL = 'https://www.google.com/maps/search/?api=1&query=הרצל+102+ראשון+לציון';
 
 const LAB_SERVICES = [
-  { icon: 'monitor',                nameKey: 'workshop.svc.screen',      descKey: 'workshop.svc.screen.desc' },
-  { icon: 'memory',                 nameKey: 'workshop.svc.upgrade',     descKey: 'workshop.svc.upgrade.desc' },
-  { icon: 'ac_unit',                nameKey: 'workshop.svc.cooling',     descKey: 'workshop.svc.cooling.desc' },
-  { icon: 'battery_charging_full',  nameKey: 'workshop.svc.battery',     descKey: 'workshop.svc.battery.desc' },
-  { icon: 'folder_special',         nameKey: 'workshop.svc.recovery',    descKey: 'workshop.svc.recovery.desc' },
-  { icon: 'security',               nameKey: 'workshop.svc.virus',       descKey: 'workshop.svc.virus.desc' },
-  { icon: 'install_desktop',        nameKey: 'workshop.svc.os',          descKey: 'workshop.svc.os.desc' },
-  { icon: 'wifi',                   nameKey: 'workshop.svc.networkSvc',  descKey: 'workshop.svc.networkSvc.desc' },
+  { icon: 'monitor',                nameKey: 'workshop.svc.screen',     descKey: 'workshop.svc.screen.desc' },
+  { icon: 'memory',                 nameKey: 'workshop.svc.upgrade',    descKey: 'workshop.svc.upgrade.desc' },
+  { icon: 'ac_unit',                nameKey: 'workshop.svc.cooling',    descKey: 'workshop.svc.cooling.desc' },
+  { icon: 'battery_charging_full',  nameKey: 'workshop.svc.battery',    descKey: 'workshop.svc.battery.desc' },
+  { icon: 'folder_special',         nameKey: 'workshop.svc.recovery',   descKey: 'workshop.svc.recovery.desc' },
+  { icon: 'security',               nameKey: 'workshop.svc.virus',      descKey: 'workshop.svc.virus.desc' },
+  { icon: 'install_desktop',        nameKey: 'workshop.svc.os',         descKey: 'workshop.svc.os.desc' },
+  { icon: 'wifi',                   nameKey: 'workshop.svc.networkSvc', descKey: 'workshop.svc.networkSvc.desc' },
 ];
 
 const BIZ_CARDS = [
-  { icon: 'router',         nameKey: 'workshop.biz.network',     descKey: 'workshop.biz.network.desc' },
-  { icon: 'shield',         nameKey: 'workshop.biz.security',    descKey: 'workshop.biz.security.desc' },
-  { icon: 'handyman',       nameKey: 'workshop.biz.maintenance', descKey: 'workshop.biz.maintenance.desc' },
-  { icon: 'support_agent',  nameKey: 'workshop.biz.consult',     descKey: 'workshop.biz.consult.desc' },
+  { icon: 'router',        nameKey: 'workshop.biz.network',     descKey: 'workshop.biz.network.desc' },
+  { icon: 'shield',        nameKey: 'workshop.biz.security',    descKey: 'workshop.biz.security.desc' },
+  { icon: 'handyman',      nameKey: 'workshop.biz.maintenance', descKey: 'workshop.biz.maintenance.desc' },
+  { icon: 'support_agent', nameKey: 'workshop.biz.consult',     descKey: 'workshop.biz.consult.desc' },
 ];
 
 const HOME_INCLUDES = [
@@ -50,7 +48,6 @@ const WaSvg = () => (
   </svg>
 );
 
-// Maps serviceType key → lead source
 const SERVICE_TYPE_SOURCE: Record<string, LeadSource> = {
   lab:   LEAD_SOURCES.WORKSHOP_LAB,
   home:  LEAD_SOURCES.WORKSHOP_HOME,
@@ -58,30 +55,66 @@ const SERVICE_TYPE_SOURCE: Record<string, LeadSource> = {
   other: LEAD_SOURCES.GENERAL,
 };
 
+/** Strip HTML/script tags and dangerous characters to prevent injection */
+function sanitize(val: string): string {
+  return val
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/[<>"'`]/g, '')
+    .trim();
+}
+
 export function WorkshopPage() {
   const { t, dir } = useLang();
+
+  // Build WhatsApp URLs
+  const waBaseUrl = `https://api.whatsapp.com/send?phone=${WA_NUM}`;
+  const waHomeUrl = `${waBaseUrl}&text=${encodeURIComponent(t('workshop.home.waMessage'))}`;
+
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
+
+  // Ticket form state
+  const [name, setName]           = useState('');
+  const [phone, setPhone]         = useState('');
+  const [email, setEmail]         = useState('');
   const [serviceType, setServiceType] = useState('lab');
-  const [deviceType, setDeviceType] = useState('laptop');
-  const [desc, setDesc] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [deviceType, setDeviceType]   = useState('laptop');
+  const [desc, setDesc]           = useState('');
+  const [submitting, setSubmitting]   = useState(false);
+  const [submitted, setSubmitted]     = useState(false);
   const [submitError, setSubmitError] = useState('');
 
-  /** Click a service card → pre-fill ticket form + scroll to it */
+  /** Click a service/biz card → pre-fill ticket + scroll */
   const prefillTicket = (serviceName: string, type: 'lab' | 'home' | 'biz' | 'other') => {
     setServiceType(type);
-    setDesc(serviceName + ' — ');
+    setDesc(sanitize(serviceName) + ' — ');
     document.getElementById('ticket')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const handleTicketSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
     setSubmitError('');
+
+    // ── Client-side validation ─────────────────────────────────────────────
+    const cleanName  = sanitize(name);
+    const cleanPhone = phone.replace(/[\s\-()]/g, '');
+    const cleanEmail = sanitize(email);
+    const cleanDesc  = sanitize(desc);
+
+    if (cleanName.length < 2) {
+      setSubmitError(t('workshop.ticket.error.name')); return;
+    }
+    if (!/^0[2-9]\d{7,8}$/.test(cleanPhone)) {
+      setSubmitError(t('workshop.ticket.error.phone')); return;
+    }
+    if (cleanEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      setSubmitError(t('workshop.ticket.error.email')); return;
+    }
+    if (cleanDesc.length < 5) {
+      setSubmitError(t('workshop.ticket.error.desc')); return;
+    }
+
+    setSubmitting(true);
 
     const svcLabels: Record<string, string> = {
       lab:   t('workshop.ticket.type.lab'),
@@ -98,12 +131,12 @@ export function WorkshopPage() {
     const message = [
       `סוג שירות: ${svcLabels[serviceType] ?? serviceType}`,
       `סוג מכשיר: ${devLabels[deviceType] ?? deviceType}`,
-      `תיאור: ${desc}`,
+      `תיאור: ${cleanDesc}`,
     ].join('\n');
 
     try {
       await sendLead({
-        name, phone, email, message,
+        name: cleanName, phone: cleanPhone, email: cleanEmail, message,
         source: SERVICE_TYPE_SOURCE[serviceType] ?? LEAD_SOURCES.GENERAL,
       });
       setSubmitted(true);
@@ -140,10 +173,10 @@ export function WorkshopPage() {
               <Icon name="build_circle" className="text-xl" />
               {t('workshop.ticket.send.cta')}
             </a>
-            <a href="https://www.aluf.co.il/pages/52434-%D7%98%D7%9B%D7%A0%D7%90%D7%99-%D7%A2%D7%93-%D7%94%D7%91%D7%99%D7%AA"
-              target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 border border-white/40 hover:bg-white/10 text-white font-semibold rounded-xl px-6 py-3 transition">
-              <Icon name="home_repair_service" className="text-xl" />
+            {/* Direct WhatsApp with language-based pre-written message */}
+            <a href={waHomeUrl} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-semibold rounded-xl px-6 py-3 transition">
+              <WaSvg />
               {t('workshop.home.cta')}
             </a>
           </div>
@@ -164,128 +197,126 @@ export function WorkshopPage() {
         </Container>
       </section>
 
-      {/* ── 2. LAB SERVICES — cards are clickable, pre-fill ticket ── */}
+      {/* ── 2. LAB SERVICES (left) + BUSINESS SOLUTIONS (right) — 2 columns ── */}
       <section className="bg-page-bg py-16">
         <Container>
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-text-main mb-3">{t('workshop.lab.title')}</h2>
-            <p className="text-text-muted max-w-xl mx-auto">{t('workshop.lab.subtitle')}</p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {LAB_SERVICES.map(({ icon, nameKey, descKey }) => (
-              <button
-                key={nameKey}
-                type="button"
-                onClick={() => prefillTicket(t(nameKey), 'lab')}
-                className="bg-card-bg border border-border-light rounded-xl p-5 flex flex-col items-center text-center hover:shadow-md hover:border-primary/60 hover:bg-primary/5 transition group cursor-pointer"
-              >
-                <span className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition">
-                  <Icon name={icon} className="text-primary text-2xl" />
-                </span>
-                <h3 className="font-semibold text-sm text-text-main mb-1 group-hover:text-primary transition">{t(nameKey)}</h3>
-                <p className="text-text-muted text-xs leading-relaxed">{t(descKey)}</p>
-                <span className="mt-3 text-xs text-primary font-bold opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
-                  <Icon name="edit_note" className="text-sm" />
-                  {t('workshop.card.openTicket')}
-                </span>
-              </button>
-            ))}
-          </div>
-        </Container>
-      </section>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-      {/* ── 3. HOME TECHNICIAN — 2 columns: ticket CTA | WhatsApp order ── */}
-      <section className="py-16">
-        <Container>
-          <div className="flex flex-col lg:flex-row gap-10 items-start">
-            <div className="flex-1">
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-primary uppercase tracking-wider mb-3">
-                <Icon name="home_repair_service" className="text-base" />
-                {t('workshop.home.title')}
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-text-main mb-3">{t('workshop.home.title')}</h2>
-              <p className="text-text-muted mb-6">{t('workshop.home.subtitle')}</p>
-              <ul className="space-y-3 mb-6">
-                {HOME_INCLUDES.map(key => (
-                  <li key={key} className="flex items-start gap-2 text-sm text-text-main">
-                    <Icon name="check_circle" className="text-green-500 text-base mt-0.5 shrink-0" />
-                    {t(key)}
-                  </li>
+            {/* Left: Lab Services */}
+            <div>
+              <h2 className="text-xl font-bold text-text-main mb-2">{t('workshop.lab.title')}</h2>
+              <p className="text-text-muted text-sm mb-6">{t('workshop.lab.subtitle')}</p>
+              <div className="grid grid-cols-2 gap-3">
+                {LAB_SERVICES.map(({ icon, nameKey, descKey }) => (
+                  <button key={nameKey} type="button"
+                    onClick={() => prefillTicket(t(nameKey), 'lab')}
+                    className="bg-card-bg border border-border-light rounded-xl p-4 flex flex-col items-center text-center hover:shadow-md hover:border-primary/60 hover:bg-primary/5 transition group cursor-pointer">
+                    <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2 group-hover:bg-primary/20 transition">
+                      <Icon name={icon} className="text-primary text-xl" />
+                    </span>
+                    <h3 className="font-semibold text-xs text-text-main mb-1 group-hover:text-primary transition leading-tight">{t(nameKey)}</h3>
+                    <p className="text-text-muted text-xs leading-relaxed line-clamp-2">{t(descKey)}</p>
+                    <span className="mt-2 text-xs text-primary font-bold opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
+                      <Icon name="edit_note" className="text-sm" />
+                      {t('workshop.card.openTicket')}
+                    </span>
+                  </button>
                 ))}
-              </ul>
-              <p className="text-xs text-text-muted border-s-2 border-border-light ps-3 leading-relaxed">
-                {t('workshop.home.note')}
-              </p>
+              </div>
             </div>
 
-            {/* Two-column CTA card */}
-            <div className="w-full lg:w-[480px] grid grid-cols-2 gap-4">
-              {/* Ticket creation */}
-              <a
-                href="#ticket"
-                onClick={() => prefillTicket(t('workshop.ticket.type.home'), 'home')}
-                className="bg-card-bg border border-border-light rounded-2xl p-6 flex flex-col items-center text-center hover:border-primary/60 hover:shadow-md transition group"
-              >
-                <span className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition">
-                  <Icon name="build_circle" className="text-primary text-3xl" />
-                </span>
-                <h3 className="font-bold text-text-main mb-1 text-sm">{t('workshop.home.ticketCta')}</h3>
-                <p className="text-text-muted text-xs leading-relaxed">{t('workshop.home.ticketDesc')}</p>
-              </a>
-
-              {/* WhatsApp order */}
-              <div className="bg-card-bg border border-border-light rounded-2xl p-6 flex flex-col items-center text-center">
-                <span className="text-4xl font-extrabold text-primary mb-0.5">₪300</span>
-                <p className="text-xs text-text-muted mb-1">{t('workshop.home.region')}</p>
-                <p className="text-xs text-amber-500 font-semibold mb-4">{t('workshop.home.centerOnly')}</p>
-                <a
-                  href={WA_URL}
-                  target="_blank" rel="noopener noreferrer"
-                  className="inline-flex w-full items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-semibold rounded-xl px-4 py-2.5 transition text-sm"
-                >
-                  <WaSvg />
-                  {t('workshop.home.cta')}
-                </a>
+            {/* Right: Business Solutions */}
+            <div>
+              <h2 className="text-xl font-bold text-text-main mb-2">{t('workshop.biz.title')}</h2>
+              <p className="text-text-muted text-sm mb-6">{t('workshop.biz.subtitle')}</p>
+              <div className="grid grid-cols-1 gap-4">
+                {BIZ_CARDS.map(({ icon, nameKey, descKey }) => (
+                  <button key={nameKey} type="button"
+                    onClick={() => prefillTicket(t(nameKey), 'biz')}
+                    className="bg-card-bg border border-border-light rounded-xl p-5 flex gap-4 hover:shadow-md hover:border-primary/60 hover:bg-primary/5 transition text-start group cursor-pointer">
+                    <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition">
+                      <Icon name={icon} className="text-primary text-xl" />
+                    </span>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-sm text-text-main mb-0.5 group-hover:text-primary transition">{t(nameKey)}</h3>
+                      <p className="text-text-muted text-xs">{t(descKey)}</p>
+                      <span className="mt-1.5 text-xs text-primary font-bold opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
+                        <Icon name="edit_note" className="text-sm" />
+                        {t('workshop.card.openTicket')}
+                      </span>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
         </Container>
       </section>
 
-      {/* ── 4. BUSINESS SOLUTIONS — cards are clickable, pre-fill ticket ── */}
-      <section className="bg-page-bg py-16">
+      {/* ── 3. HOME TECHNICIAN — info + 2-column CTA row ── */}
+      <section className="py-16">
         <Container>
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-text-main mb-3">{t('workshop.biz.title')}</h2>
-            <p className="text-text-muted max-w-xl mx-auto">{t('workshop.biz.subtitle')}</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-            {BIZ_CARDS.map(({ icon, nameKey, descKey }) => (
-              <button
-                key={nameKey}
-                type="button"
-                onClick={() => prefillTicket(t(nameKey), 'biz')}
-                className="bg-card-bg border border-border-light rounded-xl p-6 flex gap-4 hover:shadow-md hover:border-primary/60 hover:bg-primary/5 transition text-start group cursor-pointer"
-              >
-                <span className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition">
-                  <Icon name={icon} className="text-primary text-2xl" />
+          <div className="max-w-3xl mx-auto">
+            <span className="inline-flex items-center gap-1 text-xs font-bold text-primary uppercase tracking-wider mb-3">
+              <Icon name="home_repair_service" className="text-base" />
+              {t('workshop.home.title')}
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-text-main mb-3">{t('workshop.home.title')}</h2>
+            <p className="text-text-muted mb-5">{t('workshop.home.subtitle')}</p>
+            <ul className="space-y-2.5 mb-4">
+              {HOME_INCLUDES.map(key => (
+                <li key={key} className="flex items-start gap-2 text-sm text-text-main">
+                  <Icon name="check_circle" className="text-green-500 text-base mt-0.5 shrink-0" />
+                  {t(key)}
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs text-text-muted border-s-2 border-border-light ps-3 mb-8 leading-relaxed">
+              {t('workshop.home.note')}
+            </p>
+
+            {/* 2-column CTA row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+              {/* WhatsApp — direct with language-based message */}
+              <a href={waHomeUrl} target="_blank" rel="noopener noreferrer"
+                className="bg-card-bg border border-border-light rounded-2xl p-6 flex flex-col items-center text-center hover:border-[#25D366]/60 hover:shadow-md transition group">
+                <span className="w-14 h-14 rounded-full bg-[#25D366]/10 flex items-center justify-center mb-3 group-hover:bg-[#25D366]/20 transition text-[#25D366]">
+                  <WaSvg />
                 </span>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-text-main mb-1 group-hover:text-primary transition">{t(nameKey)}</h3>
-                  <p className="text-text-muted text-sm">{t(descKey)}</p>
-                  <span className="mt-2 text-xs text-primary font-bold opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
-                    <Icon name="edit_note" className="text-sm" />
-                    {t('workshop.card.openTicket')}
-                  </span>
+                <div className="mb-1">
+                  <span className="text-3xl font-extrabold text-primary">₪300</span>
                 </div>
-              </button>
-            ))}
+                <p className="text-xs text-amber-500 font-semibold mb-1">{t('workshop.home.centerOnly')}</p>
+                <p className="text-text-muted text-xs mb-4">{t('workshop.home.region')}</p>
+                <span className="inline-flex w-full items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-semibold rounded-xl px-4 py-2.5 transition text-sm">
+                  <WaSvg />
+                  {t('workshop.home.cta')}
+                </span>
+              </a>
+
+              {/* Ticket creation */}
+              <a href="#ticket"
+                onClick={() => prefillTicket(t('workshop.ticket.type.home'), 'home')}
+                className="bg-card-bg border border-border-light rounded-2xl p-6 flex flex-col items-center text-center hover:border-primary/60 hover:shadow-md transition group">
+                <span className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition">
+                  <Icon name="build_circle" className="text-primary text-3xl" />
+                </span>
+                <h3 className="font-bold text-text-main mb-1">{t('workshop.home.ticketCta')}</h3>
+                <p className="text-text-muted text-xs leading-relaxed mb-4">{t('workshop.home.ticketDesc')}</p>
+                <span className="inline-flex w-full items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl px-4 py-2.5 transition text-sm">
+                  <Icon name="edit_note" className="text-base" />
+                  {t('workshop.ticket.send.cta')}
+                </span>
+              </a>
+
+            </div>
           </div>
         </Container>
       </section>
 
-      {/* ── 5. SERVICE TICKET FORM ── */}
-      <section id="ticket" className="py-16">
+      {/* ── 4. TICKET FORM ── */}
+      <section id="ticket" className="bg-page-bg py-16">
         <Container>
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-10">
@@ -300,28 +331,29 @@ export function WorkshopPage() {
                 </span>
                 <h3 className="text-xl font-bold text-text-main mb-2">{t('workshop.ticket.success.title')}</h3>
                 <p className="text-text-muted mb-6">{t('workshop.ticket.success.body')}</p>
-                <button
-                  type="button"
-                  onClick={() => setSubmitted(false)}
-                  className="px-6 py-2.5 rounded-xl border border-primary text-primary font-semibold text-sm hover:bg-primary hover:text-white transition-colors"
-                >
+                <button type="button" onClick={() => setSubmitted(false)}
+                  className="px-6 py-2.5 rounded-xl border border-primary text-primary font-semibold text-sm hover:bg-primary hover:text-white transition-colors">
                   {t('workshop.ticket.send.cta')}
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleTicketSubmit} className="bg-card-bg border border-border-light rounded-2xl p-6 sm:p-8 space-y-5 shadow-sm">
+              <form onSubmit={handleTicketSubmit} noValidate
+                className="bg-card-bg border border-border-light rounded-2xl p-6 sm:p-8 space-y-5 shadow-sm">
                 <div>
                   <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.name')}</label>
-                  <input type="text" required value={name} onChange={e => setName(e.target.value)} className={inputCls} placeholder={t('workshop.ticket.name')} />
+                  <input type="text" value={name} onChange={e => setName(e.target.value)}
+                    className={inputCls} placeholder={t('workshop.ticket.name')} />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.phone')}</label>
-                    <input type="tel" required value={phone} onChange={e => setPhone(e.target.value)} className={inputCls} placeholder="05X-XXXXXXX" dir="ltr" />
+                    <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+                      className={inputCls} placeholder="05X-XXXXXXX" dir="ltr" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.email')}</label>
-                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputCls} placeholder={t('workshop.ticket.email.placeholder')} dir="ltr" />
+                    <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                      className={inputCls} placeholder={t('workshop.ticket.email.placeholder')} dir="ltr" />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -345,14 +377,12 @@ export function WorkshopPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.desc')}</label>
-                  <textarea rows={4} required value={desc} onChange={e => setDesc(e.target.value)} className={inputCls} placeholder={t('workshop.ticket.desc.placeholder')} />
+                  <textarea rows={4} value={desc} onChange={e => setDesc(e.target.value)}
+                    className={cn(inputCls, 'resize-none')} placeholder={t('workshop.ticket.desc.placeholder')} />
                 </div>
                 {submitError && <p className="text-red-500 text-sm text-center">{submitError}</p>}
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 disabled:opacity-60 text-white font-bold rounded-xl px-6 py-3 transition"
-                >
+                <button type="submit" disabled={submitting}
+                  className="w-full inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 disabled:opacity-60 text-white font-bold rounded-xl px-6 py-3 transition">
                   <Icon name="send" className="text-lg" />
                   {submitting ? t('workshop.ticket.sending') : t('workshop.ticket.send')}
                 </button>
@@ -362,19 +392,17 @@ export function WorkshopPage() {
         </Container>
       </section>
 
-      {/* ── 6. FAQ ── */}
-      <section className="bg-page-bg py-16">
+      {/* ── 5. FAQ ── */}
+      <section className="py-16">
         <Container>
           <h2 className="text-2xl sm:text-3xl font-bold text-text-main text-center mb-10">{t('workshop.faq.title')}</h2>
           <div className="max-w-2xl mx-auto space-y-3">
             {FAQ_ITEMS.map(({ q, a }, i) => (
               <div key={q} className="bg-card-bg border border-border-light rounded-xl overflow-hidden">
-                <button
-                  type="button"
+                <button type="button"
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between px-5 py-4 text-start font-semibold text-sm text-text-main hover:bg-primary/5 transition"
-                  aria-expanded={openFaq === i}
-                >
+                  aria-expanded={openFaq === i}>
                   {t(q)}
                   <Icon name={openFaq === i ? 'expand_less' : 'expand_more'} className="text-text-muted text-xl shrink-0" />
                 </button>
@@ -389,106 +417,6 @@ export function WorkshopPage() {
         </Container>
       </section>
 
-      {/* ── 7. CONTACT — 2 columns: customer | business ── */}
-      <section className="bg-gray-900 text-white py-14">
-        <Container>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-
-            {/* Customer column */}
-            <div>
-              <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                <Icon name="person" className="text-primary text-xl" />
-                {t('workshop.contact.personal')}
-              </h2>
-              <div className="space-y-3">
-                <a href="tel:0533368048"
-                  className={cn('flex items-center gap-4 bg-gray-800 hover:bg-gray-700 rounded-xl px-5 py-4 transition')}>
-                  <Icon name="phone" className="text-primary text-2xl shrink-0" />
-                  <div>
-                    <p className="font-semibold text-sm" dir="ltr">053-336-8048</p>
-                    <p className="text-gray-400 text-xs">{t('workshop.contact.callUs')}</p>
-                  </div>
-                </a>
-                <a href={WA_URL} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-4 bg-gray-800 hover:bg-gray-700 rounded-xl px-5 py-4 transition">
-                  <span className="text-[#25D366] shrink-0"><WaSvg /></span>
-                  <div>
-                    <p className="font-semibold text-sm">WhatsApp</p>
-                    <p className="text-gray-400 text-xs">{t('workshop.contact.whatsapp')}</p>
-                  </div>
-                </a>
-                <a href={WAZE_URL} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-4 bg-gray-800 hover:bg-gray-700 rounded-xl px-5 py-4 transition">
-                  <Icon name="navigation" className="text-[#33CCFF] text-2xl shrink-0" />
-                  <div>
-                    <p className="font-semibold text-sm">Waze</p>
-                    <p className="text-gray-400 text-xs">{t('workshop.contact.navigate')}</p>
-                  </div>
-                </a>
-                <a href={MAPS_URL} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-4 bg-gray-800 hover:bg-gray-700 rounded-xl px-5 py-4 transition">
-                  <Icon name="location_on" className="text-red-400 text-2xl shrink-0" />
-                  <div>
-                    <p className="font-semibold text-sm">{t('workshop.contact.address')}</p>
-                    <p className="text-gray-400 text-xs">{t('workshop.contact.addressDetail')}</p>
-                  </div>
-                </a>
-                <div className="flex items-center gap-4 bg-gray-800 rounded-xl px-5 py-4">
-                  <Icon name="schedule" className="text-primary text-2xl shrink-0" />
-                  <div>
-                    <p className="font-semibold text-sm">{t('workshop.contact.hours')}</p>
-                    <p className="text-gray-400 text-xs">{t('footer.hours')}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Business column */}
-            <div>
-              <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                <Icon name="business" className="text-primary text-xl" />
-                {t('workshop.contact.business')}
-              </h2>
-              <div className="space-y-3">
-                <a href="mailto:sales@aluf.co.il"
-                  className="flex items-center gap-4 bg-gray-800 hover:bg-gray-700 rounded-xl px-5 py-4 transition">
-                  <Icon name="mail" className="text-primary text-2xl shrink-0" />
-                  <div>
-                    <p className="font-semibold text-sm" dir="ltr">sales@aluf.co.il</p>
-                    <p className="text-gray-400 text-xs">{t('workshop.contact.bizEmail')}</p>
-                  </div>
-                </a>
-                <a href="tel:0533368048"
-                  className="flex items-center gap-4 bg-gray-800 hover:bg-gray-700 rounded-xl px-5 py-4 transition">
-                  <Icon name="phone_in_talk" className="text-primary text-2xl shrink-0" />
-                  <div>
-                    <p className="font-semibold text-sm" dir="ltr">053-336-8048</p>
-                    <p className="text-gray-400 text-xs">{t('workshop.contact.bizLine')}</p>
-                  </div>
-                </a>
-                <a href="#ticket"
-                  onClick={() => prefillTicket(t('workshop.biz.title'), 'biz')}
-                  className="flex items-center gap-4 bg-primary/20 hover:bg-primary/30 border border-primary/40 rounded-xl px-5 py-4 transition">
-                  <Icon name="description" className="text-primary text-2xl shrink-0" />
-                  <div>
-                    <p className="font-semibold text-sm text-primary">{t('workshop.contact.bizTicket')}</p>
-                    <p className="text-gray-400 text-xs">{t('workshop.contact.bizTicketDesc')}</p>
-                  </div>
-                </a>
-                <a href="https://www.aluf.co.il/contact"
-                  className="flex items-center gap-4 bg-gray-800 hover:bg-gray-700 rounded-xl px-5 py-4 transition">
-                  <Icon name="open_in_new" className="text-primary text-2xl shrink-0" />
-                  <div>
-                    <p className="font-semibold text-sm">{t('workshop.contact.bizContact')}</p>
-                    <p className="text-gray-400 text-xs">{t('workshop.contact.bizContactDesc')}</p>
-                  </div>
-                </a>
-              </div>
-            </div>
-
-          </div>
-        </Container>
-      </section>
     </div>
   );
 }
