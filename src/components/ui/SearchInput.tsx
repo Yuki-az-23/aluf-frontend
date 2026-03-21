@@ -14,7 +14,7 @@ interface SearchInputProps {
 }
 
 export function SearchInput({ className }: SearchInputProps) {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
@@ -93,9 +93,9 @@ export function SearchInput({ className }: SearchInputProps) {
           onKeyDown={handleKeyDown}
           placeholder={t('header.search')}
           autoComplete="off"
-          className="w-full bg-header-bg border border-header-border rounded-md py-2.5 pr-4 pl-12 text-header-text placeholder-header-text-muted focus:ring-1 focus:ring-primary focus:border-primary transition-all shadow-inner text-sm text-right"
+          className={`w-full bg-header-bg border border-header-border rounded-md py-2.5 placeholder-header-text-muted focus:ring-1 focus:ring-primary focus:border-primary transition-all shadow-inner text-sm text-header-text ${dir === 'rtl' ? 'pr-4 pl-12 text-right' : 'pl-4 pr-12 text-left'}`}
         />
-        <button type="submit" className="absolute left-3 top-2.5 text-header-text-muted group-focus-within:text-primary">
+        <button type="submit" className={`absolute top-2.5 text-header-text-muted group-focus-within:text-primary ${dir === 'rtl' ? 'left-3' : 'right-3'}`}>
           <Icon name="search" />
         </button>
       </form>
@@ -108,7 +108,7 @@ export function SearchInput({ className }: SearchInputProps) {
                 type="button"
                 onMouseDown={() => navigate(s.title, s.url)}
                 className={cn(
-                  'w-full flex items-center gap-3 px-3 py-2 text-right text-sm text-header-text transition-colors',
+                  `w-full flex items-center gap-3 px-3 py-2 text-sm text-header-text transition-colors ${dir === 'rtl' ? 'text-right' : 'text-left'}`,
                   i === activeIndex ? 'bg-primary/20' : 'hover:bg-black/5 dark:hover:bg-white/10',
                 )}
               >
@@ -123,7 +123,7 @@ export function SearchInput({ className }: SearchInputProps) {
                     decoding="async"
                   />
                 )}
-                <span className="flex-1 text-right leading-snug">{s.title}</span>
+                <span className={`flex-1 leading-snug ${dir === 'rtl' ? 'text-right' : 'text-left'}`}>{s.title}</span>
               </button>
             </li>
           ))}
