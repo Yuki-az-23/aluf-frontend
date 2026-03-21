@@ -4,6 +4,7 @@ import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { Icon } from '@/components/ui/Icon';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { PageMeta } from '@/components/ui/PageMeta';
 import { ProductCard } from '@/components/commerce/ProductCard';
 import { useStoreData } from '@/lib/StoreDataContext';
 import { useCart } from '@/lib/CartContext';
@@ -60,6 +61,28 @@ export function ItemPage() {
       };
     } catch { return null; }
   }, [lang]);
+
+  const productSchema = itemDetail ? {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    '@id': window.location.href,
+    name: mlCtx?.title || itemDetail.title,
+    ...(itemDetail.images[0] && { image: itemDetail.images[0] }),
+    ...(itemDetail.sku && { sku: itemDetail.sku }),
+    ...((mlCtx?.specRows.length || itemDetail.specs.length) && {
+      description: (mlCtx?.specRows.map((r: { label: string; value: string }) => `${r.label}: ${r.value}`) ?? itemDetail.specs).join(', '),
+    }),
+    offers: {
+      '@type': 'Offer',
+      url: window.location.href,
+      price: itemDetail.price,
+      priceCurrency: 'ILS',
+      availability: itemDetail.inStock
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+    },
+  } : undefined;
+
   const { addToCart } = useCart();
   const [activeImage, setActiveImage] = useState(0);
   const [adding, setAdding] = useState(false);
@@ -167,6 +190,7 @@ export function ItemPage() {
 
   return (
     <>
+      <PageMeta title={mlCtx?.title || itemDetail.title} jsonLd={productSchema} />
       {/* ── Add-to-cart success toast ── */}
       {addedToast && (
         <div className="fixed top-24 inset-x-0 z-[300] flex justify-center px-4 pointer-events-none">
