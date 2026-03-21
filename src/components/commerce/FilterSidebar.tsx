@@ -51,7 +51,7 @@ interface FilterSidebarProps {
 }
 
 export function FilterSidebar({ products, filters, onChange, filterGroups = [], mobileOpen = false, onMobileClose }: FilterSidebarProps) {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   const allBrands = Array.from(new Set(products.map(p => p.category))).filter(Boolean).sort();
   const prices = products.map(p => p.price);
   const globalMin = prices.length ? Math.min(...prices) : 0;
@@ -201,6 +201,7 @@ export function FilterSidebar({ products, filters, onChange, filterGroups = [], 
 
         {/* Sheet */}
         <div
+          dir={dir}
           className={`absolute bottom-0 left-0 right-0 bg-card-bg rounded-t-2xl max-h-[85dvh] flex flex-col transition-transform duration-300 ease-out ${mobileOpen ? 'translate-y-0' : 'translate-y-full'}`}
           onClick={e => e.stopPropagation()}
         >
