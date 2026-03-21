@@ -13,13 +13,13 @@ interface MobileMenuProps {
 }
 
 export function MobileMenu({ open, onClose }: MobileMenuProps) {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   const { cartCount } = useCart();
 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] bg-header-bg text-header-text flex flex-col">
+    <div dir={dir} className="fixed inset-0 z-[60] bg-header-bg text-header-text flex flex-col">
       <div className="flex items-center justify-between px-4 h-20 border-b border-header-border">
         <button onClick={onClose} aria-label={t('a11y.closeMenu')}>
           <Icon name="close" className="text-2xl" />
