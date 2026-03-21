@@ -62,26 +62,29 @@ export function ItemPage() {
     } catch { return null; }
   }, [lang]);
 
-  const productSchema = itemDetail ? {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    '@id': window.location.href,
-    name: mlCtx?.title || itemDetail.title,
-    ...(itemDetail.images[0] && { image: itemDetail.images[0] }),
-    ...(itemDetail.sku && { sku: itemDetail.sku }),
-    ...((mlCtx?.specRows.length || itemDetail.specs.length) && {
-      description: (mlCtx?.specRows.map((r: { label: string; value: string }) => `${r.label}: ${r.value}`) ?? itemDetail.specs).join(', '),
-    }),
-    offers: {
-      '@type': 'Offer',
-      url: window.location.href,
-      price: itemDetail.price,
-      priceCurrency: 'ILS',
-      availability: itemDetail.inStock
-        ? 'https://schema.org/InStock'
-        : 'https://schema.org/OutOfStock',
-    },
-  } : undefined;
+  const productSchema = useMemo(() => {
+    if (!itemDetail) return undefined;
+    const descParts = mlCtx?.specRows.map((r: { label: string; value: string }) => `${r.label}: ${r.value}`) ?? itemDetail.specs;
+    const description = descParts.join(', ') || undefined;
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      '@id': window.location.href,
+      name: mlCtx?.title || itemDetail.title,
+      ...(itemDetail.images[0] && { image: itemDetail.images[0] }),
+      ...(itemDetail.sku && { sku: itemDetail.sku }),
+      ...(description && { description }),
+      offers: {
+        '@type': 'Offer',
+        url: window.location.href,
+        price: itemDetail.price,
+        priceCurrency: 'ILS',
+        availability: itemDetail.inStock
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+      },
+    };
+  }, [itemDetail, mlCtx]);
 
   const { addToCart } = useCart();
   const [activeImage, setActiveImage] = useState(0);
