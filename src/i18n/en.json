@@ -125,6 +125,7 @@
   "a11y.searchButton": "Search",
   "cart.title": "Your Shopping Cart",
   "cart.itemCount": "There are {count} items in your cart",
+  "cart.itemCountOne": "There is 1 item in your cart",
   "cart.empty": "Your cart is empty",
   "cart.continueShopping": "Continue Shopping",
   "cart.orderSummary": "Order Summary",

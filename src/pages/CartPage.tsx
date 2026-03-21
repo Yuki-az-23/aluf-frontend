@@ -281,7 +281,7 @@ function ProductModal({ product, onClose, onAddToCart }: {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export function CartPage() {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   useStoreData();
 
   const [cartItems,        setCartItems]        = useState<CartItem[]>(readCartItems);
@@ -461,7 +461,9 @@ export function CartPage() {
       <div className="mb-6 px-1">
         <h1 className="text-2xl lg:text-3xl font-black text-text-main mb-1">{t('cart.title')}</h1>
         <p className="text-text-muted text-sm font-medium">
-          {t('cart.itemCount').replace('{count}', String(cartItems.length))}
+          {cartItems.length === 1
+            ? t('cart.itemCountOne')
+            : t('cart.itemCount').replace('{count}', String(cartItems.length))}
         </p>
       </div>
 
@@ -702,7 +704,10 @@ export function CartPage() {
                   onClick={handleCheckout}>
                   <Icon name="credit_card" className="text-base" />
                   {t('cart.checkout')}
-                  <Icon name="arrow_back" className="group-hover:-translate-x-1 transition-transform" />
+                  <Icon
+                    name={dir === 'rtl' ? 'arrow_back' : 'arrow_forward'}
+                    className={`transition-transform ${dir === 'rtl' ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`}
+                  />
                 </Button>
                 <button type="button"
                   onClick={handlePhoneCheckout}

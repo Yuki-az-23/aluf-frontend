@@ -125,6 +125,7 @@
   "a11y.searchButton": "Поиск",
   "cart.title": "Ваша корзина",
   "cart.itemCount": "В корзине {count} товаров",
+  "cart.itemCountOne": "В корзине 1 товар",
   "cart.empty": "Ваша корзина пуста",
   "cart.continueShopping": "Продолжить покупки",
   "cart.orderSummary": "Сводка заказа",

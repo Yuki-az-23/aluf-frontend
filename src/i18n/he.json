@@ -115,6 +115,7 @@
   "a11y.searchButton": "חיפוש",
   "cart.title": "סל הקניות שלך",
   "cart.itemCount": "ישנם {count} פריטים בסל הקניות",
+  "cart.itemCountOne": "יש פריט אחד בסל הקניות",
   "cart.empty": "הסל שלך ריק",
   "cart.continueShopping": "המשך בקנייה",
   "cart.orderSummary": "סיכום הזמנה",
