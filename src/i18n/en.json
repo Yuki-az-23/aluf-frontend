@@ -171,6 +171,7 @@
   "products.tabs.custom": "Custom Products",
   "products.empty": "No products found",
   "item.addToCart": "Add to Cart",
+  "item.addedToCart": "Added to cart!",
   "item.outOfStock": "Out of Stock",
   "item.description": "Description",
   "item.specs": "Specifications",

@@ -161,6 +161,7 @@
   "products.tabs.custom": "מוצרים מותאמים אישית",
   "products.empty": "לא נמצאו מוצרים",
   "item.addToCart": "הוסף לסל",
+  "item.addedToCart": "המוצר נוסף לסל!",
   "item.outOfStock": "אזל מהמלאי",
   "item.description": "תיאור המוצר",
   "item.specs": "מפרט טכני",

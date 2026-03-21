@@ -171,6 +171,7 @@
   "products.tabs.custom": "Индивидуальные товары",
   "products.empty": "Товары не найдены",
   "item.addToCart": "В корзину",
+  "item.addedToCart": "Добавлено в корзину!",
   "item.outOfStock": "Нет в наличии",
   "item.description": "Описание",
   "item.specs": "Характеристики",

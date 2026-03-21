@@ -41,6 +41,7 @@ export function ItemPage() {
   const { addToCart } = useCart();
   const [activeImage, setActiveImage] = useState(0);
   const [adding, setAdding] = useState(false);
+  const [addedToast, setAddedToast] = useState(false);
   const [openQa, setOpenQa] = useState<number | null>(null);
   const [specsExpanded, setSpecsExpanded] = useState(false);
   const [zoomOpen, setZoomOpen] = useState(false);
@@ -106,6 +107,8 @@ export function ItemPage() {
     cartSound.currentTime = 0;
     cartSound.play().catch(() => {});
     setAdding(false);
+    setAddedToast(true);
+    setTimeout(() => setAddedToast(false), 2500);
   };
 
   const handleBuyNow = async () => {
@@ -135,6 +138,18 @@ export function ItemPage() {
 
   return (
     <>
+      {/* ── Add-to-cart success toast ── */}
+      {addedToast && (
+        <div className="fixed top-24 inset-x-0 z-[300] flex justify-center px-4 pointer-events-none">
+          <div className="flex items-center gap-3 bg-green-600 text-white text-sm font-bold px-5 py-3 rounded-xl shadow-2xl">
+            <Icon name="check_circle" className="text-lg flex-shrink-0" />
+            <span>{t('item.addedToCart')}</span>
+            <a href="/cart" className="pointer-events-auto underline font-normal text-xs opacity-80 hover:opacity-100">
+              {t('header.cart')} →
+            </a>
+          </div>
+        </div>
+      )}
       <Container className="py-6 pb-24 lg:pb-6">
         <Breadcrumbs items={crumbs} className="mb-6" />
 
