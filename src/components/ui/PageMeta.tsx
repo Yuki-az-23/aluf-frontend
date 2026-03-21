@@ -5,21 +5,26 @@ interface PageMetaProps {
   description?: string;
 }
 
+function upsertMeta(selector: string, attrName: string, attrValue: string, content: string) {
+  let el = document.querySelector<HTMLMetaElement>(selector);
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute(attrName, attrValue);
+    document.head.appendChild(el);
+  }
+  el.content = content;
+}
+
 export function PageMeta({ title, description }: PageMetaProps) {
   useEffect(() => {
     document.title = title;
 
-    const ogTitle = document.querySelector<HTMLMetaElement>('meta[property="og:title"]');
-    if (ogTitle) ogTitle.content = title;
-
-    const twTitle = document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]');
-    if (twTitle) twTitle.content = title;
+    upsertMeta('meta[property="og:title"]', 'property', 'og:title', title);
+    upsertMeta('meta[name="twitter:title"]', 'name', 'twitter:title', title);
 
     if (description) {
-      const desc = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-      if (desc) desc.content = description;
-      const ogDesc = document.querySelector<HTMLMetaElement>('meta[property="og:description"]');
-      if (ogDesc) ogDesc.content = description;
+      upsertMeta('meta[name="description"]', 'name', 'description', description);
+      upsertMeta('meta[property="og:description"]', 'property', 'og:description', description);
     }
   }, [title, description]);
 

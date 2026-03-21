@@ -26,6 +26,61 @@ import './theme/tokens.css';
   });
 })();
 
+// 0b. Inject SEO meta tags that Konimbo's server HTML omits.
+//     Konimbo serves its own HTML — our index.html tags never reach production.
+//     We inject them via JS so Google's JS-enabled crawler can pick them up.
+(function injectSeoMeta() {
+  function setMeta(selector: string, attr: string, value: string) {
+    let el = document.querySelector<HTMLMetaElement>(selector);
+    if (!el) {
+      el = document.createElement('meta');
+      const [attrName, attrVal] = attr.split('=');
+      el.setAttribute(attrName, attrVal || attr);
+      document.head.appendChild(el);
+    }
+    el.content = value;
+  }
+  function setLink(rel: string, href: string) {
+    let el = document.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
+    if (!el) {
+      el = document.createElement('link');
+      el.rel = rel;
+      document.head.appendChild(el);
+    }
+    el.href = href;
+  }
+
+  const url = window.location.href.split('?')[0].replace(/\/$/, '') || 'https://alufshop.konimbo.co.il';
+  const defaultTitle = 'אלוף המחשבים | מחשבים, גיימינג, רכיבים ומעבדה מקצועית';
+  const defaultDesc = 'אלוף המחשבים - חנות מחשבים מובילה בישראל. מחשבים, כרטיסי מסך, רכיבים, ציוד גיימינג ושירותי מעבדה מקצועיים. משלוח חינם מ-₪500.';
+  const ogImage = 'https://alufshop.konimbo.co.il/og-image.jpeg';
+
+  // Canonical
+  setLink('canonical', url);
+
+  // Description (only inject if Konimbo didn't already provide one)
+  if (!document.querySelector('meta[name="description"]')) {
+    setMeta('meta[name="description"]', 'name=description', defaultDesc);
+  }
+
+  // Open Graph
+  setMeta('meta[property="og:type"]', 'property=og:type', 'website');
+  setMeta('meta[property="og:site_name"]', 'property=og:site_name', 'אלוף המחשבים');
+  setMeta('meta[property="og:title"]', 'property=og:title', defaultTitle);
+  setMeta('meta[property="og:description"]', 'property=og:description', defaultDesc);
+  setMeta('meta[property="og:url"]', 'property=og:url', url);
+  setMeta('meta[property="og:image"]', 'property=og:image', ogImage);
+  setMeta('meta[property="og:image:width"]', 'property=og:image:width', '1200');
+  setMeta('meta[property="og:image:height"]', 'property=og:image:height', '630');
+  setMeta('meta[property="og:locale"]', 'property=og:locale', 'he_IL');
+
+  // Twitter Card
+  setMeta('meta[name="twitter:card"]', 'name=twitter:card', 'summary_large_image');
+  setMeta('meta[name="twitter:title"]', 'name=twitter:title', defaultTitle);
+  setMeta('meta[name="twitter:description"]', 'name=twitter:description', defaultDesc);
+  setMeta('meta[name="twitter:image"]', 'name=twitter:image', ogImage);
+})();
+
 // 1. Remove maximum-scale=1 so users can pinch-zoom (WCAG 1.4.4)
 (function patchViewport() {
   const vp = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
