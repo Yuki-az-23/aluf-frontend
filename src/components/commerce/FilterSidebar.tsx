@@ -78,7 +78,7 @@ export function FilterSidebar({ products, filters, onChange, filterGroups = [], 
 
   /** Shared filter form — used in both desktop sidebar and mobile drawer */
   const filterBody = (
-    <>
+    <div dir={dir}>
       <div className="flex items-center justify-between mb-5">
         <h2 className="font-bold text-base text-text-main flex items-center gap-2">
           <Icon name="filter_list" className="text-primary" />
@@ -179,7 +179,7 @@ export function FilterSidebar({ products, filters, onChange, filterGroups = [], 
           <span className="text-sm text-text-main">{t('filters.inStock')}</span>
         </label>
       )}
-    </>
+    </div>
   );
 
   return (

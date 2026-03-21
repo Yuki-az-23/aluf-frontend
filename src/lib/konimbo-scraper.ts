@@ -22,6 +22,7 @@ export interface BreadcrumbItem {
 /** Re-base any URL (relative or absolute) to the current runtime origin */
 function makeAbsolute(href: string): string {
   if (!href) return '';
+  if (href.startsWith('javascript:')) return '#';
   if (href.startsWith('http')) {
     // DOM links may already be absolute with aluf.co.il or konimbo subdomain —
     // strip to pathname so the link works on whatever domain is actually running
