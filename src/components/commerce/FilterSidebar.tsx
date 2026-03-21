@@ -52,6 +52,7 @@ interface FilterSidebarProps {
 
 export function FilterSidebar({ products, filters, onChange, filterGroups = [], mobileOpen = false, onMobileClose }: FilterSidebarProps) {
   const { t, dir } = useLang();
+  const tCat = (name: string) => t('cat.' + name) !== 'cat.' + name ? t('cat.' + name) : name;
   const allBrands = Array.from(new Set(products.map(p => p.category))).filter(Boolean).sort();
   const prices = products.map(p => p.price);
   const globalMin = prices.length ? Math.min(...prices) : 0;
@@ -96,28 +97,30 @@ export function FilterSidebar({ products, filters, onChange, filterGroups = [], 
         </div>
       </div>
 
-      {/* Price range */}
+      {/* Price range — always LTR so slider thumb direction is consistent */}
       <div className="mb-6">
         <h3 className="font-bold text-sm mb-3">{t('filters.price')}</h3>
-        <input
-          type="range"
-          min={globalMin}
-          max={globalMax}
-          step={50}
-          value={filters.priceMax}
-          onChange={e => onChange({ ...filters, priceMax: Number(e.target.value) })}
-          className="w-full h-1.5 bg-border-light rounded-lg appearance-none cursor-pointer accent-primary"
-        />
-        <div className="flex justify-between text-xs text-text-muted mt-2">
-          <span>₪{filters.priceMin.toLocaleString()}</span>
-          <span>₪{filters.priceMax.toLocaleString()}</span>
+        <div dir="ltr">
+          <input
+            type="range"
+            min={globalMin}
+            max={globalMax}
+            step={50}
+            value={filters.priceMax}
+            onChange={e => onChange({ ...filters, priceMax: Number(e.target.value) })}
+            className="w-full h-1.5 bg-border-light rounded-lg appearance-none cursor-pointer accent-primary"
+          />
+          <div className="flex justify-between text-xs text-text-muted mt-2">
+            <span>₪{filters.priceMin.toLocaleString()}</span>
+            <span>₪{filters.priceMax.toLocaleString()}</span>
+          </div>
         </div>
       </div>
 
       {/* Konimbo URL-redirect filter groups — clicking navigates to Konimbo's server-filtered URL */}
       {filterGroups.map(group => (
         <div key={group.id} className="mb-6">
-          <h3 className="font-bold text-sm mb-3">{group.title}</h3>
+          <h3 className="font-bold text-sm mb-3">{t('filter.' + group.title) !== 'filter.' + group.title ? t('filter.' + group.title) : group.title}</h3>
           <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
             {group.options.map(option => {
               const active = isActiveFilter(option.href);
@@ -158,7 +161,7 @@ export function FilterSidebar({ products, filters, onChange, filterGroups = [], 
                     onChange={() => toggleBrand(brand)}
                     className="w-4 h-4 rounded border-border-light text-primary focus:ring-primary"
                   />
-                  <span className="text-sm text-text-main group-hover:text-primary transition-colors flex-1">{brand}</span>
+                  <span className="text-sm text-text-main group-hover:text-primary transition-colors flex-1">{tCat(brand)}</span>
                   <span className="text-xs text-text-muted">({count})</span>
                 </label>
               );
