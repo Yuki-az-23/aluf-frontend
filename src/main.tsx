@@ -19,6 +19,13 @@ import { getPageType } from './lib/konimbo';
 import './theme/tokens.css';
 
 // ── Patch Konimbo's native HTML for accessibility & SEO ──────────────────────
+// 0. Remove Konimbo's NOINDEX/NOFOLLOW robots meta — it blocks Google from indexing the store
+(function removeNoIndex() {
+  document.querySelectorAll<HTMLMetaElement>('meta[name="robots"]').forEach(el => {
+    if (/noindex/i.test(el.getAttribute('content') || '')) el.remove();
+  });
+})();
+
 // 1. Remove maximum-scale=1 so users can pinch-zoom (WCAG 1.4.4)
 (function patchViewport() {
   const vp = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
