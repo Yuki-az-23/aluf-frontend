@@ -88,6 +88,9 @@ if (root) {
   function mountReactApp() {
     if (!root) return; // TypeScript guard — outer if(root) guarantees this
 
+    // Don't overlay Konimbo's native auth/account/checkout pages
+    if (['login', 'signup', 'account', 'checkout'].includes(pageType)) return;
+
     // Re-scrape products for list pages: Konimbo may have rendered more items
     // during the scroll simulation that runs before this function is called.
     if (isProductListPage && !usingMock) {

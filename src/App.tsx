@@ -36,8 +36,10 @@ function PageRouter() {
     case 'about': return <AboutPage />;
     case 'careers': return <CareersPage />;
     case 'login':
+    case 'signup':
     case 'account':
-      return null; // let Konimbo's native login/profile UI show through
+    case 'checkout':
+      return null; // let Konimbo's native UI show through
     case 'home':
     default:
       return <HomePage />;
