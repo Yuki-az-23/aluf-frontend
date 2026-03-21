@@ -11,7 +11,6 @@ const STATS: { key: string; value: string; icon: string }[] = [
   { key: 'years',     value: '20+',    icon: 'history'          },
   { key: 'customers', value: '50,000+', icon: 'people'          },
   { key: 'products',  value: '10,000+', icon: 'inventory_2'     },
-  { key: 'service',   value: '24/7',    icon: 'build_circle'    },
 ];
 
 const VALUES: { key: string; icon: string }[] = [
