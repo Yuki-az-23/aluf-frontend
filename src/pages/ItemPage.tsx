@@ -298,10 +298,31 @@ export function ItemPage() {
           </div>
 
           {/* Image Gallery (end side) */}
-          <div>
-            {/* Main image — hover to zoom (desktop), swipe (mobile), tap to lightbox */}
+          <div className="flex gap-3 max-h-[460px]">
+
+            {/* Vertical thumbnail strip — always visible, no page scroll needed */}
+            {images.length > 1 && (
+              <div
+                ref={thumbsRef}
+                className="flex flex-col gap-2 overflow-y-auto no-scrollbar flex-shrink-0 w-[60px] sm:w-[70px]"
+              >
+                {images.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImage(i)}
+                    className={`flex-shrink-0 w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] rounded-lg border-2 overflow-hidden transition-colors bg-white ${
+                      i === activeImage ? 'border-primary' : 'border-border-light hover:border-primary/50'
+                    }`}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-contain p-1" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Main image — hover zoom (desktop), swipe (mobile/touch), keyboard ←→, tap to lightbox */}
             <div
-              className="relative aspect-square bg-white rounded-xl overflow-hidden mb-3 border border-border-light md:cursor-crosshair"
+              className="relative flex-1 bg-white rounded-xl overflow-hidden border border-border-light md:cursor-crosshair"
               onMouseMove={handleImgMouseMove}
               onMouseLeave={() => setHoverZoom(null)}
               onClick={() => images.length > 0 && setZoomOpen(true)}
@@ -332,23 +353,6 @@ export function ItemPage() {
                 </div>
               )}
             </div>
-
-            {/* Thumbnails */}
-            {images.length > 1 && (
-              <div ref={thumbsRef} className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                {images.map((img, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveImage(i)}
-                    className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg border-2 overflow-hidden transition-colors bg-white ${
-                      i === activeImage ? 'border-primary' : 'border-border-light hover:border-primary/50'
-                    }`}
-                  >
-                    <img src={img} alt="" className="w-full h-full object-contain p-1" />
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         </div>
 
