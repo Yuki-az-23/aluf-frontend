@@ -7,3 +7,4 @@ Design-Ref
 
 # Local dev mock data — never commit
 public/dev-mock.local.js
+.worktrees/
