@@ -130,6 +130,58 @@ export function scrapeProducts(): Product[] {
   return parseProductElements(document);
 }
 
+/** Detect the active UI language — mirrors the logic in src/i18n/index.tsx */
+function detectLang(): 'he' | 'en' | 'ru' {
+  try {
+    const stored = localStorage.getItem('aluf-lang');
+    if (stored === 'en' || stored === 'ru' || stored === 'he') return stored;
+  } catch { /* private browsing */ }
+  const docLang = document.documentElement.lang;
+  if (docLang === 'en' || docLang === 'ru') return docLang as 'en' | 'ru';
+  return 'he';
+}
+
+const LANG_KEY: Record<string, string> = { he: 'heb', en: 'eng', ru: 'rus' };
+
+interface MultilingualContext {
+  title: string;
+  specRows: SpecRow[];
+  faqItems: { question: string; answer: string }[];
+}
+
+/**
+ * Parse #multilingual_context JSON embedded by Konimbo for the current UI language.
+ * Schema: { heb: { title, spec: [{key,value}], faq: [{question,answer}] }, eng: …, rus: … }
+ */
+function parseMultilingualContext(): MultilingualContext | null {
+  const el = document.querySelector('#multilingual_context');
+  if (!el) return null;
+  try {
+    const data = JSON.parse(el.textContent || '{}');
+    const key = LANG_KEY[detectLang()] ?? 'heb';
+    const branch = data[key];
+    if (!branch || typeof branch !== 'object') return null;
+
+    const title: string = typeof branch.title === 'string' ? branch.title.trim() : '';
+
+    const specRows: SpecRow[] = Array.isArray(branch.spec)
+      ? (branch.spec as { key?: string; value?: string }[])
+          .map(s => ({ label: (s.key ?? '').trim(), value: (s.value ?? '').trim() }))
+          .filter(r => r.label && r.value)
+      : [];
+
+    const faqItems = Array.isArray(branch.faq)
+      ? (branch.faq as { question?: string; answer?: string }[])
+          .map(f => ({ question: (f.question ?? '').trim(), answer: (f.answer ?? '').trim() }))
+          .filter(f => f.question && f.answer)
+      : [];
+
+    return { title, specRows, faqItems };
+  } catch {
+    return null;
+  }
+}
+
 /** Parse spec rows as key-value pairs from Konimbo item detail page */
 function parseSpecRows(doc: Document): SpecRow[] {
   const rows: SpecRow[] = [];
@@ -232,12 +284,14 @@ function parseSpecRows(doc: Document): SpecRow[] {
 
 /** Scrape item detail from a single product page DOM */
 export function scrapeItemDetail(): ItemDetail | null {
-  // Title — Konimbo uses h1.item-name (from live DOM inspection)
-  // Title — Konimbo uses #item_current_title h1 (span inside h1)
+  // Try multilingual context first — provides title/specs/faq in the active UI language
+  const mlCtx = parseMultilingualContext();
+
+  // Title — prefer multilingual context, then Konimbo DOM
   const titleEl = document.querySelector(
     '#item_current_title h1, #item_current_title h1 span, h1.item-name, h1.item_title, h1.item_name, h1.product-title, .item_title h1, h1'
   );
-  const title = titleEl?.textContent?.trim() || '';
+  const title = mlCtx?.title || titleEl?.textContent?.trim() || '';
   if (!title) return null;
 
   // SKU — Konimbo uses .code_item or .cataloge_number li span
@@ -304,18 +358,20 @@ export function scrapeItemDetail(): ItemDetail | null {
   const origText = origPriceEl?.textContent?.replace(/[^\d.]/g, '') || '';
   const originalPrice = parseInt(origText, 10) || undefined;
 
-  // FAQ — Konimbo embeds structured JSON in #faq_raw_data_seo inside the description
-  let faqItems: { question: string; answer: string }[] = [];
-  const faqRawEl = document.querySelector('#faq_raw_data_seo');
-  if (faqRawEl) {
-    try {
-      const parsed = JSON.parse(faqRawEl.textContent || '[]');
-      if (Array.isArray(parsed)) {
-        faqItems = parsed
-          .map((item: Record<string, string>) => ({ question: item['question'] || '', answer: item['answer'] || '' }))
-          .filter((item) => item.question && item.answer);
-      }
-    } catch { /* malformed JSON — skip */ }
+  // FAQ — prefer multilingual context; fall back to Hebrew-only #faq_raw_data_seo
+  let faqItems: { question: string; answer: string }[] = mlCtx?.faqItems ?? [];
+  if (faqItems.length === 0) {
+    const faqRawEl = document.querySelector('#faq_raw_data_seo');
+    if (faqRawEl) {
+      try {
+        const parsed = JSON.parse(faqRawEl.textContent || '[]');
+        if (Array.isArray(parsed)) {
+          faqItems = parsed
+            .map((item: Record<string, string>) => ({ question: item['question'] || '', answer: item['answer'] || '' }))
+            .filter((item) => item.question && item.answer);
+        }
+      } catch { /* malformed JSON — skip */ }
+    }
   }
 
   // Description HTML — Konimbo uses #item_content .desc
@@ -337,8 +393,8 @@ export function scrapeItemDetail(): ItemDetail | null {
     if (text) specs.push(text);
   });
 
-  // Spec rows — key/value pairs
-  const specRows = parseSpecRows(document);
+  // Spec rows — prefer multilingual context (correct language labels), fall back to DOM
+  const specRows = (mlCtx?.specRows?.length ?? 0) > 0 ? mlCtx!.specRows : parseSpecRows(document);
 
   // In stock
   const outOfStockEl = document.querySelector('.out-of-stock, .out_of_stock, .out_of_stock_button');
