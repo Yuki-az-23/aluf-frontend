@@ -481,7 +481,7 @@ export function ItemPage() {
                 dangerouslySetInnerHTML={{ __html: itemDetail.descriptionHtml }}
               />
             ) : (
-              <p className="text-text-muted text-sm">{t('item.noSpecs')}</p>
+              <p className="text-text-muted text-sm">{t('item.noFaq')}</p>
             )}
           </div>
         </div>

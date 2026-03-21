@@ -217,6 +217,7 @@
   "item.specsAndFaq": "Technical Specs",
   "item.fullSpecs": "Full Technical Specs",
   "item.noSpecs": "Technical specifications unavailable",
+  "item.noFaq": "No questions and answers available",
   "item.specsShowAll": "Show all specs",
   "item.specsShowLess": "Show less",
   "item.qa.q1": "Does the keyboard include Hebrew?",
