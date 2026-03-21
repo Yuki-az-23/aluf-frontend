@@ -12,6 +12,12 @@ import cartSoundUrl from '@/assets/add2cart.mp3';
 
 const cartSound = new Audio(cartSoundUrl);
 
+/** Extract warranty from specRows (row whose label contains "אחריות") */
+function extractWarrantyFromSpecs(specRows: { label: string; value: string }[]): string {
+  const row = specRows.find(r => r.label.includes('אחריות'));
+  return row ? row.value : '';
+}
+
 /** Translate a raw Hebrew warranty string (from Konimbo) into the current language */
 function translateWarranty(raw: string, lang: string, t: (k: string) => string): string {
   if (!raw) return raw;
@@ -40,6 +46,8 @@ export function ItemPage() {
   const [zoomOpen, setZoomOpen] = useState(false);
   const [hoverZoom, setHoverZoom] = useState<{ mx: number; my: number; bgX: number; bgY: number } | null>(null);
   const relatedScrollRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
+  const thumbsRef = useRef<HTMLDivElement>(null);
   const scrollRelated = (dir: 'prev' | 'next') => {
     const el = relatedScrollRef.current;
     if (!el) return;
@@ -56,6 +64,13 @@ export function ItemPage() {
     const bgY = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height)) * 100;
     setHoverZoom({ mx: e.clientX, my: e.clientY, bgX, bgY });
   }, []);
+
+  useEffect(() => {
+    const el = thumbsRef.current;
+    if (!el) return;
+    const thumb = el.children[activeImage] as HTMLElement | undefined;
+    thumb?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }, [activeImage]);
 
   useEffect(() => {
     if (!zoomOpen) return;
@@ -92,6 +107,23 @@ export function ItemPage() {
     cartSound.play().catch(() => {});
     setAdding(false);
   };
+
+  const handleBuyNow = async () => {
+    setAdding(true);
+    await addToCart(itemDetail.id, 1, {
+      title: itemDetail.title,
+      price: itemDetail.price,
+      image: itemDetail.images[0],
+    });
+    cartSound.currentTime = 0;
+    cartSound.play().catch(() => {});
+    window.location.href = '/cart';
+  };
+
+  const effectiveWarranty =
+    itemDetail.warranty ||
+    extractWarrantyFromSpecs(itemDetail.specRows || []) ||
+    'שנה אחת באחריות יבואן';
 
   const discount = itemDetail.originalPrice
     ? Math.round((1 - itemDetail.price / itemDetail.originalPrice) * 100)
@@ -189,7 +221,7 @@ export function ItemPage() {
                   variant="primary"
                   size="md"
                   className="w-full bg-primary/80 hover:bg-primary"
-                  onClick={handleAddToCart}
+                  onClick={handleBuyNow}
                   disabled={!itemDetail.inStock || adding}
                 >
                   {t('item.buyNow')}
@@ -197,13 +229,11 @@ export function ItemPage() {
               </div>
 
               {/* Warranty badge */}
-              {itemDetail.warranty && (
-                <div className="mt-4 flex items-center gap-2 text-sm text-text-main bg-card-bg rounded-lg px-3 py-2 border border-border-light">
-                  <Icon name="verified_user" className="text-primary text-base flex-shrink-0" />
-                  <span className="font-medium">{t('warranty.label')}:</span>
-                  <span>{translateWarranty(itemDetail.warranty, lang, t)}</span>
-                </div>
-              )}
+              <div className="mt-4 flex items-center gap-2 text-sm text-text-main bg-card-bg rounded-lg px-3 py-2 border border-border-light">
+                <Icon name="verified_user" className="text-primary text-base flex-shrink-0" />
+                <span className="font-medium">{t('warranty.label')}:</span>
+                <span>{translateWarranty(effectiveWarranty, lang, t)}</span>
+              </div>
 
               {/* Trust badges */}
               <div className="flex items-center justify-around mt-4 pt-4 border-t border-border-light text-xs text-text-muted">
@@ -254,12 +284,21 @@ export function ItemPage() {
 
           {/* Image Gallery (end side) */}
           <div>
-            {/* Main image — hover to zoom (desktop), tap to lightbox (mobile) */}
+            {/* Main image — hover to zoom (desktop), swipe (mobile), tap to lightbox */}
             <div
               className="relative aspect-square bg-white rounded-xl overflow-hidden mb-3 border border-border-light md:cursor-crosshair"
               onMouseMove={handleImgMouseMove}
               onMouseLeave={() => setHoverZoom(null)}
               onClick={() => images.length > 0 && setZoomOpen(true)}
+              onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+              onTouchEnd={(e) => {
+                if (touchStartX.current === null || images.length <= 1) return;
+                const delta = e.changedTouches[0].clientX - touchStartX.current;
+                if (Math.abs(delta) > 40) {
+                  delta < 0 ? nextImage() : prevImage();
+                }
+                touchStartX.current = null;
+              }}
             >
               {discount > 0 && (
                 <Badge variant="sale" className="absolute top-4 end-4 z-10">
@@ -281,7 +320,7 @@ export function ItemPage() {
 
             {/* Thumbnails */}
             {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+              <div ref={thumbsRef} className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                 {images.map((img, i) => (
                   <button
                     key={i}
@@ -485,7 +524,7 @@ export function ItemPage() {
         <Button
           variant="primary"
           size="md"
-          onClick={handleAddToCart}
+          onClick={handleBuyNow}
           disabled={!itemDetail.inStock || adding}
           className="flex-1"
         >
