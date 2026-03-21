@@ -51,19 +51,31 @@ export interface ItemDetail {
 
 ## Scraper Change (`src/lib/konimbo-scraper.ts`)
 
-The element `#ai_agent_context` already exists in the scraper — it is stripped from the description clone at line 329. The original element remains in `document`. Add extraction **before** the description clone step:
+The pipeline injects the following block into every product page that has been processed:
+
+```html
+<!-- CONTEXT INJECTION START -->
+<div id="multilingual_context" style="display:none;">{"heb":...,"eng":...,"rus":...}</div>
+<script type="application/ld+json">{"@type":"FAQPage","inLanguage":"he",...}</script>
+<script type="application/ld+json">{"@type":"FAQPage","inLanguage":"en",...}</script>
+<script type="application/ld+json">{"@type":"FAQPage","inLanguage":"ru",...}</script>
+<!-- CONTEXT INJECTION END -->
+```
+
+**FAQPage JSON-LD is already injected by the pipeline** — we must NOT generate or duplicate it. Our job is only to generate the `Product` schema.
+
+Read `#multilingual_context` to get the multilingual data:
 
 ```ts
-// Multilingual context for Schema.org JSON-LD
+// Multilingual context for Schema.org JSON-LD (Product schema)
 let langContext: LangContext | undefined;
 try {
-  const ctxEl = document.querySelector('#ai_agent_context');
+  const ctxEl = document.querySelector('#multilingual_context');
   if (ctxEl?.textContent) {
     const raw = JSON.parse(ctxEl.textContent);
-    // Expected shape: { context: { heb: {...}, eng: {...}, rus: {...} } }
-    const ctx = raw?.context ?? raw;
-    if (ctx?.heb && ctx?.eng && ctx?.rus) {
-      langContext = ctx as LangContext;
+    // Shape: { heb: {...}, eng: {...}, rus: {...} } — flat, no wrapper
+    if (raw?.heb && raw?.eng && raw?.rus) {
+      langContext = raw as LangContext;
     }
   }
 } catch { /* malformed JSON or missing element — langContext stays undefined */ }
@@ -71,7 +83,7 @@ try {
 
 Return `langContext` on the `ItemDetail` object.
 
-**Do NOT use XPath** — the CSS ID selector is reliable, already referenced in the codebase, and less fragile than DOM position.
+**Do NOT use XPath** — the CSS ID `#multilingual_context` is the stable, pipeline-defined identifier.
 
 ---
 
@@ -90,9 +102,8 @@ const ctx = itemDetail.langContext?.[langKey];
 |---|---|---|
 | `name` | `ctx.title` | `itemDetail.title` |
 | `description` | `ctx.specs.join(', ')` | `itemDetail.specs.join(', ')` — if both empty, field is omitted |
-| FAQ entries | `ctx.faq` (non-empty array) | `itemDetail.faqItems` (non-empty array) |
 
-FAQ block is omitted when both `ctx?.faq` and `itemDetail.faqItems` are absent, `undefined`, or empty arrays (`[]`).
+FAQ is handled entirely by the pipeline's injected JSON-LD — not part of our schema assembly.
 
 ### Product schema shape
 
@@ -123,23 +134,11 @@ const productSchema = {
 };
 ```
 
-### FAQ schema (when entries exist)
+### FAQPage schema
 
-```ts
-const faqEntries = (ctx?.faq?.length ? ctx.faq : null) ?? (itemDetail.faqItems?.length ? itemDetail.faqItems : null);
+**Do not generate.** The pipeline already injects three `<script type="application/ld+json">` FAQPage blocks (one per language) into the page. Generating our own would duplicate them and confuse search crawlers.
 
-const faqPageSchema = faqEntries ? {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: faqEntries.map(f => ({
-    '@type': 'Question',
-    name: f.question,
-    acceptedAnswer: { '@type': 'Answer', text: f.answer },
-  })),
-} : null;
-```
-
-Combined: `const schema = faqPageSchema ? [productSchema, faqPageSchema] : productSchema;`
+`ItemPage` passes only the `productSchema` object to `PageMeta`.
 
 ---
 
@@ -248,8 +247,7 @@ const homeSchema = [
 - Verify `<script type="application/ld+json" data-aluf-schema>` appears in `document.head` on ItemPage load
 - Validate output with Google's Rich Results Test (Product type)
 - Confirm fallback: item without `#ai_agent_context` emits valid `Product` schema using Hebrew title/specs
-- Confirm FAQ block absent when `ctx.faq` is `[]`, `ctx.faq` is `undefined`, and `itemDetail.faqItems` is empty/absent (all three cases)
-- Confirm FAQ block present when only `itemDetail.faqItems` has entries (no context JSON)
-- Confirm language switching (he → en → ru) updates script tag content in-place without duplicate tags
-- Confirm CMS-injected JSON-LD tags (if any) are not modified — only `[data-aluf-schema]` tag is touched
+- Confirm language switching (he → en → ru) updates the `[data-aluf-schema]` script tag content in-place without creating duplicates
+- Confirm the three pipeline-injected FAQPage `<script type="application/ld+json">` tags are NOT modified or removed
+- Confirm `[data-aluf-schema]` is the only tag we write — no other JSON-LD tags created
 - Confirm `image` field absent in JSON-LD when `itemDetail.images` is empty
