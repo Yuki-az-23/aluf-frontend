@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @config "../../tailwind.config.ts";
 :root {
-  --aluf-primary: #C05500; /* darkened from #FF6B00 → 4.7:1 contrast on white, passes WCAG AA */
+  --aluf-primary: #FF6B00;
   --aluf-secondary: #a855f7;
   --aluf-brand-purple: #2e1065;
   --aluf-header-bg: #ffffff;

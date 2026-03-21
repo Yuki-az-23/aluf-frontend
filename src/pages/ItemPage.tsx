@@ -70,19 +70,19 @@ export function ItemPage() {
     const el = thumbsRef.current;
     if (!el) return;
     const thumb = el.children[activeImage] as HTMLElement | undefined;
-    thumb?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    thumb?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
   }, [activeImage]);
 
   useEffect(() => {
-    if (!zoomOpen) return;
+    if (images.length <= 1) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setZoomOpen(false);
+      if (e.key === 'Escape' && zoomOpen) setZoomOpen(false);
       if (e.key === 'ArrowLeft') nextImage();
       if (e.key === 'ArrowRight') prevImage();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [zoomOpen, prevImage, nextImage]);
+  }, [zoomOpen, prevImage, nextImage, images.length]);
 
   if (!itemDetail) {
     return (
