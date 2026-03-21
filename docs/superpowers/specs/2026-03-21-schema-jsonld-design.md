@@ -232,7 +232,7 @@ const homeSchema = [
 
 ## Error Handling
 
-- `#ai_agent_context` query + `JSON.parse` wrapped in try/catch — any failure → `langContext` stays `undefined`
+- `#multilingual_context` query + `JSON.parse` wrapped in try/catch — any failure → `langContext` stays `undefined`
 - Structure validation: only assign `langContext` when `heb`, `eng`, and `rus` keys are all present
 - `images[0]` on empty array returns `undefined` — guarded with conditional spread, never emits `null`
 - `specs.join(', ')` on empty array returns `''` — guarded with `|| undefined`, field omitted when empty
