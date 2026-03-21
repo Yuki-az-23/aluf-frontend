@@ -8,6 +8,7 @@ import { useStoreData } from '@/lib/StoreDataContext';
 import { useLang } from '@/i18n';
 import { CATEGORY_DATA, CATEGORY_ALIASES, ICON_MAP, PARENT_CATEGORY_IDS, SUBCATEGORY_HREF_MAP } from '@/data/category-data';
 import type { KonimboCategory } from '@/lib/konimbo-scraper';
+import { PageMeta } from '@/components/ui/PageMeta';
 
 function resolveParentKey(title: string): string | null {
   // 1. Slug-ID from URL — authoritative; prevents subcategory titles that contain
@@ -95,9 +96,22 @@ export function CategoryPage() {
   const handleSortChange = (s: SortOption) => setSort(s);
 
   // ── Routing ──
+  const tCat = (name: string) => t('cat.' + name) !== 'cat.' + name ? t('cat.' + name) : name;
+
   const crumbs = breadcrumbs.length > 0
-    ? breadcrumbs
-    : [{ label: t('breadcrumb.home'), href: '/' }, { label: pageTitle || '' }];
+    ? breadcrumbs.map(b => ({ ...b, label: tCat(b.label) }))
+    : [{ label: t('breadcrumb.home'), href: '/' }, { label: tCat(pageTitle) || '' }];
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: crumbs.map((crumb, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: crumb.label,
+      ...(crumb.href && { item: window.location.origin + crumb.href }),
+    })),
+  };
 
   const parentKey = resolveParentKey(pageTitle);
 
@@ -107,11 +121,12 @@ export function CategoryPage() {
     if (products.length > 0) {
       return (
         <Container className="py-8">
+          <PageMeta title={pageTitle || t('site.name')} jsonLd={breadcrumbSchema} />
           <Breadcrumbs items={crumbs} className="mb-4" />
 
           {pageTitle && (
             <div className="border-s-4 border-primary ps-4 mb-6">
-              <h1 className="text-3xl font-black text-text-main">{pageTitle}</h1>
+              <h1 className="text-3xl font-black text-text-main">{tCat(pageTitle)}</h1>
             </div>
           )}
 
@@ -165,9 +180,10 @@ export function CategoryPage() {
 
       return (
         <Container className="py-8">
+          <PageMeta title={pageTitle || t('site.name')} jsonLd={breadcrumbSchema} />
           <Breadcrumbs items={crumbs} className="mb-4" />
           {pageTitle && (
-            <h1 className="text-3xl font-black text-text-main mb-8 text-right">{pageTitle}</h1>
+            <h1 className="text-3xl font-black text-text-main mb-8 text-right">{tCat(pageTitle)}</h1>
           )}
           <div className={FLAT_GRID}>
             {flatItems.map(({ item, groupName, isFirst }) => (
@@ -198,9 +214,10 @@ export function CategoryPage() {
     // Fallback empty state
     return (
       <Container className="py-8">
+        <PageMeta title={pageTitle || t('site.name')} jsonLd={breadcrumbSchema} />
         <Breadcrumbs items={crumbs} className="mb-4" />
         {pageTitle && (
-          <h1 className="text-3xl font-black text-text-main mb-6 text-right">{pageTitle}</h1>
+          <h1 className="text-3xl font-black text-text-main mb-6 text-right">{tCat(pageTitle)}</h1>
         )}
         <p className="text-center text-text-muted py-16">{t('products.empty')}</p>
       </Container>
@@ -223,11 +240,12 @@ export function CategoryPage() {
 
   return (
     <Container className="py-8">
+      <PageMeta title={pageTitle || t('site.name')} jsonLd={breadcrumbSchema} />
       <Breadcrumbs items={crumbs} className="mb-4" />
 
       {pageTitle && (
         <h1 className="text-3xl font-black text-text-main mb-8 text-start border-s-4 border-primary ps-4">
-          {pageTitle}
+          {tCat(pageTitle)}
         </h1>
       )}
 

@@ -19,6 +19,22 @@ import { fetchTierProducts } from '@/lib/konimbo-scraper';
 
 const BLOG_URL = '/632283-%D7%91%D7%9C%D7%95%D7%92?order=down_created_at';
 
+const homeSchema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Alufshop',
+    url: 'https://alufshop.co.il',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Alufshop',
+    url: 'https://alufshop.co.il',
+    logo: 'https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/src/assets/logo.png',
+  },
+];
+
 function parseBlogPosts(html: string): BlogPostItem[] {
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const items = doc.querySelectorAll('.layout_list_item.item');
@@ -111,6 +127,7 @@ export function HomePage() {
       <PageMeta
         title="אלוף המחשבים | מחשבים, גיימינג, רכיבים ומעבדה מקצועית"
         description="אלוף המחשבים - חנות מחשבים מובילה בישראל. מחשבים, כרטיסי מסך, רכיבים, ציוד גיימינג ושירותי מעבדה מקצועיים. משלוח חינם מ-₪500."
+        jsonLd={homeSchema}
       />
       {/* Hero Banner Carousel */}
       <HeroBanner banners={banners} />
