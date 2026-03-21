@@ -9,4 +9,4 @@ Disallow: /orders/
 Disallow: /cart
 Disallow: /checkout
 
-Sitemap: https://alufshop.konimbo.co.il/sitemap.xml
+Sitemap: https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/dist/sitemap.xml
