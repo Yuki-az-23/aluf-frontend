@@ -23,7 +23,7 @@ export function Header() {
             {/* Logo */}
             <a href="/" className="flex-shrink-0 flex items-center gap-3">
               <img src={logoSrc} alt={t('site.name')} className="h-10 w-auto" />
-              <span className="font-display font-bold text-2xl text-header-text hidden sm:block">
+              <span className="font-display font-bold text-sm sm:text-2xl text-header-text block">
                 {t('site.name.prefix')} <span className="text-primary">{t('site.name.suffix')}</span>
               </span>
             </a>
