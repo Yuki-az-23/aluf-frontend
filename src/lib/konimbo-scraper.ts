@@ -799,7 +799,8 @@ export interface TierProduct {
  */
 export async function fetchTierProducts(tag = 'gaming-tier'): Promise<TierProduct[]> {
   try {
-    const url = `${BASE_URL}/tags/${encodeURIComponent(tag)}`;
+    // Accept either a full path (/tags/123456-gaming-tier) or a plain tag slug
+    const url = tag.startsWith('/') ? `${BASE_URL}${tag}` : `${BASE_URL}/tags/${encodeURIComponent(tag)}`;
     const res = await fetch(url);
     if (!res.ok) return [];
     const html = await res.text();

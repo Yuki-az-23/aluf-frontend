@@ -47,6 +47,8 @@ export const LEAD_SOURCES = {
   WORKSHOP_HOME: { placement: 'workshop-home',        label: 'טכנאי עד הבית — ורקשופ',  page: 'workshop' },
   WORKSHOP_BIZ:  { placement: 'workshop-biz',         label: 'עסקים — ורקשופ',           page: 'workshop' },
   // Other pages
+  CANCEL_ORDER:  { placement: 'cancel-order',          label: 'ביטול עסקה — צור קשר',    page: 'contact'  },
+  JOB_APPLICATION: { placement: 'job-application',    label: 'מועמדות לתפקיד — דרושים',  page: 'careers'  },
   CART_CONTACT:  { placement: 'cart-contact',         label: 'צור קשר — עגלה',          page: 'cart'     },
   PC_BUILDER:    { placement: 'pc-builder',           label: 'בנה מחשב — מבנה',         page: 'builder'  },
   GENERAL:       { placement: 'general-contact',      label: 'צור קשר כללי',             page: 'contact'  },

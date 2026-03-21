@@ -67,7 +67,7 @@ export function HomePage() {
   const TIER_COLORS = ['from-blue-500 to-cyan-400', 'from-primary to-amber-400', 'from-purple-600 to-secondary'] as const;
 
   useEffect(() => {
-    fetchTierProducts('gaming-tier').then(live => {
+    fetchTierProducts('/tags/246816-tier').then(live => {
       if (!live.length) return;
       setTiers(live.map((t, i) => ({
         name: t.title,

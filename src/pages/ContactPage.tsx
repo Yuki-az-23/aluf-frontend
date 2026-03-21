@@ -15,7 +15,8 @@ const PERSONAL_SERVICES: { key: string; icon: string; source: LeadSource }[] = [
   { key: 'lab',     icon: 'handyman',        source: LEAD_SOURCES.LAB_SERVICE  },
   { key: 'gaming',  icon: 'sports_esports',  source: LEAD_SOURCES.GAMING_PC    },
   { key: 'consult', icon: 'support_agent',   source: LEAD_SOURCES.CONSULTATION },
-  { key: 'order',   icon: 'inventory_2',     source: LEAD_SOURCES.ORDER_SUPPORT },
+  { key: 'order',        icon: 'inventory_2',     source: LEAD_SOURCES.ORDER_SUPPORT },
+  { key: 'cancelOrder',  icon: 'cancel',          source: LEAD_SOURCES.CANCEL_ORDER  },
 ];
 const BUSINESS_SERVICES: { key: string; icon: string; source: LeadSource }[] = [
   { key: 'business', icon: 'business',    source: LEAD_SOURCES.BUSINESS   },

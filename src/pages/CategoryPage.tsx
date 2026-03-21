@@ -110,7 +110,7 @@ export function CategoryPage() {
           <Breadcrumbs items={crumbs} className="mb-4" />
 
           {pageTitle && (
-            <div className="border-r-4 border-primary pr-4 mb-6">
+            <div className="border-s-4 border-primary ps-4 mb-6">
               <h1 className="text-3xl font-black text-text-main">{pageTitle}</h1>
             </div>
           )}
@@ -226,7 +226,7 @@ export function CategoryPage() {
       <Breadcrumbs items={crumbs} className="mb-4" />
 
       {pageTitle && (
-        <h1 className="text-3xl font-black text-text-main mb-8 text-right border-r-4 border-primary pr-4">
+        <h1 className="text-3xl font-black text-text-main mb-8 text-start border-s-4 border-primary ps-4">
           {pageTitle}
         </h1>
       )}

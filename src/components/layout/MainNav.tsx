@@ -23,7 +23,7 @@ export function MainNav({ className }: MainNavProps) {
           <span>{t(item.labelKey)}</span>
         </a>
       ))}
-      <div className="border-r border-header-border h-6 mx-2" />
+      <div className="border-e border-header-border h-6 mx-2" />
       <button
         className="px-4 py-3 text-primary font-bold hover:bg-black/5 dark:hover:bg-white/5 rounded-md transition-colors flex items-center gap-2 text-sm whitespace-nowrap"
         onClick={open}

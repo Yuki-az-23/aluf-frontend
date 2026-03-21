@@ -138,7 +138,7 @@ export function ItemsGridPage() {
       <Breadcrumbs items={crumbs} className="mb-4" />
 
       {displayTitle && (
-        <div className="border-r-4 border-primary pr-4 mb-8">
+        <div className="border-s-4 border-primary ps-4 mb-8">
           <h1 className="text-3xl font-black text-text-main font-display">{displayTitle}</h1>
         </div>
       )}

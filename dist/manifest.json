@@ -1,0 +1,31 @@
+{
+  "name": "אלוף המחשבים",
+  "short_name": "אלוף",
+  "description": "חנות מחשבים, רכיבים, ציוד גיימינג ושירותי מחשוב מקצועיים",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#F4F7FA",
+  "theme_color": "#FF6B00",
+  "lang": "he",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

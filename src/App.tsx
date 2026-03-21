@@ -17,6 +17,7 @@ import { TermsPage } from '@/pages/TermsPage';
 import { PrivacyPage } from '@/pages/PrivacyPage';
 import { ContactPage } from '@/pages/ContactPage';
 import { AboutPage } from '@/pages/AboutPage';
+import { CareersPage } from '@/pages/CareersPage';
 import { getPageType } from '@/lib/konimbo';
 
 function PageRouter() {
@@ -33,6 +34,7 @@ function PageRouter() {
     case 'privacy': return <PrivacyPage />;
     case 'contact': return <ContactPage />;
     case 'about': return <AboutPage />;
+    case 'careers': return <CareersPage />;
     case 'login':
     case 'account':
       return null; // let Konimbo's native login/profile UI show through

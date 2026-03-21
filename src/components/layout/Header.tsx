@@ -40,13 +40,13 @@ export function Header() {
                 {t('nav.lab')}
               </a>
 
-              <div className="border-l border-header-border pl-4 ml-2 hidden sm:block">
+              <div className="border-s border-header-border ps-4 ms-2 hidden sm:block">
                 <LangSwitcher />
               </div>
 
               <span className="hidden md:inline-flex"><ThemeToggle /></span>
 
-              <div className="flex items-center gap-4 pl-2 border-r border-header-border pr-4">
+              <div className="flex items-center gap-4 ps-2 border-s border-header-border pe-4">
                 <a href="/customer_login" className="text-header-text-muted hover:text-header-text transition flex flex-col items-center gap-0.5 group">
                   <Icon name="person" className="transition-colors" />
                   <span className="text-[10px] hidden sm:block font-medium">{t('header.login')}</span>
