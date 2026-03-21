@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { FloatingContact } from '@/components/ui/FloatingContact';
@@ -11,6 +12,8 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const { t } = useLang();
+  const [cookieVisible, setCookieVisible] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-primary focus:text-white focus:p-2">
@@ -22,8 +25,8 @@ export function AppShell({ children }: AppShellProps) {
         {children}
       </main>
       <Footer />
-      <FloatingContact />
-      <CookieConsent />
+      <FloatingContact aboveCookie={cookieVisible} />
+      <CookieConsent onVisibilityChange={setCookieVisible} />
     </div>
   );
 }

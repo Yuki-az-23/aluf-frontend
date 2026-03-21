@@ -4,26 +4,36 @@ import { useLang } from '@/i18n';
 const STORAGE_KEY = 'aluf_cookies_accepted';
 const PRIVACY_URL = '/pages/54957-תקנון-פרטיות';
 
-export function CookieConsent() {
+interface CookieConsentProps {
+  onVisibilityChange?: (visible: boolean) => void;
+}
+
+export function CookieConsent({ onVisibilityChange }: CookieConsentProps) {
   const { t } = useLang();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     try {
-      if (!localStorage.getItem(STORAGE_KEY)) setVisible(true);
+      if (!localStorage.getItem(STORAGE_KEY)) {
+        setVisible(true);
+        onVisibilityChange?.(true);
+      }
     } catch {
       setVisible(true);
+      onVisibilityChange?.(true);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function accept() {
     try { localStorage.setItem(STORAGE_KEY, 'all'); } catch {}
     setVisible(false);
+    onVisibilityChange?.(false);
   }
 
   function necessaryOnly() {
     try { localStorage.setItem(STORAGE_KEY, 'necessary'); } catch {}
     setVisible(false);
+    onVisibilityChange?.(false);
   }
 
   if (!visible) return null;

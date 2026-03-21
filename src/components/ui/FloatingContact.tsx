@@ -6,7 +6,11 @@ const PHONE_DISPLAY = '053-3368048';
 const WA_URL = `https://wa.me/972${PHONE.slice(1)}`;
 const TEL_URL = `tel:${PHONE}`;
 
-export function FloatingContact() {
+interface FloatingContactProps {
+  aboveCookie?: boolean;
+}
+
+export function FloatingContact({ aboveCookie = false }: FloatingContactProps) {
   const { t } = useLang();
   const { itemDetail } = useStoreData();
   const isItemPage = itemDetail !== null;
@@ -14,7 +18,7 @@ export function FloatingContact() {
   return (
     <>
       {/* Mobile — sticky bottom bar (hidden on item pages — the cart bar takes this space) */}
-      <div className={`md:hidden fixed bottom-0 inset-x-0 z-50 flex shadow-2xl ${isItemPage ? 'hidden' : ''}`}>
+      <div className={`md:hidden fixed inset-x-0 z-50 flex shadow-2xl ${isItemPage ? 'hidden' : ''} ${aboveCookie ? 'bottom-[88px]' : 'bottom-0'}`}>
         <a
           href={TEL_URL}
           className="flex-1 flex items-center justify-center gap-2 bg-primary text-white py-4 font-bold text-sm active:brightness-90 transition-[filter]"
