@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { Icon } from '@/components/ui/Icon';
@@ -35,9 +35,31 @@ function translateWarranty(raw: string, lang: string, t: (k: string) => string):
   return result;
 }
 
+const ML_KEY: Record<string, string> = { he: 'heb', en: 'eng', ru: 'rus' };
+
 export function ItemPage() {
   const { t, dir, lang } = useLang();
   const { itemDetail, breadcrumbs } = useStoreData();
+
+  /** Re-parse #multilingual_context whenever lang changes so title/specs/faq update instantly */
+  const mlCtx = useMemo(() => {
+    const el = document.querySelector('#multilingual_context');
+    if (!el) return null;
+    try {
+      const data = JSON.parse(el.textContent || '{}');
+      const branch = data[ML_KEY[lang] ?? 'heb'];
+      if (!branch || typeof branch !== 'object') return null;
+      return {
+        title: (branch.title as string | undefined)?.trim() ?? '',
+        specRows: (Array.isArray(branch.spec) ? branch.spec : [])
+          .map((s: { key?: string; value?: string }) => ({ label: (s.key ?? '').trim(), value: (s.value ?? '').trim() }))
+          .filter((r: { label: string; value: string }) => r.label && r.value),
+        faqItems: (Array.isArray(branch.faq) ? branch.faq : [])
+          .map((f: { question?: string; answer?: string }) => ({ question: (f.question ?? '').trim(), answer: (f.answer ?? '').trim() }))
+          .filter((f: { question: string; answer: string }) => f.question && f.answer),
+      };
+    } catch { return null; }
+  }, [lang]);
   const { addToCart } = useCart();
   const [activeImage, setActiveImage] = useState(0);
   const [adding, setAdding] = useState(false);
@@ -92,10 +114,19 @@ export function ItemPage() {
     );
   }
 
+  // Prefer multilingual context data (updates on lang switch); fall back to scraped Hebrew
+  const displayTitle = mlCtx?.title || itemDetail.title;
+  const displaySpecRows: { label: string; value: string }[] =
+    mlCtx?.specRows?.length ? mlCtx.specRows : (itemDetail.specRows ?? []);
+  const displayFaqItems: { question: string; answer: string }[] | undefined =
+    mlCtx?.faqItems?.length ? mlCtx.faqItems : itemDetail.faqItems;
+  const hasSpecRows = displaySpecRows.length > 0;
+  const hasFlatSpecs = !hasSpecRows && itemDetail.specs && itemDetail.specs.length > 0;
+
   const crumbs =
     breadcrumbs.length > 0
       ? breadcrumbs
-      : [{ label: t('breadcrumb.home'), href: '/' }, { label: itemDetail.title }];
+      : [{ label: t('breadcrumb.home'), href: '/' }, { label: displayTitle }];
 
   const handleAddToCart = async () => {
     setAdding(true);
@@ -125,15 +156,13 @@ export function ItemPage() {
 
   const effectiveWarranty =
     itemDetail.warranty ||
-    extractWarrantyFromSpecs(itemDetail.specRows || []) ||
+    extractWarrantyFromSpecs(displaySpecRows) ||
     'שנה אחת באחריות יבואן';
 
   const discount = itemDetail.originalPrice
     ? Math.round((1 - itemDetail.price / itemDetail.originalPrice) * 100)
     : 0;
 
-  const hasSpecRows = itemDetail.specRows && itemDetail.specRows.length > 0;
-  const hasFlatSpecs = !hasSpecRows && itemDetail.specs && itemDetail.specs.length > 0;
   const hasRelated = itemDetail.relatedItems && itemDetail.relatedItems.length > 0;
 
   return (
@@ -170,7 +199,7 @@ export function ItemPage() {
 
             {/* Title */}
             <h1 className="text-2xl lg:text-3xl font-black text-text-main mb-3 leading-tight">
-              {itemDetail.title}
+              {displayTitle}
             </h1>
 
             {/* Short description */}
@@ -344,7 +373,7 @@ export function ItemPage() {
               {images.length > 0 ? (
                 <img
                   src={images[activeImage] || images[0]}
-                  alt={itemDetail.title}
+                  alt={displayTitle}
                   className="w-full h-full object-contain p-6 pointer-events-none"
                 />
               ) : (
@@ -368,8 +397,8 @@ export function ItemPage() {
 
             {hasSpecRows && (() => {
               const PREVIEW = 5;
-              const rows = specsExpanded ? itemDetail.specRows : itemDetail.specRows.slice(0, PREVIEW);
-              const hasMore = itemDetail.specRows.length > PREVIEW;
+              const rows = specsExpanded ? displaySpecRows : displaySpecRows.slice(0, PREVIEW);
+              const hasMore = displaySpecRows.length > PREVIEW;
               return (
                 <div className="rounded-xl overflow-hidden border border-border-light">
                   <table className="w-full text-sm">
@@ -407,7 +436,7 @@ export function ItemPage() {
                       />
                       {specsExpanded
                         ? t('item.specsShowLess')
-                        : `${t('item.specsShowAll')} (${itemDetail.specRows.length - PREVIEW})`}
+                        : `${t('item.specsShowAll')} (${displaySpecRows.length - PREVIEW})`}
                     </button>
                   )}
                 </div>
@@ -457,9 +486,9 @@ export function ItemPage() {
               <span className="w-1 h-6 bg-primary rounded-full inline-block" />
               {t('item.faq')}
             </h2>
-            {itemDetail.faqItems && itemDetail.faqItems.length > 0 ? (
+            {displayFaqItems && displayFaqItems.length > 0 ? (
               <div className="space-y-2">
-                {itemDetail.faqItems.map((item, i) => (
+                {displayFaqItems.map((item, i) => (
                   <div key={i} className="border border-border-light rounded-xl overflow-hidden">
                     <button
                       className="w-full flex items-center justify-between px-4 py-3 text-start text-sm font-medium text-text-main bg-card-bg hover:bg-border-light transition-colors"
