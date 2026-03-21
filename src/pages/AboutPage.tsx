@@ -8,9 +8,8 @@ const MAPS_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3384.9
 const logoSrc    = 'https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/src/assets/logo.png';
 
 const STATS: { key: string; value: string; icon: string }[] = [
-  { key: 'years',     value: '20+',    icon: 'history'          },
+  { key: 'years',     value: '25+',    icon: 'history'          },
   { key: 'customers', value: '50,000+', icon: 'people'          },
-  { key: 'products',  value: '10,000+', icon: 'inventory_2'     },
 ];
 
 const VALUES: { key: string; icon: string }[] = [
@@ -96,10 +95,6 @@ export function AboutPage() {
               </span>
             </div>
           </a>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-4 text-sm text-text-muted">
-          <span className="flex items-center gap-1.5"><Icon name="location_on" className="text-primary text-base" />{t('footer.address')}</span>
-          <span className="flex items-center gap-1.5"><Icon name="schedule" className="text-primary text-base" />{t('footer.hours')}</span>
         </div>
       </div>
 

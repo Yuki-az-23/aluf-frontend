@@ -60,7 +60,7 @@ export function HomePage() {
   const { open: openPcBuilder } = usePCBuilder();
 
   const [blogPosts, setBlogPosts] = useState<BlogPostItem[]>([]);
-  const [tiers, setTiers] = useState<TierConfig[]>(gamingTiers);
+  const [tiers, setTiers] = useState<TierConfig[]>([]);
   const [tiersLoading, setTiersLoading] = useState(true);
   const [blogLoading, setBlogLoading] = useState(true);
 
@@ -148,6 +148,7 @@ export function HomePage() {
 
 
       {/* Gaming Tiers */}
+      {(tiersLoading || tiers.length > 0) && (
       <section className="py-12">
         <Container>
           <SectionHeader title={t('tiers.title')} />
@@ -173,6 +174,7 @@ export function HomePage() {
           </div>
         </Container>
       </section>
+      )}
 
       {/* Blog — fetched from the blog listing page */}
       {(blogLoading || blogPosts.length > 0) && (

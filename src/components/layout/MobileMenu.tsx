@@ -5,6 +5,8 @@ import { useLang } from '@/i18n';
 import { useCart } from '@/lib/CartContext';
 import { mainNavItems } from '@/data/nav';
 
+const logoSrc = 'https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/src/assets/logo.png';
+
 interface MobileMenuProps {
   open: boolean;
   onClose: () => void;
@@ -19,15 +21,15 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
   return (
     <div className="fixed inset-0 z-[60] bg-header-bg text-header-text flex flex-col">
       <div className="flex items-center justify-between px-4 h-20 border-b border-header-border">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 bg-primary rounded-lg flex items-center justify-center">
-            <Icon name="deployed_code" className="text-white text-2xl" />
-          </div>
-          <span className="font-display font-bold text-xl">{t('site.name')}</span>
-        </div>
         <button onClick={onClose} aria-label={t('a11y.closeMenu')}>
           <Icon name="close" className="text-2xl" />
         </button>
+        <a href="/" className="flex items-center gap-3">
+          <img src={logoSrc} alt={t('site.name')} className="h-10 w-auto" />
+          <span className="font-display font-bold text-xl">
+            {t('site.name.prefix')} <span className="text-primary">{t('site.name.suffix')}</span>
+          </span>
+        </a>
       </div>
 
       <nav className="flex-1 overflow-y-auto p-4 space-y-2">
@@ -41,6 +43,10 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
             <span>{t(item.labelKey)}</span>
           </a>
         ))}
+        <a href="/pages/52435-%D7%9E%D7%A2%D7%91%D7%93%D7%94-%D7%9C%D7%9E%D7%97%D7%A9%D7%91%D7%99%D7%9D" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-border-light transition-colors text-lg">
+          <Icon name="handyman" className="text-primary" />
+          <span>{t('nav.lab')}</span>
+        </a>
         <a href="https://alufshop.konimbo.co.il" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary font-bold text-lg">
           <Icon name="local_offer" />
           <span>{t('nav.deals')}</span>

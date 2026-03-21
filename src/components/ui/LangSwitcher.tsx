@@ -10,9 +10,10 @@ const languages: { code: Lang; label: string }[] = [
 export function LangSwitcher() {
   const { lang, setLang } = useLang();
   return (
-    <div className="flex items-center gap-1 text-xs font-bold text-header-text-muted">
+    <div className="flex items-center gap-1 text-xs font-bold text-header-text-muted" dir="ltr">
       {languages.map((l, i) => (
         <span key={l.code} className="flex items-center">
+          {i > 0 && <span className="text-header-border mx-1">|</span>}
           <button
             onClick={() => setLang(l.code)}
             className={cn(
@@ -22,7 +23,6 @@ export function LangSwitcher() {
           >
             {l.label}
           </button>
-          {i < languages.length - 1 && <span className="text-header-border mx-1">|</span>}
         </span>
       ))}
     </div>
