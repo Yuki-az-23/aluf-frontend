@@ -18,6 +18,10 @@ import { PrivacyPage } from '@/pages/PrivacyPage';
 import { ContactPage } from '@/pages/ContactPage';
 import { AboutPage } from '@/pages/AboutPage';
 import { CareersPage } from '@/pages/CareersPage';
+import { AuthProvider } from '@/lib/AuthContext';
+import { LoginPage } from '@/pages/LoginPage';
+import { SignupPage } from '@/pages/SignupPage';
+import { AccountPage } from '@/pages/AccountPage';
 import { getPageType } from '@/lib/konimbo';
 
 function PageRouter() {
@@ -35,11 +39,10 @@ function PageRouter() {
     case 'contact': return <ContactPage />;
     case 'about': return <AboutPage />;
     case 'careers': return <CareersPage />;
-    case 'login':
-    case 'signup':
-    case 'account':
-    case 'checkout':
-      return null; // let Konimbo's native UI show through
+    case 'login':    return <LoginPage />;
+    case 'signup':   return <SignupPage />;
+    case 'account':  return <AccountPage />;
+    case 'checkout': return null; // stays native — CartPage handles pre-checkout
     case 'home':
     default:
       return <HomePage />;
@@ -63,11 +66,13 @@ export function App() {
       <ThemeProvider>
         <LangProvider>
           <StoreDataProvider>
-            <CartProvider>
-              <PCBuilderProvider>
-                <AppInner />
-              </PCBuilderProvider>
-            </CartProvider>
+            <AuthProvider>
+              <CartProvider>
+                <PCBuilderProvider>
+                  <AppInner />
+                </PCBuilderProvider>
+              </CartProvider>
+            </AuthProvider>
           </StoreDataProvider>
         </LangProvider>
       </ThemeProvider>
