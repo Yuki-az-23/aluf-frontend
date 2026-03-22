@@ -55,6 +55,10 @@ export function getPageType(): string {
   if (/^\/customer_signup(\?|$)/.test(path)) return 'signup';
   if (/^\/customer_profile(\?|$)/.test(path)) return 'account';
   if (/^\/customer_edit_profile(\?|$)/.test(path)) return 'account';
+  if (/^\/current_customer\/orders(\?|$|\/|$)/.test(path)) return 'account';
+  if (/^\/current_customer\/tickets(\?|$|\/|$)/.test(path)) return 'account';
+  if (/^\/current_customer\/carts(\?|$|\/|$)/.test(path)) return 'account';
+  if (/^\/current_customer\/edit(\?|$|\/|$)/.test(path)) return 'account';
   if (/^\/checkout(\?|$|\/|$)/.test(path)) return 'checkout';
 
   // Blog list: /632283-... (aluf.co.il) or /blog (alufshop.konimbo.co.il)
