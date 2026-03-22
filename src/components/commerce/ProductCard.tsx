@@ -17,6 +17,7 @@ const cartSound = new Audio(cartSoundUrl);
 
 export function ProductCard({ product, className, viewMode = 'grid' }: ProductCardProps) {
   const { t } = useLang();
+  const tCat = (name: string) => { const k = t('cat.' + name); return k !== 'cat.' + name ? k : name; };
   const { addToCart } = useCart();
 
   const doAddToCart = () => {
@@ -51,7 +52,7 @@ export function ProductCard({ product, className, viewMode = 'grid' }: ProductCa
           {/* Category label — overlaid at the top of the image */}
           {product.category && (
             <span className="absolute top-0 inset-x-0 z-10 bg-black/40 text-white text-[9px] font-semibold px-1 py-0.5 truncate text-center leading-tight">
-              {product.category}
+              {tCat(product.category)}
             </span>
           )}
           {product.originalPrice && (
@@ -171,7 +172,7 @@ export function ProductCard({ product, className, viewMode = 'grid' }: ProductCa
         </div>
       </div>
 
-      <span className="text-xs text-text-muted font-medium mb-1">{product.category}</span>
+      <span className="text-xs text-text-muted font-medium mb-1">{tCat(product.category)}</span>
       <a href={product.href || '#'} className="block">
         <h3 className="font-bold text-sm mb-2 line-clamp-2 text-text-main">{product.title}</h3>
       </a>
