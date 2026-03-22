@@ -30,7 +30,7 @@ Checkout is **excluded** — it is already handled by `CartPage.tsx` which colle
 | `src/components/layout/Header.tsx` | Update: login-aware person icon |
 | `src/components/layout/MobileMenu.tsx` | Update: login-aware login/account link |
 | `src/App.tsx` | Replace null returns + wire AuthContext + new pages into router |
-| `src/i18n/en.json` + `ru.json` | New `auth.*` and `account.*` i18n keys |
+| `src/i18n/en.json` + `ru.json` + `he.json` | New `auth.*`, `account.*`, and `header.myAccount` keys (all three languages) |
 
 ---
 
