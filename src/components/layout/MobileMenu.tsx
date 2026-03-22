@@ -3,6 +3,7 @@ import { LangSwitcher } from '@/components/ui/LangSwitcher';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useLang } from '@/i18n';
 import { useCart } from '@/lib/CartContext';
+import { useAuth } from '@/lib/AuthContext';
 import { mainNavItems } from '@/data/nav';
 
 const logoSrc = 'https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/src/assets/logo.png';
@@ -15,6 +16,7 @@ interface MobileMenuProps {
 export function MobileMenu({ open, onClose }: MobileMenuProps) {
   const { t, dir } = useLang();
   const { cartCount } = useCart();
+  const { loggedIn } = useAuth();
 
   if (!open) return null;
 
@@ -59,8 +61,11 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
           <ThemeToggle />
         </div>
         <div className="flex gap-4">
-          <a href="https://alufshop.konimbo.co.il/login" className="flex-1 flex items-center justify-center gap-2 bg-card-bg border border-border-light py-3 rounded-xl">
-            <Icon name="person" /> {t('header.login')}
+          <a
+            href={loggedIn ? '/current_customer/orders' : '/customer_login'}
+            className="flex-1 flex items-center justify-center gap-2 bg-card-bg border border-border-light py-3 rounded-xl"
+          >
+            <Icon name="person" /> {loggedIn ? t('header.myAccount') : t('header.login')}
           </a>
           <a href="https://alufshop.konimbo.co.il/cart" className="flex-1 flex items-center justify-center gap-2 bg-card-bg border border-border-light py-3 rounded-xl relative">
             <Icon name="shopping_cart" /> {t('header.cart')}

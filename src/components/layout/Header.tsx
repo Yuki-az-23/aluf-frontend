@@ -8,11 +8,13 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Icon } from '@/components/ui/Icon';
 import { useLang } from '@/i18n';
 import { useCart } from '@/lib/CartContext';
+import { useAuth } from '@/lib/AuthContext';
 const logoSrc = 'https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/src/assets/logo.png';
 
 export function Header() {
   const { t } = useLang();
   const { cartCount } = useCart();
+  const { loggedIn } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -47,9 +49,14 @@ export function Header() {
               <span className="hidden md:inline-flex"><ThemeToggle /></span>
 
               <div className="flex items-center gap-4 ps-2 border-s border-header-border pe-4">
-                <a href="/customer_login" className="text-header-text-muted hover:text-header-text transition flex flex-col items-center gap-0.5 group">
+                <a
+                  href={loggedIn ? '/current_customer/orders' : '/customer_login'}
+                  className="text-header-text-muted hover:text-header-text transition flex flex-col items-center gap-0.5 group"
+                >
                   <Icon name="person" className="transition-colors" />
-                  <span className="text-[10px] hidden sm:block font-medium">{t('header.login')}</span>
+                  <span className="text-[10px] hidden sm:block font-medium">
+                    {loggedIn ? t('header.myAccount') : t('header.login')}
+                  </span>
                 </a>
                 <a href="/cart" className="text-header-text-muted hover:text-header-text transition relative flex flex-col items-center gap-0.5 group">
                   <div className="relative">
