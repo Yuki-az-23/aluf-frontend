@@ -152,9 +152,17 @@ export function ItemPage() {
   const hasSpecRows = displaySpecRows.length > 0;
   const hasFlatSpecs = !hasSpecRows && itemDetail.specs && itemDetail.specs.length > 0;
 
+  const tBreadcrumb = (label: string) => {
+    const cat = t('cat.' + label);
+    if (cat !== 'cat.' + label) return cat;
+    const bc = t('breadcrumb.' + label);
+    if (bc !== 'breadcrumb.' + label) return bc;
+    return label;
+  };
+
   const crumbs =
     breadcrumbs.length > 0
-      ? breadcrumbs
+      ? breadcrumbs.map(b => ({ ...b, label: tBreadcrumb(b.label) }))
       : [{ label: t('breadcrumb.home'), href: '/' }, { label: displayTitle }];
 
   const handleAddToCart = async () => {

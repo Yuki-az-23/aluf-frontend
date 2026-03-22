@@ -27,7 +27,7 @@ export function BlogPostPage() {
     <Container className="py-8">
       <Breadcrumbs items={crumbs} className="mb-6" />
 
-      <article className="max-w-3xl mx-auto">
+      <article dir="rtl" className="max-w-3xl mx-auto">
         <h1 className="text-3xl lg:text-4xl font-black text-text-main mb-4">
           {blogPostDetail.title}
         </h1>
