@@ -1,29 +1,31 @@
 // src/lib/AuthContext.tsx
-// Minimal auth context — session state is managed natively by Konimbo.
-// This provider exists as a structural wrapper for future auth-aware components.
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { isLoggedIn } from './konimbo';
 
 interface AuthContextValue {
-  /** true when the Konimbo session cookie indicates a logged-in customer */
-  isLoggedIn: boolean;
+  loggedIn: boolean;
 }
 
-const AuthContext = createContext<AuthContextValue>({ isLoggedIn: false });
-
-function detectLoggedIn(): boolean {
-  // Konimbo sets a nav element that is only present for logged-in users
-  return !!document.querySelector('#current_customer_my_place_ul');
-}
+const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const isLoggedIn = detectLoggedIn();
+  const [loggedIn, setLoggedIn] = useState(isLoggedIn);
+
+  useEffect(() => {
+    // Poll every 2s continuously — detects both login and logout transitions
+    const id = setInterval(() => setLoggedIn(isLoggedIn()), 2000);
+    return () => clearInterval(id);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ isLoggedIn }}>
+    <AuthContext.Provider value={{ loggedIn }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth(): AuthContextValue {
-  return useContext(AuthContext);
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
 }
