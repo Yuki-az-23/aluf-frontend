@@ -103,32 +103,20 @@ import './theme/tokens.css';
 
 const root = document.getElementById('aluf-root');
 if (root) {
-  // Dev mock: if public/dev-mock.local.js pre-loaded data, use it and skip scraping
-  const devMock = (window as any).__ALUF_SCRAPED__;
-  const devPageType = (window as any).__ALUF_DEV_PAGE_TYPE__ as string | undefined;
-  const usingMock = !!(devMock && devPageType);
-
-  const pageType = usingMock ? devPageType! : getPageType();
+  const pageType = getPageType();
 
   // Pages where Konimbo lazy-renders items on scroll
   const isProductListPage = pageType === 'items' || pageType === 'category';
   const isProductPage = pageType === 'home' || isProductListPage;
 
-  let scrapedData: typeof devMock;
+  // eslint-disable-next-line prefer-const
+  let scrapedData: any;
 
-  if (usingMock) {
-    // Already set by dev-mock.local.js — no DOM scraping needed
-    scrapedData = devMock;
-  } else {
-    // 1. Synchronous first scrape (catches data already in DOM)
+  function buildScrapedData() {
     const itemDetailRaw = pageType === 'item' ? scrapeItemDetail() : null;
     const relatedItems = pageType === 'item' ? scrapeRelatedItems() : [];
-
-    if (itemDetailRaw) {
-      itemDetailRaw.relatedItems = relatedItems;
-    }
-
-    scrapedData = {
+    if (itemDetailRaw) itemDetailRaw.relatedItems = relatedItems;
+    return {
       products: scrapeProducts(),
       categories: scrapeCategories(),
       categoryGroups: scrapeCategoryGroups(),
@@ -142,9 +130,37 @@ if (root) {
       blogPostDetail: pageType === 'blogpost' ? scrapeBlogPostDetail() : null,
       filterGroups: ['items', 'category'].includes(pageType) ? scrapeFilterGroups() : [],
     };
+  }
 
-    // Store on window so StoreDataProvider can access it synchronously
-    (window as any).__ALUF_SCRAPED__ = scrapedData;
+  async function getScrapedData() {
+    // If a dev mock pre-loaded data, use it directly
+    const existing = (window as any).__ALUF_SCRAPED__;
+    if (existing) return existing;
+
+    // In dev mode: fetch the live Konimbo home page through the Vite proxy and scrape it
+    if (import.meta.env.DEV) {
+      try {
+        const html = await fetch('/konimbo-live/').then(r => r.text());
+        const virtualDoc = new DOMParser().parseFromString(html, 'text/html');
+        return {
+          products: scrapeProducts(virtualDoc),
+          categories: scrapeCategories(virtualDoc),
+          categoryGroups: scrapeCategoryGroups(virtualDoc),
+          banners: scrapeBanners(virtualDoc),
+          itemDetail: null,
+          breadcrumbs: [],
+          pageTitle: '',
+          blogPosts: [],
+          blogPostDetail: null,
+          filterGroups: [],
+        };
+      } catch (e) {
+        console.warn('[aluf-dev] proxy fetch failed, continuing with empty data', e);
+      }
+    }
+
+    // Production / fallback: scrape the current document synchronously
+    return buildScrapedData();
   }
 
   function mountReactApp() {
@@ -155,7 +171,7 @@ if (root) {
 
     // Re-scrape products for list pages: Konimbo may have rendered more items
     // during the scroll simulation that runs before this function is called.
-    if (isProductListPage && !usingMock) {
+    if (isProductListPage) {
       const fresh = scrapeProducts();
       if (fresh.length > scrapedData.products.length) {
         scrapedData.products = fresh;
@@ -313,10 +329,16 @@ if (root) {
     }
   }
 
+  // Async init: await live data (proxy or DOM scrape), then mount
+  (async () => {
+    scrapedData = await getScrapedData();
+    // Store on window so StoreDataProvider can access it synchronously
+    (window as any).__ALUF_SCRAPED__ = scrapedData;
+
   // For items/category pages: Konimbo lazy-renders products on scroll via IntersectionObserver/AJAX.
   // Repeatedly scroll down to trigger each batch, then wait for the DOM to stabilize
   // (no new items for 400 ms) before mounting React. Cap at 4 seconds total.
-  if (isProductListPage && !usingMock) {
+  if (isProductListPage) {
     const STABLE_MS  = 400;  // ms without new items → consider fully loaded
     const MAX_MS     = 4000; // hard cap regardless of stability
     const TICK_MS    = 200;  // check interval
@@ -353,6 +375,7 @@ if (root) {
   } else {
     mountReactApp();
   }
+  })();
 } else {
   console.error('[aluf] #aluf-root element not found');
 }

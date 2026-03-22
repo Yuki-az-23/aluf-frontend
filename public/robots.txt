@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
-
 # Konimbo customer account and cart pages — no index value
 Disallow: /customer_login
 Disallow: /customer_profile

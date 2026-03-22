@@ -227,18 +227,16 @@ export function HomePage() {
               <p className="text-primary font-bold">{t('newsletter.success')}</p>
             ) : (
               <form onSubmit={handleNewsletterSubmit} noValidate className="flex flex-col gap-3">
-                <div className="flex gap-3">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center">
                   <input type="text" value={nlName} onChange={e => setNlName(e.target.value)}
                     placeholder={t('newsletter.namePlaceholder')}
-                    className="flex-1 px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
+                    className="flex-1 px-4 py-3 rounded-xl border border-primary/60 text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
                   <input type="email" value={nlEmail} onChange={e => setNlEmail(e.target.value)}
                     placeholder={t('newsletter.placeholder')}
-                    className="flex-1 px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
-                </div>
-                <div className="flex gap-3">
+                    className="flex-1 px-4 py-3 rounded-xl border border-primary/60 text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
                   <input type="tel" value={nlPhone} onChange={e => setNlPhone(e.target.value)}
                     placeholder={t('newsletter.phonePlaceholder')} dir="ltr"
-                    className="flex-1 px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
+                    className="flex-1 px-4 py-3 rounded-xl border border-primary/60 text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
                   <Button variant="primary" size="md" className="flex-shrink-0">{t('newsletter.submit')}</Button>
                 </div>
                 {nlError && <p className="text-red-500 text-xs text-start">{nlError}</p>}

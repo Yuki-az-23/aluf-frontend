@@ -126,17 +126,17 @@ export function parseProductElements(container: ParentNode, baseUrl: string = BA
 }
 
 /** Scrape product data from Konimbo DOM before it's hidden */
-export function scrapeProducts(): Product[] {
-  return parseProductElements(document);
+export function scrapeProducts(doc: Document = document): Product[] {
+  return parseProductElements(doc);
 }
 
 /** Detect the active UI language — mirrors the logic in src/i18n/index.tsx */
-function detectLang(): 'he' | 'en' | 'ru' {
+function detectLang(doc: Document = document): 'he' | 'en' | 'ru' {
   try {
     const stored = localStorage.getItem('aluf-lang');
     if (stored === 'en' || stored === 'ru' || stored === 'he') return stored;
   } catch { /* private browsing */ }
-  const docLang = document.documentElement.lang;
+  const docLang = doc.documentElement.lang;
   if (docLang === 'en' || docLang === 'ru') return docLang as 'en' | 'ru';
   return 'he';
 }
@@ -153,12 +153,12 @@ interface MultilingualContext {
  * Parse #multilingual_context JSON embedded by Konimbo for the current UI language.
  * Schema: { heb: { title, spec: [{key,value}], faq: [{question,answer}] }, eng: …, rus: … }
  */
-function parseMultilingualContext(): MultilingualContext | null {
-  const el = document.querySelector('#multilingual_context');
+function parseMultilingualContext(doc: Document = document): MultilingualContext | null {
+  const el = doc.querySelector('#multilingual_context');
   if (!el) return null;
   try {
     const data = JSON.parse(el.textContent || '{}');
-    const key = LANG_KEY[detectLang()] ?? 'heb';
+    const key = LANG_KEY[detectLang(doc)] ?? 'heb';
     const branch = data[key];
     if (!branch || typeof branch !== 'object') return null;
 
@@ -283,25 +283,25 @@ function parseSpecRows(doc: Document): SpecRow[] {
 }
 
 /** Scrape item detail from a single product page DOM */
-export function scrapeItemDetail(): ItemDetail | null {
+export function scrapeItemDetail(doc: Document = document): ItemDetail | null {
   // Try multilingual context first — provides title/specs/faq in the active UI language
-  const mlCtx = parseMultilingualContext();
+  const mlCtx = parseMultilingualContext(doc);
 
   // Title — prefer multilingual context, then Konimbo DOM
-  const titleEl = document.querySelector(
+  const titleEl = doc.querySelector(
     '#item_current_title h1, #item_current_title h1 span, h1.item-name, h1.item_title, h1.item_name, h1.product-title, .item_title h1, h1'
   );
   const title = mlCtx?.title || titleEl?.textContent?.trim() || '';
   if (!title) return null;
 
   // SKU — Konimbo uses .code_item or .cataloge_number li span
-  const skuEl = document.querySelector('.code_item, .cataloge_number li span, .item-sku, .item_number, .sku, [itemprop="sku"]');
+  const skuEl = doc.querySelector('.code_item, .cataloge_number li span, .item-sku, .item_number, .sku, [itemprop="sku"]');
   const sku = skuEl?.textContent?.trim().replace(/מק"ט\s*:?\s*/i, '') || '';
 
   // Images — Konimbo uses #lightSlider ul: each <li data-src="fullsize"> contains <img src="large">
   const images: string[] = [];
 
-  const lightSliderItems = document.querySelectorAll('#lightSlider li');
+  const lightSliderItems = doc.querySelectorAll('#lightSlider li');
   if (lightSliderItems.length > 0) {
     lightSliderItems.forEach((li) => {
       // Prefer data-src on the <li> (extra_large quality), fall back to img src (large)
@@ -324,18 +324,18 @@ export function scrapeItemDetail(): ItemDetail | null {
       el.getAttribute('data-lazy') ||
       el.src || '';
 
-    const mainPhoto = document.querySelector('#main_photo') as HTMLImageElement | null;
+    const mainPhoto = doc.querySelector('#main_photo') as HTMLImageElement | null;
     if (mainPhoto) {
       const src = pickSrc(mainPhoto);
       if (src && !src.includes('placeholder') && !src.includes('blank')) images.push(src);
     }
-    document.querySelectorAll('#additional_photos img, #more_photos img, .item_small_photos img').forEach((img) => {
+    doc.querySelectorAll('#additional_photos img, #more_photos img, .item_small_photos img').forEach((img) => {
       const src = pickSrc(img as HTMLImageElement);
       if (src && !src.includes('placeholder') && !src.includes('blank') && !images.includes(src)) images.push(src);
     });
     if (images.length === 0) {
       for (const sel of ['.item_image img', '.product-gallery img', '.splide__slide:not(.splide__slide--clone) img', '.item_images img', '#main_photo_container img', '.item-image img']) {
-        document.querySelectorAll(sel).forEach((img) => {
+        doc.querySelectorAll(sel).forEach((img) => {
           const src = pickSrc(img as HTMLImageElement);
           if (src && !src.includes('placeholder') && !src.includes('blank') && !images.includes(src)) images.push(src);
         });
@@ -345,14 +345,14 @@ export function scrapeItemDetail(): ItemDetail | null {
   }
 
   // Price — Konimbo uses #item_show_price .price_value with numeric `content` attribute
-  const priceEl = document.querySelector(
+  const priceEl = doc.querySelector(
     '#item_show_price .price_value, .item_price_value, #item_price_container .item_price_value, .item_price .price, .item_price, .price.main_price'
   );
   const priceText = priceEl?.getAttribute('content') || priceEl?.textContent?.replace(/[^\d.]/g, '') || '0';
   const price = parseFloat(priceText) || 0;
 
   // Original price — Konimbo uses .item_show_origin_price .origin_price_number
-  const origPriceEl = document.querySelector(
+  const origPriceEl = doc.querySelector(
     '.item_show_origin_price .origin_price_number, .origin_price, .item_origin_price, .strikethrough_price'
   );
   const origText = origPriceEl?.textContent?.replace(/[^\d.]/g, '') || '';
@@ -361,7 +361,7 @@ export function scrapeItemDetail(): ItemDetail | null {
   // FAQ — prefer multilingual context; fall back to Hebrew-only #faq_raw_data_seo
   let faqItems: { question: string; answer: string }[] = mlCtx?.faqItems ?? [];
   if (faqItems.length === 0) {
-    const faqRawEl = document.querySelector('#faq_raw_data_seo');
+    const faqRawEl = doc.querySelector('#faq_raw_data_seo');
     if (faqRawEl) {
       try {
         const parsed = JSON.parse(faqRawEl.textContent || '[]');
@@ -376,7 +376,7 @@ export function scrapeItemDetail(): ItemDetail | null {
 
   // Description HTML — Konimbo uses #item_content .desc
   // Strip FAQ markup, hidden SEO divs, and Konimbo AI context so only clean prose remains
-  const descEl = document.querySelector(
+  const descEl = doc.querySelector(
     '#item_content .desc, .item_description, .product-description, .item_body, .description'
   );
   let descriptionHtml = '';
@@ -388,26 +388,26 @@ export function scrapeItemDetail(): ItemDetail | null {
 
   // Specs — flat list from #item_specifications (also backward compat selectors)
   const specs: string[] = [];
-  document.querySelectorAll('#item_specifications .specifications ul li, .item_specs li, .product-specs li, .properties li').forEach((li) => {
+  doc.querySelectorAll('#item_specifications .specifications ul li, .item_specs li, .product-specs li, .properties li').forEach((li) => {
     const text = li.textContent?.trim();
     if (text) specs.push(text);
   });
 
   // Spec rows — prefer multilingual context (correct language labels), fall back to DOM
-  const specRows = (mlCtx?.specRows?.length ?? 0) > 0 ? mlCtx!.specRows : parseSpecRows(document);
+  const specRows = (mlCtx?.specRows?.length ?? 0) > 0 ? mlCtx!.specRows : parseSpecRows(doc);
 
   // In stock
-  const outOfStockEl = document.querySelector('.out-of-stock, .out_of_stock, .out_of_stock_button');
-  const bodyText = document.body?.textContent || '';
+  const outOfStockEl = doc.querySelector('.out-of-stock, .out_of_stock, .out_of_stock_button');
+  const bodyText = doc.body?.textContent || '';
   const inStock = !outOfStockEl && !bodyText.includes('אזל מהמלאי') && !bodyText.includes('אין במלאי');
 
   // Warranty — Konimbo uses #item_warranty
-  const warrantyEl = document.querySelector('#item_warranty');
+  const warrantyEl = doc.querySelector('#item_warranty');
   const warranty = warrantyEl?.textContent?.trim() || undefined;
 
   // ID from multiple sources
-  const metaId = document.querySelector('meta[name="item-id"]')?.getAttribute('content') || '';
-  const dataId = document.querySelector('[data-item-id]')?.getAttribute('data-item-id') || '';
+  const metaId = doc.querySelector('meta[name="item-id"]')?.getAttribute('content') || '';
+  const dataId = doc.querySelector('[data-item-id]')?.getAttribute('data-item-id') || '';
   const urlMatch = window.location.pathname.match(/\/items\/([^/?#]+)/);
   const id = metaId || dataId || urlMatch?.[1] || '';
 
@@ -444,9 +444,9 @@ export const RELATED_CAROUSEL_SELECTORS = [
 ];
 
 /** Scrape related products from item detail page */
-export function scrapeRelatedItems(): Product[] {
+export function scrapeRelatedItems(doc: Document = document): Product[] {
   for (const hookSel of RELATED_CAROUSEL_SELECTORS) {
-    const hook = document.querySelector(hookSel);
+    const hook = doc.querySelector(hookSel);
     if (!hook) continue;
 
     // Try parseProductElements first (allowZeroPrice so carousel thumbnails aren't filtered out)
@@ -483,8 +483,8 @@ export function scrapeRelatedItems(): Product[] {
 }
 
 /** Scrape breadcrumb navigation */
-export function scrapeBreadcrumbs(): BreadcrumbItem[] {
-  const container = document.querySelector('#bread_crumbs, .breadcrumb, .breadcrumbs, nav[aria-label="breadcrumb"], .breadcrumb_path');
+export function scrapeBreadcrumbs(doc: Document = document): BreadcrumbItem[] {
+  const container = doc.querySelector('#bread_crumbs, .breadcrumb, .breadcrumbs, nav[aria-label="breadcrumb"], .breadcrumb_path');
   if (!container) return [];
 
   const items: BreadcrumbItem[] = [];
@@ -568,8 +568,8 @@ export async function fetchMoreProducts(url: string): Promise<{ products: Produc
 }
 
 /** Scrape category page title */
-export function scrapeCategoryTitle(): string {
-  const el = document.querySelector('h1, .category_title, .page_title, .store_category_title');
+export function scrapeCategoryTitle(doc: Document = document): string {
+  const el = doc.querySelector('h1, .category_title, .page_title, .store_category_title');
   return el?.textContent?.trim() || '';
 }
 
@@ -579,11 +579,11 @@ export interface KonimboCategory {
 }
 
 /** Scrape navigation categories from Konimbo DOM */
-export function scrapeCategories(): KonimboCategory[] {
+export function scrapeCategories(doc: Document = document): KonimboCategory[] {
   const cats: KonimboCategory[] = [];
   const seen = new Set<string>();
 
-  const links = document.querySelectorAll('.store_categories a[href], .category_menu a[href], .main_menu a[href]');
+  const links = doc.querySelectorAll('.store_categories a[href], .category_menu a[href], .main_menu a[href]');
   links.forEach((a) => {
     const title = a.textContent?.trim() || '';
     const rawHref = a.getAttribute('href') || '';
@@ -596,9 +596,9 @@ export function scrapeCategories(): KonimboCategory[] {
 }
 
 /** Scrape category groups (top-level sections like "מחשבים נייחים", "מעבדים") */
-export function scrapeCategoryGroups(): { group: string; items: KonimboCategory[] }[] {
+export function scrapeCategoryGroups(doc: Document = document): { group: string; items: KonimboCategory[] }[] {
   const groups: { group: string; items: KonimboCategory[] }[] = [];
-  const groupEls = document.querySelectorAll(
+  const groupEls = doc.querySelectorAll(
     '.store_categories .store_category_group_title, .category_group_title'
   );
 
@@ -631,7 +631,7 @@ export function scrapeCategoryGroups(): { group: string; items: KonimboCategory[
  *  Works on the blog list page (.layout_list_item.item) and also
  *  on home-page blog widgets (.homepage_blog, .blog_widget, etc.)
  */
-export function scrapeBlogPosts(): BlogPostItem[] {
+export function scrapeBlogPosts(doc: Document = document): BlogPostItem[] {
   const posts: BlogPostItem[] = [];
 
   // Selectors tried in order — first one that yields items wins
@@ -645,7 +645,7 @@ export function scrapeBlogPosts(): BlogPostItem[] {
 
   let items: NodeListOf<Element> | null = null;
   for (const sel of candidateSelectors) {
-    const found = document.querySelectorAll(sel);
+    const found = doc.querySelectorAll(sel);
     if (found.length > 0) { items = found; break; }
   }
   if (!items) return posts;
@@ -680,14 +680,14 @@ export function scrapeBlogPosts(): BlogPostItem[] {
 }
 
 /** Scrape a single blog post detail page */
-export function scrapeBlogPostDetail(): BlogPostDetail | null {
-  const titleEl = document.querySelector('h1, .item_title, .product-title');
+export function scrapeBlogPostDetail(doc: Document = document): BlogPostDetail | null {
+  const titleEl = doc.querySelector('h1, .item_title, .product-title');
   const title = titleEl?.textContent?.trim() || '';
   if (!title) return null;
 
   // Images — same cascade as scrapeItemDetail: prefer #lightSlider (full-res), then fallbacks
   let image = '';
-  const lightSliderFirst = document.querySelector('#lightSlider li');
+  const lightSliderFirst = doc.querySelector('#lightSlider li');
   if (lightSliderFirst) {
     const src =
       lightSliderFirst.getAttribute('data-src') ||
@@ -696,7 +696,7 @@ export function scrapeBlogPostDetail(): BlogPostDetail | null {
     if (src && !src.includes('placeholder') && !src.includes('blank')) image = src;
   }
   if (!image) {
-    const imgEl = document.querySelector(
+    const imgEl = doc.querySelector(
       '#main_photo, .item_image img, .product-gallery img, img.img-responsive, ' +
       '.item_show_images img, .item_single_images img, .blog_post img, article img, main img'
     ) as HTMLImageElement | null;
@@ -707,11 +707,11 @@ export function scrapeBlogPostDetail(): BlogPostDetail | null {
       imgEl?.getAttribute('src') || '';
   }
 
-  const dateEl = document.querySelector('.date, .item_date, .created_at, time[datetime], .published_at');
+  const dateEl = doc.querySelector('.date, .item_date, .created_at, time[datetime], .published_at');
   const date = dateEl?.textContent?.trim() || '';
 
   // Content — try Konimbo's standard product desc selector first, then blog-specific fallbacks
-  const contentEl = document.querySelector(
+  const contentEl = doc.querySelector(
     '#item_content .desc, .item_description, .product-description, .item_body, .description, ' +
     '.item_content, .blog_post_content, .post_content, .blog_content, .blog_post .content, ' +
     'article .content, [class*="blog"] .content, [class*="post"] .content'
@@ -739,11 +739,11 @@ export interface FilterGroup {
  * and `.group_values` anchors with pre-built filtered URLs.
  * Selecting a filter navigates to Konimbo's filtered URL (server-side filtering).
  */
-export function scrapeFilterGroups(): FilterGroup[] {
+export function scrapeFilterGroups(doc: Document = document): FilterGroup[] {
   const groups: FilterGroup[] = [];
 
   // Primary: Konimbo subcategory pages — .show_filters .group
-  const groupEls = document.querySelectorAll('.show_filters .group');
+  const groupEls = doc.querySelectorAll('.show_filters .group');
   groupEls.forEach((groupEl, idx) => {
     const titleEl = groupEl.querySelector('b');
     const title = titleEl?.textContent?.trim() || '';
@@ -770,7 +770,7 @@ export function scrapeFilterGroups(): FilterGroup[] {
     '.filter_list .filter_group',
   ];
   for (const sel of altSelectors) {
-    document.querySelectorAll(sel).forEach((groupEl, idx) => {
+    doc.querySelectorAll(sel).forEach((groupEl, idx) => {
       const titleEl = groupEl.querySelector(
         '.filter_group_title, .store_filter_group_title, h3, h4, b'
       );
@@ -795,10 +795,10 @@ export function scrapeFilterGroups(): FilterGroup[] {
 }
 
 /** Scrape banner carousel slides from Konimbo Splide modules */
-export function scrapeBanners(): BannerData {
+export function scrapeBanners(doc: Document = document): BannerData {
   function extractSlides(containerSelector: string): BannerSlide[] {
     const slides: BannerSlide[] = [];
-    const container = document.querySelector(containerSelector);
+    const container = doc.querySelector(containerSelector);
     if (!container) return slides;
 
     const slideEls = container.querySelectorAll(

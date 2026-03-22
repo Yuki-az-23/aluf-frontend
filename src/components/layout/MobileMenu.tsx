@@ -49,10 +49,6 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
           <Icon name="handyman" className="text-primary" />
           <span>{t('nav.lab')}</span>
         </a>
-        <a href="https://alufshop.konimbo.co.il" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary font-bold text-lg">
-          <Icon name="local_offer" />
-          <span>{t('nav.deals')}</span>
-        </a>
       </nav>
 
       <div className="p-4 border-t border-header-border space-y-4">

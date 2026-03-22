@@ -4,6 +4,15 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      '/konimbo-live': {
+        target: 'https://alufshop.konimbo.co.il',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/konimbo-live/, ''),
+      },
+    },
+  },
   resolve: {
     alias: { '@': resolve(__dirname, 'src') },
   },
