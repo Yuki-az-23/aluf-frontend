@@ -96,7 +96,18 @@ export function CategoryPage() {
   const handleSortChange = (s: SortOption) => setSort(s);
 
   // ── Routing ──
-  const tCat = (name: string) => t('cat.' + name) !== 'cat.' + name ? t('cat.' + name) : name;
+  const tCat = (name: string) => {
+    const exact = t('cat.' + name);
+    if (exact !== 'cat.' + name) return exact;
+    // Handle Konimbo's " - במלאי" in-stock suffix (e.g. "מחשבי MiniPC - במלאי")
+    const suffixMatch = name.match(/^(.+?)\s*-\s*במלאי\s*$/);
+    if (suffixMatch) {
+      const base = t('cat.' + suffixMatch[1]);
+      const inStock = t('cat.במלאי');
+      return (base !== 'cat.' + suffixMatch[1] ? base : suffixMatch[1]) + ' - ' + (inStock !== 'cat.במלאי' ? inStock : 'במלאי');
+    }
+    return name;
+  };
   // Breadcrumb labels: try cat. first, then breadcrumb. (covers scraped home labels like "בית"), then original
   const tBreadcrumb = (label: string) => {
     const cat = t('cat.' + label);
