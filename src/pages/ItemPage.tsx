@@ -13,9 +13,12 @@ import cartSoundUrl from '@/assets/add2cart.mp3';
 
 const cartSound = new Audio(cartSoundUrl);
 
-/** Extract warranty from specRows (row whose label contains "אחריות") */
+/** Extract warranty from specRows — matches Hebrew, English, and Russian label variants */
 function extractWarrantyFromSpecs(specRows: { label: string; value: string }[]): string {
-  const row = specRows.find(r => r.label.includes('אחריות'));
+  const row = specRows.find(r => {
+    const l = r.label.toLowerCase();
+    return l.includes('אחריות') || l.includes('warranty') || l.includes('гарантия');
+  });
   return row ? row.value : '';
 }
 
@@ -181,9 +184,9 @@ export function ItemPage() {
   };
 
   const effectiveWarranty =
-    itemDetail.warranty ||
     extractWarrantyFromSpecs(displaySpecRows) ||
-    'שנה אחת באחריות יבואן';
+    itemDetail.warranty ||
+    '';
 
   const discount = itemDetail.originalPrice
     ? Math.round((1 - itemDetail.price / itemDetail.originalPrice) * 100)
@@ -300,11 +303,13 @@ export function ItemPage() {
               </div>
 
               {/* Warranty badge */}
-              <div className="mt-4 flex items-center gap-2 text-sm text-text-main bg-card-bg rounded-lg px-3 py-2 border border-border-light">
-                <Icon name="verified_user" className="text-primary text-base flex-shrink-0" />
-                <span className="font-medium">{t('warranty.label')}:</span>
-                <span>{translateWarranty(effectiveWarranty, lang, t)}</span>
-              </div>
+              {effectiveWarranty && (
+                <div className="mt-4 flex items-center gap-2 text-sm text-text-main bg-card-bg rounded-lg px-3 py-2 border border-border-light">
+                  <Icon name="verified_user" className="text-primary text-base flex-shrink-0" />
+                  <span className="font-medium">{t('warranty.label')}:</span>
+                  <span>{translateWarranty(effectiveWarranty, lang, t)}</span>
+                </div>
+              )}
 
               {/* Trust badges */}
               <div className="flex items-center justify-around mt-4 pt-4 border-t border-border-light text-xs text-text-muted">

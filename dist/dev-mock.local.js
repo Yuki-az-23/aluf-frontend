@@ -290,4 +290,71 @@ const DATA_BY_TYPE = {
 window.__ALUF_SCRAPED__ = DATA_BY_TYPE[PAGE_TYPE] || DATA_BY_TYPE['home'];
 window.__ALUF_DEV_PAGE_TYPE__ = PAGE_TYPE;
 
+// ─── Inject #multilingual_context for item page testing ──────────────────
+// Simulates the pipeline-injected div so multilingual title/spec/faq work
+// in all three languages without needing a live Konimbo page.
+if (PAGE_TYPE === 'item') {
+  const MULTILINGUAL_CONTEXT = {
+    heb: {
+      title: 'Lenovo V15 מחשב נייד — AMD Athlon Silver 7120U | 8GB | 256GB NVMe | 15.6"',
+      spec: [
+        { key: 'מעבד', value: 'AMD Athlon Silver 7120U — 2 ליבות, עד 3.5GHz' },
+        { key: 'זיכרון RAM', value: '8GB DDR4-3200MHz' },
+        { key: 'אחסון', value: '256GB M.2 NVMe SSD' },
+        { key: 'מסך', value: '15.6" FHD (1920×1080) IPS Anti-Glare' },
+        { key: 'כרטיס גרפי', value: 'AMD Radeon 610M (משולב)' },
+        { key: 'מערכת הפעלה', value: 'Windows 11 Home' },
+        { key: 'אחריות', value: '1 שנה אחריות יצרן' },
+      ],
+      faq: [
+        { question: 'האם המחשב מגיע עם Windows?', answer: 'כן, המחשב מגיע עם Windows 11 Home מותקן ומורשה.' },
+        { question: 'האם ניתן לשדרג את הזיכרון?', answer: 'כן, ניתן לשדרג עד 16GB RAM.' },
+        { question: 'כמה שעות סוללה?', answer: 'עד 7.5 שעות בשימוש רגיל.' },
+      ],
+    },
+    eng: {
+      title: 'Lenovo V15 Laptop — AMD Athlon Silver 7120U | 8GB | 256GB NVMe | 15.6"',
+      spec: [
+        { key: 'CPU', value: 'AMD Athlon Silver 7120U — 2 cores, up to 3.5GHz' },
+        { key: 'RAM', value: '8GB DDR4-3200MHz' },
+        { key: 'Storage', value: '256GB M.2 NVMe SSD' },
+        { key: 'Display', value: '15.6" FHD (1920×1080) IPS Anti-Glare' },
+        { key: 'GPU', value: 'AMD Radeon 610M (integrated)' },
+        { key: 'OS', value: 'Windows 11 Home' },
+        { key: 'Warranty', value: '1-year manufacturer warranty' },
+      ],
+      faq: [
+        { question: 'Does it come with Windows?', answer: 'Yes, it comes with Windows 11 Home pre-installed and licensed.' },
+        { question: 'Can I upgrade the RAM?', answer: 'Yes, upgradeable up to 16GB RAM.' },
+        { question: 'How long is the battery life?', answer: 'Up to 7.5 hours of regular use.' },
+      ],
+    },
+    rus: {
+      title: 'Ноутбук Lenovo V15 — AMD Athlon Silver 7120U | 8GB | 256GB NVMe | 15.6"',
+      spec: [
+        { key: 'Процессор', value: 'AMD Athlon Silver 7120U — 2 ядра, до 3.5GHz' },
+        { key: 'Память', value: '8GB DDR4-3200MHz' },
+        { key: 'Хранилище', value: '256GB M.2 NVMe SSD' },
+        { key: 'Экран', value: '15.6" FHD (1920×1080) IPS Anti-Glare' },
+        { key: 'Видеокарта', value: 'AMD Radeon 610M (встроенная)' },
+        { key: 'ОС', value: 'Windows 11 Home' },
+        { key: 'Гарантия', value: '1 год гарантии производителя' },
+      ],
+      faq: [
+        { question: 'Поставляется ли с Windows?', answer: 'Да, поставляется с предустановленной и лицензированной Windows 11 Home.' },
+        { question: 'Можно ли увеличить оперативную память?', answer: 'Да, можно увеличить до 16GB RAM.' },
+        { question: 'Сколько часов работает батарея?', answer: 'До 7.5 часов при обычном использовании.' },
+      ],
+    },
+  };
+
+  const div = document.createElement('div');
+  div.id = 'multilingual_context';
+  div.style.display = 'none';
+  div.setAttribute('aria-hidden', 'true');
+  div.textContent = JSON.stringify(MULTILINGUAL_CONTEXT);
+  document.body.appendChild(div);
+  console.info('[aluf-dev] #multilingual_context injected with heb/eng/rus data');
+}
+
 console.info('[aluf-dev] Mock data injected — page type:', PAGE_TYPE);

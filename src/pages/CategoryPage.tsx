@@ -97,9 +97,17 @@ export function CategoryPage() {
 
   // ── Routing ──
   const tCat = (name: string) => t('cat.' + name) !== 'cat.' + name ? t('cat.' + name) : name;
+  // Breadcrumb labels: try cat. first, then breadcrumb. (covers scraped home labels like "בית"), then original
+  const tBreadcrumb = (label: string) => {
+    const cat = t('cat.' + label);
+    if (cat !== 'cat.' + label) return cat;
+    const bc = t('breadcrumb.' + label);
+    if (bc !== 'breadcrumb.' + label) return bc;
+    return label;
+  };
 
   const crumbs = breadcrumbs.length > 0
-    ? breadcrumbs.map(b => ({ ...b, label: tCat(b.label) }))
+    ? breadcrumbs.map(b => ({ ...b, label: tBreadcrumb(b.label) }))
     : [{ label: t('breadcrumb.home'), href: '/' }, { label: tCat(pageTitle) || '' }];
 
   const breadcrumbSchema = {

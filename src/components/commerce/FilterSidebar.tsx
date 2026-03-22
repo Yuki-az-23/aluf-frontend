@@ -53,6 +53,7 @@ interface FilterSidebarProps {
 export function FilterSidebar({ products, filters, onChange, filterGroups = [], mobileOpen = false, onMobileClose }: FilterSidebarProps) {
   const { t, dir } = useLang();
   const tCat = (name: string) => t('cat.' + name) !== 'cat.' + name ? t('cat.' + name) : name;
+  const tFilter = (title: string) => t('filter.' + title) !== 'filter.' + title ? t('filter.' + title) : title;
   const allBrands = Array.from(new Set(products.map(p => p.category))).filter(Boolean).sort();
   const prices = products.map(p => p.price);
   const globalMin = prices.length ? Math.min(...prices) : 0;
@@ -120,7 +121,7 @@ export function FilterSidebar({ products, filters, onChange, filterGroups = [], 
       {/* Konimbo URL-redirect filter groups — clicking navigates to Konimbo's server-filtered URL */}
       {filterGroups.map(group => (
         <div key={group.id} className="mb-6">
-          <h3 className="font-bold text-sm mb-3">{t('filter.' + group.title) !== 'filter.' + group.title ? t('filter.' + group.title) : group.title}</h3>
+          <h3 className="font-bold text-sm mb-3">{tFilter(group.title)}</h3>
           <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
             {group.options.map(option => {
               const active = isActiveFilter(option.href);
