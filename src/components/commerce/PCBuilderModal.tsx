@@ -60,8 +60,25 @@ export function PCBuilderModal({ isOpen, onClose }: PCBuilderModalProps) {
     function onMessage(e: MessageEvent) {
       const data = e.data;
       if (!data || typeof data.type !== 'string') return;
-      if (data.type === 'ADD_TO_CART' && data.payload?.products) {
-        handleAddToCart(data.payload.products, data.payload.totalPrice ?? 0);
+      
+      switch (data.type) {
+        case 'CONFIGURATOR_READY':
+          if (window.location.hostname.includes('alufshop.konimbo.co.il')) {
+            sendToIframe('ADMIN_MODE', {});
+          }
+          break;
+        case 'ADD_TO_CART':
+          if (data.payload?.products) {
+            handleAddToCart(data.payload.products, data.payload.totalPrice ?? 0);
+          }
+          break;
+        case 'BUILD_PUBLISHED':
+          alert(t('pcbuilder.modal.successPublish'));
+          setTimeout(() => { onClose(); window.location.reload(); }, 1500);
+          break;
+        case 'BUILD_PUBLISH_ERROR':
+          alert(data.payload?.message || t('pcbuilder.modal.errorPublish'));
+          break;
       }
     }
     window.addEventListener('message', onMessage);

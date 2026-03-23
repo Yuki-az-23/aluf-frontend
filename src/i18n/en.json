@@ -241,6 +241,8 @@
   "pcbuilder.modal.title": "🖥️ Custom PC Builder",
   "pcbuilder.modal.subtitle": "Start with a part you know, we'll help with the rest",
   "pcbuilder.modal.loading": "Loading...",
+  "pcbuilder.modal.successPublish": "Build published successfully! Refreshing...",
+  "pcbuilder.modal.errorPublish": "Error publishing build",
   "warranty.label": "Warranty",
   "warranty.onsite": "On-site",
   "warranty.depot": "Depot",

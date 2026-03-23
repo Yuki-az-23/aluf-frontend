@@ -241,6 +241,8 @@
   "pcbuilder.modal.title": "🖥️ Сборка ПК",
   "pcbuilder.modal.subtitle": "Начните с известной детали, с остальным мы поможем",
   "pcbuilder.modal.loading": "Загрузка...",
+  "pcbuilder.modal.successPublish": "Сборка опубликована! Обновление...",
+  "pcbuilder.modal.errorPublish": "Ошибка при публикации сборки",
   "item.freeShippingTooltip": "Бесплатная доставка только в центр страны",
   "item.disclaimer": "Компания оставляет за собой право отменить заказ в случае доказанной ошибки в цене или описании товара. Изображения носят иллюстративный характер.",
   "warranty.label": "Гарантия",

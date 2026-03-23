@@ -228,6 +228,8 @@
   "pcbuilder.modal.title": "🖥️ בנה מחשב מותאם אישית",
   "pcbuilder.modal.subtitle": "תתחיל מרכיב שאתה מכיר, בשאר נעזור לך",
   "pcbuilder.modal.loading": "טוען...",
+  "pcbuilder.modal.successPublish": "הרכבה פורסמה בהצלחה! מרענן...",
+  "pcbuilder.modal.errorPublish": "שגיאה בפרסום ההרכבה",
   "warranty.label": "אחריות",
   "warranty.onsite": "בבית הלקוח",
   "warranty.depot": "החזרה למעבדה",
