@@ -4,6 +4,7 @@ import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ProductCard } from '@/components/commerce/ProductCard';
 import { FilterSidebar, applyFilters, type FilterState } from '@/components/commerce/FilterSidebar';
 import { SortBar, applySorting, type SortOption, type ViewMode } from '@/components/commerce/SortBar';
+import { Spinner } from '@/components/ui/Spinner';
 import { useStoreData } from '@/lib/StoreDataContext';
 import { useLang } from '@/i18n';
 import { getNextPageUrl, fetchMoreProducts } from '@/lib/konimbo-scraper';
@@ -153,7 +154,22 @@ export function ItemsGridPage() {
 
       {products.length === 0 ? (
         <div className="py-8">
-          <p className="text-center text-text-muted mb-8 text-lg">{t('products.loading')}</p>
+          <div className="flex flex-col items-center gap-4 mb-10">
+            <Spinner size="lg" />
+            <p className="text-text-muted text-sm">{t('products.loading')}</p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="bg-card-bg rounded-xl border border-border-light overflow-hidden animate-pulse">
+                <div className="aspect-square bg-border-light" />
+                <div className="p-4 space-y-2">
+                  <div className="h-4 bg-border-light rounded w-4/5" />
+                  <div className="h-3 bg-border-light rounded w-2/3" />
+                  <div className="h-6 bg-border-light rounded w-1/2 mt-2" />
+                </div>
+              </div>
+            ))}
+          </div>
           {categories.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mt-6">
               {categories.slice(0, 12).map(cat => (
@@ -211,7 +227,10 @@ export function ItemsGridPage() {
 
             {/* Background fetch indicator */}
             {loadingMore && (
-              <p className="text-center text-text-muted py-4 text-sm">{t('products.loading')}</p>
+              <div className="flex items-center justify-center gap-3 py-6">
+                <Spinner size="sm" />
+                <span className="text-text-muted text-sm">{t('products.loading')}</span>
+              </div>
             )}
 
             {/* Manual "load more" fallback for users who disable JS intersection */}
