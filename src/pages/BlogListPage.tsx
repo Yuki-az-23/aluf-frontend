@@ -15,7 +15,7 @@ export function BlogListPage() {
     <Container className="py-8">
       <Breadcrumbs items={crumbs} className="mb-4" />
 
-      <h1 className="text-3xl font-black text-text-main mb-8 text-right">
+      <h1 className="text-3xl font-black text-text-main mb-8 text-start">
         {pageTitle || t('blog.title')}
       </h1>
 

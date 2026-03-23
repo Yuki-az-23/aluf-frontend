@@ -35,7 +35,7 @@ export function Footer() {
   return (
     <footer dir={dir} className="bg-header-bg border-t border-border-light mt-auto text-text-main">
       <Container className="py-12">
-        <div className="flex flex-col md:flex-row-reverse justify-between gap-12 text-start">
+        <div className={`flex flex-col ${dir === 'rtl' ? 'md:flex-row-reverse' : 'md:flex-row'} justify-between gap-12 text-start`}>
 
           {/* Brand */}
           <div className="md:w-1/3">
