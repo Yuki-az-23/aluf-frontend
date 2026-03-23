@@ -222,10 +222,32 @@ export function ItemsGridPage() {
               <p className="text-center text-text-muted py-16">{t('products.empty')}</p>
             )}
 
+            {/* Skeleton cards shown while more items are waiting to appear on scroll */}
+            {hasMoreDisplay && (
+              <div className={`mt-3 sm:mt-6 ${
+                view === 'grid'
+                  ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6'
+                  : view === 'strip'
+                  ? 'grid grid-cols-1 md:grid-cols-2 gap-2'
+                  : 'flex flex-col gap-4'
+              }`}>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="bg-card-bg rounded-xl border border-border-light overflow-hidden animate-pulse">
+                    <div className="aspect-square bg-border-light" />
+                    <div className="p-4 space-y-2">
+                      <div className="h-4 bg-border-light rounded w-4/5" />
+                      <div className="h-3 bg-border-light rounded w-2/3" />
+                      <div className="h-6 bg-border-light rounded w-1/2 mt-2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Sentinel — always in DOM so the observer never needs to reconnect */}
             <div ref={sentinelRef} className="h-1" />
 
-            {/* Background fetch indicator */}
+            {/* Background HTTP fetch indicator */}
             {loadingMore && (
               <div className="flex items-center justify-center gap-3 py-6">
                 <Spinner size="sm" />
