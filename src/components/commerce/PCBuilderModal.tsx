@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLang } from '@/i18n';
 
 const PC_BUILDER_URL = 'https://pcbuilder101.vercel.app';
 
@@ -30,6 +31,7 @@ function getCookieDomain(): string {
 }
 
 export function PCBuilderModal({ isOpen, onClose }: PCBuilderModalProps) {
+  const { dir } = useLang();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeCreated, setIframeCreated] = useState(false);
@@ -133,7 +135,7 @@ export function PCBuilderModal({ isOpen, onClose }: PCBuilderModalProps) {
         {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-4 flex-shrink-0 shadow-lg"
-          style={{ background: 'linear-gradient(135deg, #030213 0%, #1a1927 100%)', direction: 'rtl' }}
+          style={{ background: 'linear-gradient(135deg, #030213 0%, #1a1927 100%)', direction: dir }}
         >
           <div>
             <h2 className="text-2xl font-bold m-0" style={{ color: '#ff8c42' }}>🖥️ בנה מחשב מותאם אישית</h2>

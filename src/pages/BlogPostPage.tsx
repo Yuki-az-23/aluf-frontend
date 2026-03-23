@@ -4,7 +4,7 @@ import { useStoreData } from '@/lib/StoreDataContext';
 import { useLang } from '@/i18n';
 
 export function BlogPostPage() {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   const { blogPostDetail, breadcrumbs } = useStoreData();
 
   if (!blogPostDetail) {
@@ -27,7 +27,7 @@ export function BlogPostPage() {
     <Container className="py-8">
       <Breadcrumbs items={crumbs} className="mb-6" />
 
-      <article dir="rtl" className="max-w-3xl mx-auto">
+      <article dir={dir} className="max-w-3xl mx-auto">
         <h1 className="text-3xl lg:text-4xl font-black text-text-main mb-4">
           {blogPostDetail.title}
         </h1>

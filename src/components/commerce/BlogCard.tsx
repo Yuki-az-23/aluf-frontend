@@ -7,7 +7,7 @@ interface BlogCardProps {
 }
 
 export function BlogCard({ post, featured = false }: BlogCardProps) {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   const href = post.href || '/632283-%D7%91%D7%9C%D7%95%D7%92';
 
   if (featured) {
@@ -25,14 +25,14 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
             decoding="async"
           />
         </div>
-        <div className="flex-1 p-6 flex flex-col justify-center text-right">
-          <span className="inline-flex items-center gap-1 text-xs font-bold bg-primary text-white px-2 py-0.5 rounded mb-3 w-fit mr-auto">
-            חם בחנות
+        <div className="flex-1 p-6 flex flex-col justify-center text-start">
+          <span className="inline-flex items-center gap-1 text-xs font-bold bg-primary text-white px-2 py-0.5 rounded mb-3 w-fit ms-auto">
+            {t('blog.hot')}
           </span>
           <span className="text-xs text-text-muted mb-2">{post.date}</span>
           <h3 className="font-black text-xl text-text-main mb-3 leading-snug">{post.title}</h3>
           <p className="text-sm text-text-muted line-clamp-3 mb-4">{post.excerpt}</p>
-          <span className="text-primary font-bold text-sm">{t('blog.readMore')} &larr;</span>
+          <span className="text-primary font-bold text-sm">{t('blog.readMore')} {dir === 'rtl' ? '←' : '→'}</span>
         </div>
       </a>
     );
@@ -56,7 +56,7 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
         <span className="text-xs text-text-muted">{post.date}</span>
         <h3 className="font-bold text-base text-text-main mt-1 mb-2 line-clamp-2">{post.title}</h3>
         <p className="text-sm text-text-muted line-clamp-2">{post.excerpt}</p>
-        <span className="text-primary font-bold text-sm mt-3 inline-block">{t('blog.readMore')} &larr;</span>
+        <span className="text-primary font-bold text-sm mt-3 inline-block">{t('blog.readMore')} {dir === 'rtl' ? '←' : '→'}</span>
       </div>
     </a>
   );

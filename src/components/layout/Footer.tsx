@@ -31,9 +31,9 @@ const serviceLinks: { key: string; href: string; bold?: boolean; external?: bool
 ];
 
 export function Footer() {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   return (
-    <footer className="bg-header-bg border-t border-border-light mt-auto text-text-main">
+    <footer dir={dir} className="bg-header-bg border-t border-border-light mt-auto text-text-main">
       <Container className="py-12">
         <div className="flex flex-col md:flex-row-reverse justify-between gap-12 text-start">
 
