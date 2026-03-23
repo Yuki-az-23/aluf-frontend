@@ -93,7 +93,7 @@ export function SearchInput({ className }: SearchInputProps) {
           onKeyDown={handleKeyDown}
           placeholder={t('header.search')}
           autoComplete="off"
-          className={`w-full bg-header-bg border border-primary/60 rounded-md py-2.5 placeholder-header-text-muted focus:ring-1 focus:ring-primary focus:border-primary transition-all shadow-inner text-sm text-header-text ${dir === 'rtl' ? 'pr-4 pl-12 text-right' : 'pl-4 pr-12 text-left'}`}
+          className={`w-full bg-header-bg border border-primary/50 rounded-md py-2.5 placeholder-header-text-muted ring-1 ring-primary/25 hover:ring-2 hover:ring-primary/45 focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-inner text-sm text-header-text ${dir === 'rtl' ? 'pr-4 pl-12 text-right' : 'pl-4 pr-12 text-left'}`}
         />
         <button type="submit" className={`absolute top-2.5 text-header-text-muted group-focus-within:text-primary ${dir === 'rtl' ? 'left-3' : 'right-3'}`}>
           <Icon name="search" />

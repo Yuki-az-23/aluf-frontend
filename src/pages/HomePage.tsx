@@ -210,7 +210,7 @@ export function HomePage() {
                       </div>
                     </div>
                   ))
-                : blogPosts.slice(0, 6).map(post => <BlogCard key={post.id} post={post} />)
+                : blogPosts.slice(0, 3).map(post => <BlogCard key={post.id} post={post} />)
               }
             </div>
           </Container>
@@ -230,13 +230,13 @@ export function HomePage() {
                 <div className="flex flex-col gap-3 md:flex-row md:items-center">
                   <input type="text" value={nlName} onChange={e => setNlName(e.target.value)}
                     placeholder={t('newsletter.namePlaceholder')}
-                    className="flex-1 px-4 py-3 rounded-xl border border-primary/60 text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
+                    className="flex-1 px-4 py-3 rounded-xl border border-primary/50 text-text-main text-sm ring-1 ring-primary/25 hover:ring-2 hover:ring-primary/45 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-input-bg" />
                   <input type="email" value={nlEmail} onChange={e => setNlEmail(e.target.value)}
                     placeholder={t('newsletter.placeholder')}
-                    className="flex-1 px-4 py-3 rounded-xl border border-primary/60 text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
+                    className="flex-1 px-4 py-3 rounded-xl border border-primary/50 text-text-main text-sm ring-1 ring-primary/25 hover:ring-2 hover:ring-primary/45 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-input-bg" />
                   <input type="tel" value={nlPhone} onChange={e => setNlPhone(e.target.value)}
                     placeholder={t('newsletter.phonePlaceholder')} dir="ltr"
-                    className="flex-1 px-4 py-3 rounded-xl border border-primary/60 text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg" />
+                    className="flex-1 px-4 py-3 rounded-xl border border-primary/50 text-text-main text-sm ring-1 ring-primary/25 hover:ring-2 hover:ring-primary/45 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-input-bg" />
                   <Button variant="primary" size="md" className="flex-shrink-0">{t('newsletter.submit')}</Button>
                 </div>
                 {nlError && <p className="text-red-500 text-xs text-start">{nlError}</p>}
