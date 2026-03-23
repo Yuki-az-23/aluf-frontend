@@ -17,7 +17,7 @@
         iframeUrl: 'https://pcbuilder101.vercel.app',
 
         // Debug mode
-        debug: true
+        debug: false
     };
 
     // Override config from global if exists
