@@ -5,6 +5,8 @@ export interface TierConfig {
   color: string;
   /** Link to the Konimbo product page — populated when tiers are fetched live */
   href?: string;
+  /** Product image URL */
+  image?: string;
 }
 
 export const gamingTiers: TierConfig[] = [

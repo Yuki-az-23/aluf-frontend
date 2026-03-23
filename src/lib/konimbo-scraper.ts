@@ -840,6 +840,7 @@ export interface TierProduct {
   price: number;
   specs: string[];
   href: string;
+  image: string;
 }
 
 /**
@@ -870,7 +871,7 @@ export async function fetchTierProducts(tag = 'gaming-tier'): Promise<TierProduc
       const specs = descText
         ? descText.split(/\s*\|\s*|\n/).map(s => s.trim()).filter(Boolean)
         : (p.specs ?? []);
-      return { title: p.title, price: p.price, specs, href: p.href ?? '' };
+      return { title: p.title, price: p.price, specs, href: p.href ?? '', image: p.image };
     });
   } catch {
     return [];

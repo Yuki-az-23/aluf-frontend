@@ -90,6 +90,7 @@ export function HomePage() {
         price: t.price,
         specs: t.specs,
         href: t.href,
+        image: t.image,
         color: TIER_COLORS[i] ?? TIER_COLORS[0],
       })));
     }).finally(() => setTiersLoading(false));
@@ -174,6 +175,9 @@ export function HomePage() {
               ? Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="bg-card-bg rounded-xl border border-border-light overflow-hidden animate-pulse">
                     <div className="h-2 bg-border-light" />
+                    <div className="px-6 pt-6 flex justify-center">
+                      <div className="h-40 w-32 bg-border-light rounded" />
+                    </div>
                     <div className="p-6 space-y-3">
                       <div className="h-6 w-2/3 bg-border-light rounded" />
                       <div className="h-8 w-1/2 bg-border-light rounded" />
