@@ -52,7 +52,7 @@ function GroupBadge({ name }: { name: string }) {
 }
 
 export function CategoryPage() {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   const { categories, products, breadcrumbs, pageTitle, categoryGroups, filterGroups } = useStoreData();
 
   // ── Filter / sort / view state — hooks must be top-level (before any early returns) ──
@@ -202,7 +202,7 @@ export function CategoryPage() {
           <PageMeta title={pageTitle || t('site.name')} jsonLd={breadcrumbSchema} />
           <Breadcrumbs items={crumbs} className="mb-4" />
           {pageTitle && (
-            <h1 className="text-3xl font-black text-text-main mb-8 text-start">{tCat(pageTitle)}</h1>
+            <h1 className={`text-3xl font-black text-text-main mb-8 ${dir === 'rtl' ? 'text-right' : 'text-left'}`}>{tCat(pageTitle)}</h1>
           )}
           <div className={FLAT_GRID}>
             {flatItems.map(({ item, groupName, isFirst }) => (
@@ -236,7 +236,7 @@ export function CategoryPage() {
         <PageMeta title={pageTitle || t('site.name')} jsonLd={breadcrumbSchema} />
         <Breadcrumbs items={crumbs} className="mb-4" />
         {pageTitle && (
-          <h1 className="text-3xl font-black text-text-main mb-6 text-start">{tCat(pageTitle)}</h1>
+          <h1 className={`text-3xl font-black text-text-main mb-6 ${dir === 'rtl' ? 'text-right' : 'text-left'}`}>{tCat(pageTitle)}</h1>
         )}
         <p className="text-center text-text-muted py-16">{t('products.empty')}</p>
       </Container>

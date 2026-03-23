@@ -550,7 +550,7 @@ export function CartPage() {
 
                     {/* Title — click opens modal */}
                     <button type="button" onClick={() => setModalProduct(product)} className="text-right">
-                      <p className="text-xs font-semibold text-text-main leading-snug line-clamp-2 group-hover:text-primary transition-colors text-start">
+                      <p className={`text-xs font-semibold text-text-main leading-snug line-clamp-2 group-hover:text-primary transition-colors ${dir === 'rtl' ? 'text-right' : 'text-left'}`}>
                         {product.title}
                       </p>
                     </button>
@@ -585,7 +585,7 @@ export function CartPage() {
                 {(['delivery','pickup'] as const).map(opt => (
                   <button key={opt} type="button"
                     onClick={() => setShipping(opt)}
-                    className={`flex items-center gap-3 p-4 rounded-xl border-2 text-sm font-semibold transition-all text-start
+                    className={`flex items-center gap-3 p-4 rounded-xl border-2 text-sm font-semibold transition-all ${dir === 'rtl' ? 'text-right' : 'text-left'}
                       ${shipping===opt ? 'border-primary bg-primary/5 text-primary' : 'border-border-light text-text-muted hover:border-primary/40'}`}>
                     <Icon name={opt==='delivery' ? 'local_shipping' : 'store'} className={`text-2xl shrink-0 ${shipping===opt ? 'text-primary' : 'text-text-muted'}`} />
                     <span>

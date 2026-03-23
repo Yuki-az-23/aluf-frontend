@@ -4,7 +4,7 @@ import { useStoreData } from '@/lib/StoreDataContext';
 import { useLang } from '@/i18n';
 
 export function BlogListPage() {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   const { blogPosts, breadcrumbs, pageTitle } = useStoreData();
 
   const crumbs = breadcrumbs.length > 0
@@ -15,7 +15,7 @@ export function BlogListPage() {
     <Container className="py-8">
       <Breadcrumbs items={crumbs} className="mb-4" />
 
-      <h1 className="text-3xl font-black text-text-main mb-8 text-start">
+      <h1 className={`text-3xl font-black text-text-main mb-8 ${dir === 'rtl' ? 'text-right' : 'text-left'}`}>
         {pageTitle || t('blog.title')}
       </h1>
 

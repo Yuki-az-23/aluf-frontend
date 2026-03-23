@@ -33,13 +33,13 @@ const serviceLinks: { key: string; href: string; bold?: boolean; external?: bool
 export function Footer() {
   const { t, dir } = useLang();
   return (
-    <footer dir={dir} className="bg-header-bg border-t border-border-light mt-auto text-text-main">
+    <footer dir={dir} style={{ direction: dir }} className="bg-header-bg border-t border-border-light mt-auto text-text-main">
       <Container className="py-12">
-        <div className={`flex flex-col ${dir === 'rtl' ? 'md:flex-row-reverse' : 'md:flex-row'} justify-between gap-12 text-start`}>
+        <div style={{ direction: dir }} className={`flex flex-col ${dir === 'rtl' ? 'md:flex-row-reverse' : 'md:flex-row'} justify-between gap-12 ${dir === 'rtl' ? 'text-right' : 'text-left'}`}>
 
           {/* Brand */}
           <div className="md:w-1/3">
-            <div className="flex items-center gap-2 mb-4 justify-start">
+            <div className={`flex items-center gap-2 mb-4 ${dir === 'rtl' ? 'justify-end' : 'justify-start'}`}>
               <img
                 src={logoSrc}
                 alt={t('site.name')}
@@ -55,7 +55,7 @@ export function Footer() {
 
             {/* Social */}
             <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{t('footer.followUs')}</p>
-            <div className="flex gap-3 justify-start flex-wrap">
+            <div className={`flex gap-3 ${dir === 'rtl' ? 'justify-end' : 'justify-start'} flex-wrap`}>
               <a href="https://www.facebook.com/alufcomputers" target="_blank" rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-card-bg hover:bg-[#1877F2] flex items-center justify-center transition text-text-muted hover:text-white border border-border-light"
                 title="Facebook">
@@ -92,7 +92,7 @@ export function Footer() {
           </div>
 
           {/* Links */}
-          <div className="flex-grow flex flex-col sm:flex-row justify-start gap-10 md:gap-16">
+          <div className={`flex-grow flex flex-col sm:flex-row ${dir === 'rtl' ? 'justify-end' : 'justify-start'} gap-10 md:gap-16`}>
             <div>
               <h3 className="text-text-main font-bold mb-4 text-base">{t('footer.departments')}</h3>
               <ul className="space-y-2 text-sm text-text-muted">

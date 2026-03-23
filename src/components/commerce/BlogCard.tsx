@@ -25,7 +25,7 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
             decoding="async"
           />
         </div>
-        <div className="flex-1 p-6 flex flex-col justify-center text-start">
+        <div className={`flex-1 p-6 flex flex-col justify-center ${dir === 'rtl' ? 'text-right' : 'text-left'}`}>
           <span className="inline-flex items-center gap-1 text-xs font-bold bg-primary text-white px-2 py-0.5 rounded mb-3 w-fit ms-auto">
             {t('blog.hot')}
           </span>

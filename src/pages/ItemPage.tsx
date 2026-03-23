@@ -221,7 +221,7 @@ export function ItemPage() {
         <Breadcrumbs items={crumbs} className="mb-6" />
 
         {/* ── TOP SECTION: info panel + image ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12" dir={dir}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12" dir={dir} style={{ direction: dir }}>
 
           {/* Info Panel (start side) */}
           <div className="flex flex-col">
@@ -426,7 +426,7 @@ export function ItemPage() {
         </div>
 
         {/* ── BELOW FOLD: Spec table + Q&A ── */}
-        <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8" dir={dir}>
+        <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8" dir={dir} style={{ direction: dir }}>
 
           {/* Spec table */}
           <div>

@@ -189,7 +189,7 @@ export function WorkshopPage() {
   const inputCls = 'w-full rounded-lg border border-border-light bg-card-bg text-text-main px-4 py-2.5 text-sm placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary transition';
 
   return (
-    <div dir={dir}>
+    <div dir={dir} style={{ direction: dir }}>
 
       {/* ── 1. HERO ── */}
       <section className="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-12 sm:py-20">

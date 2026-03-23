@@ -18,7 +18,7 @@ interface OrdersListProps {
 }
 
 export function OrdersList({ rows, emptyKey, idLabel }: OrdersListProps) {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   if (rows.length === 0) {
@@ -38,10 +38,10 @@ export function OrdersList({ rows, emptyKey, idLabel }: OrdersListProps) {
       <table className="w-full text-sm">
         <thead className="bg-card-bg border-b border-border-light">
           <tr>
-            <th className="text-start px-4 py-3 font-bold text-text-muted text-xs uppercase tracking-wide">{idLabel}</th>
-            <th className="text-start px-4 py-3 font-bold text-text-muted text-xs uppercase tracking-wide">{t('account.orders.date')}</th>
-            <th className="text-start px-4 py-3 font-bold text-text-muted text-xs uppercase tracking-wide">{t('account.profile.name')}</th>
-            <th className="text-start px-4 py-3 font-bold text-text-muted text-xs uppercase tracking-wide">{t('account.orders.status')}</th>
+            <th className={`${dir === 'rtl' ? 'text-right' : 'text-left'} px-4 py-3 font-bold text-text-muted text-xs uppercase tracking-wide`}>{idLabel}</th>
+            <th className={`${dir === 'rtl' ? 'text-right' : 'text-left'} px-4 py-3 font-bold text-text-muted text-xs uppercase tracking-wide`}>{t('account.orders.date')}</th>
+            <th className={`${dir === 'rtl' ? 'text-right' : 'text-left'} px-4 py-3 font-bold text-text-muted text-xs uppercase tracking-wide`}>{t('account.profile.name')}</th>
+            <th className={`${dir === 'rtl' ? 'text-right' : 'text-left'} px-4 py-3 font-bold text-text-muted text-xs uppercase tracking-wide`}>{t('account.orders.status')}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border-light">

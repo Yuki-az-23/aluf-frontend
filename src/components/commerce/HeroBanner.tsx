@@ -11,7 +11,7 @@ interface HeroBannerProps {
 }
 
 export function HeroBanner({ banners }: HeroBannerProps) {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function HeroBanner({ banners }: HeroBannerProps) {
         <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] bg-[size:32px_32px]" />
         <Container className="py-16 md:py-24 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="text-start">
+            <div className={dir === 'rtl' ? 'text-right' : 'text-left'}>
               <div className="inline-flex items-center gap-2 bg-primary/20 text-primary px-4 py-2 rounded-full text-sm font-bold mb-6">
                 <Icon name="verified" className="text-base" />
                 {t('hero.badge')}
@@ -43,7 +43,7 @@ export function HeroBanner({ banners }: HeroBannerProps) {
               <p className="text-lg text-gray-300 mb-8 leading-relaxed">
                 {t('hero.subtitle')}
               </p>
-              <div className="flex flex-wrap gap-4 justify-start">
+              <div className={`flex flex-wrap gap-4 ${dir === 'rtl' ? 'justify-end' : 'justify-start'}`}>
                 <Button variant="primary" size="lg">
                   <Icon name="storefront" />
                   {t('hero.cta.shop')}
