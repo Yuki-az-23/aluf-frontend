@@ -31,7 +31,7 @@ function getCookieDomain(): string {
 }
 
 export function PCBuilderModal({ isOpen, onClose }: PCBuilderModalProps) {
-  const { dir } = useLang();
+  const { dir, lang, t } = useLang();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeCreated, setIframeCreated] = useState(false);
@@ -138,8 +138,8 @@ export function PCBuilderModal({ isOpen, onClose }: PCBuilderModalProps) {
           style={{ background: 'linear-gradient(135deg, #030213 0%, #1a1927 100%)', direction: dir }}
         >
           <div>
-            <h2 className="text-2xl font-bold m-0" style={{ color: '#ff8c42' }}>🖥️ בנה מחשב מותאם אישית</h2>
-            <p className="text-sm text-white/80 mt-1 m-0 hidden md:block">תתחיל מרכיב שאתה מכיר, בשאר נעזור לך</p>
+            <h2 className="text-2xl font-bold m-0" style={{ color: '#ff8c42' }}>{t('pcbuilder.modal.title')}</h2>
+            <p className="text-sm text-white/80 mt-1 m-0 hidden md:block">{t('pcbuilder.modal.subtitle')}</p>
           </div>
           <button
             onClick={onClose}
@@ -157,13 +157,13 @@ export function PCBuilderModal({ isOpen, onClose }: PCBuilderModalProps) {
           {!iframeLoaded && (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500 gap-4">
               <div className="w-12 h-12 rounded-full border-4 border-gray-200 border-t-primary animate-spin" />
-              <span>טוען...</span>
+              <span>{t('pcbuilder.modal.loading')}</span>
             </div>
           )}
           {iframeCreated && (
             <iframe
               ref={iframeRef}
-              src={PC_BUILDER_URL}
+              src={`${PC_BUILDER_URL}?lang=${lang}`}
               className="w-full h-full border-0 block"
               style={{ minWidth: '100%' }}
               onLoad={() => setIframeLoaded(true)}
