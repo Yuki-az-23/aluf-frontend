@@ -17,7 +17,7 @@
         iframeUrl: 'https://pcbuilder101.vercel.app',
 
         // Debug mode
-        debug: false
+        debug: true
     };
 
     // Override config from global if exists
@@ -527,7 +527,12 @@
             case 'CONFIGURATOR_READY':
                 logDebug('Configurator is ready');
                 if (window.location.hostname === 'alufshop.konimbo.co.il') {
-                    sendToIframe('ADMIN_MODE', {});
+                    if (iframeElement && iframeElement.contentWindow) {
+                        logDebug('Sending ADMIN_MODE to iframe:', iframeElement.src);
+                        sendToIframe('ADMIN_MODE', {});
+                    } else {
+                        logDebug('ADMIN_MODE not sent: iframeElement or contentWindow missing');
+                    }
                 }
                 break;
 
