@@ -2,9 +2,10 @@ import { Container } from '@/components/layout/Container';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { useStoreData } from '@/lib/StoreDataContext';
 import { useLang } from '@/i18n';
+import { langToKey } from '@/lib/parseBlogMultilingual';
 
 export function BlogListPage() {
-  const { t, dir } = useLang();
+  const { t, dir, lang } = useLang();
   const { blogPosts, breadcrumbs, pageTitle } = useStoreData();
 
   const crumbs = breadcrumbs.length > 0
@@ -21,38 +22,44 @@ export function BlogListPage() {
 
       {blogPosts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogPosts.map(post => (
-            <a
-              key={post.id}
-              href={post.href}
-              className="bg-card-bg rounded-xl border border-border-light overflow-hidden hover:shadow-tech-hover hover:border-primary transition-all group block"
-            >
-              {post.image && (
-                <div className="aspect-video overflow-hidden">
-                  <img
-                    src={post.image}
-                    alt={post.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
+          {blogPosts.map(post => {
+            const translated = lang !== 'he' ? post.multilingual?.[langToKey(lang)] : undefined;
+            const displayTitle = translated?.title ?? post.title;
+            const displayExcerpt = translated?.summary ?? post.excerpt;
+
+            return (
+              <a
+                key={post.id}
+                href={post.href}
+                className="bg-card-bg rounded-xl border border-border-light overflow-hidden hover:shadow-tech-hover hover:border-primary transition-all group block"
+              >
+                {post.image && (
+                  <div className="aspect-video overflow-hidden">
+                    <img
+                      src={post.image}
+                      alt={displayTitle}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+                <div className="p-5">
+                  {post.date && (
+                    <span className="text-xs text-text-muted">{post.date}</span>
+                  )}
+                  <h3 className="font-bold text-base text-text-main mt-1 mb-2 line-clamp-2">
+                    {displayTitle}
+                  </h3>
+                  {displayExcerpt && (
+                    <p className="text-sm text-text-muted line-clamp-3">{displayExcerpt}</p>
+                  )}
+                  <span className="text-primary font-bold text-sm mt-3 inline-block">
+                    {t('blog.readMore')} &larr;
+                  </span>
                 </div>
-              )}
-              <div className="p-5">
-                {post.date && (
-                  <span className="text-xs text-text-muted">{post.date}</span>
-                )}
-                <h3 className="font-bold text-base text-text-main mt-1 mb-2 line-clamp-2">
-                  {post.title}
-                </h3>
-                {post.excerpt && (
-                  <p className="text-sm text-text-muted line-clamp-3">{post.excerpt}</p>
-                )}
-                <span className="text-primary font-bold text-sm mt-3 inline-block">
-                  {t('blog.readMore')} &larr;
-                </span>
-              </div>
-            </a>
-          ))}
+              </a>
+            );
+          })}
         </div>
       ) : (
         <p className="text-center text-text-muted py-16">{t('products.empty')}</p>

@@ -1,10 +1,12 @@
+import { useMemo } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { useStoreData } from '@/lib/StoreDataContext';
 import { useLang } from '@/i18n';
+import { parseBlogMultilingual, langToKey } from '@/lib/parseBlogMultilingual';
 
 export function BlogPostPage() {
-  const { t, dir } = useLang();
+  const { t, dir, lang } = useLang();
   const { blogPostDetail, breadcrumbs } = useStoreData();
 
   if (!blogPostDetail) {
@@ -23,13 +25,20 @@ export function BlogPostPage() {
         { label: blogPostDetail.title },
       ];
 
+  const { cleanHtml, multilingual } = useMemo(
+    () => parseBlogMultilingual(blogPostDetail.contentHtml),
+    [blogPostDetail.contentHtml],
+  );
+
+  const langData = lang !== 'he' ? multilingual?.[langToKey(lang)] : undefined;
+
   return (
     <Container className="py-8">
       <Breadcrumbs items={crumbs} className="mb-6" />
 
       <article dir={dir} className="max-w-3xl mx-auto">
         <h1 className="text-3xl lg:text-4xl font-black text-text-main mb-4">
-          {blogPostDetail.title}
+          {langData?.title ?? blogPostDetail.title}
         </h1>
 
         {blogPostDetail.date && (
@@ -40,17 +49,30 @@ export function BlogPostPage() {
           <div className="rounded-xl overflow-hidden mb-8">
             <img
               src={blogPostDetail.image}
-              alt={blogPostDetail.title}
+              alt={langData?.title ?? blogPostDetail.title}
               className="w-full h-auto object-cover"
             />
           </div>
         )}
 
-        {blogPostDetail.contentHtml && (
-          <div
-            className="prose prose-lg dark:prose-invert max-w-none text-text-main leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: blogPostDetail.contentHtml }}
-          />
+        {langData ? (
+          <div className="prose prose-lg dark:prose-invert max-w-none text-text-main leading-relaxed">
+            <p>{langData.summary}</p>
+            {langData.key_points.length > 0 && (
+              <ul>
+                {langData.key_points.map((point, i) => (
+                  <li key={i}>{point}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ) : (
+          cleanHtml && (
+            <div
+              className="prose prose-lg dark:prose-invert max-w-none text-text-main leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: cleanHtml }}
+            />
+          )
         )}
       </article>
     </Container>

@@ -32,6 +32,18 @@ export interface ItemDetail {
   faqItems?: { question: string; answer: string }[];
 }
 
+export interface MultilingualLang {
+  title: string;
+  summary: string;
+  key_points: string[];
+}
+
+export interface MultilingualBlogData {
+  heb?: MultilingualLang;
+  eng?: MultilingualLang;
+  rus?: MultilingualLang;
+}
+
 export interface BlogPostItem {
   id: string;
   title: string;
@@ -39,6 +51,7 @@ export interface BlogPostItem {
   excerpt: string;
   date: string;
   href: string;
+  multilingual?: MultilingualBlogData;
 }
 
 export interface BlogPostDetail {
