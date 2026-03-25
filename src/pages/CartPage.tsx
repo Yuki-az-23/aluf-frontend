@@ -97,14 +97,12 @@ function printCart(items: CartItem[], subtotal: number, contact: ContactForm, sh
     : storeName;
 
   const rows = items.map(item => {
-    const uI = item.price, uE = exVat(uI), lI = uI * item.quantity, lE = uE * item.quantity;
+    const uI = item.price, uE = exVat(uI);
     return `<tr>
       <td>${escapeHtml(item.item_name)}</td>
       <td style="text-align:center">${item.quantity}</td>
       <td style="text-align:center">&#x20AA;${uE.toLocaleString('he-IL')}</td>
-      <td style="text-align:center">&#x20AA;${uI.toLocaleString('he-IL')}</td>
-      <td style="text-align:center">&#x20AA;${lE.toLocaleString('he-IL')}</td>
-      <td style="text-align:center;font-weight:700">&#x20AA;${lI.toLocaleString('he-IL')}</td>
+      <td style="text-align:center;font-weight:700">&#x20AA;${uI.toLocaleString('he-IL')}</td>
     </tr>`;
   }).join('');
 
@@ -120,9 +118,15 @@ function printCart(items: CartItem[], subtotal: number, contact: ContactForm, sh
   const html = `<!DOCTYPE html><html dir="rtl" lang="he"><head><meta charset="UTF-8">
 <title>הצעת מחיר – אלוף המחשבים</title><style>
 *{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;padding:30px;direction:rtl;color:#111}
-.header{text-align:center;padding-bottom:20px;border-bottom:3px solid #030213;margin-bottom:22px}
-.header img{max-width:180px;margin-bottom:8px}.header h1{font-size:24px;font-weight:900;color:#030213}
-.header .meta{font-size:12px;color:#555;line-height:1.9}
+.header{padding-bottom:16px;border-bottom:3px solid #030213;margin-bottom:22px}
+.hrow{display:flex;align-items:center;justify-content:space-between;direction:rtl}
+.hdate{font-size:12px;color:#555;align-self:flex-start;padding-top:6px}
+.hbrand{display:flex;align-items:center;gap:12px}
+.htext{text-align:right}
+.hsupport{font-size:11px;color:#555;margin-bottom:2px}
+.hname{font-size:26px;font-weight:700;color:#111;line-height:1.2}
+.hdoc{font-size:15px;font-weight:900;color:#111}
+.hlogo{max-width:72px;height:auto}
 .cust{background:#f9f9f9;border:1px solid #ddd;border-radius:6px;padding:10px 14px;margin-bottom:18px;font-size:12px}
 .cr{padding:2px 0}.lb{font-weight:700;color:#030213}
 table{width:100%;border-collapse:collapse;margin-bottom:14px}
@@ -135,13 +139,21 @@ td{padding:7px 10px;border-bottom:1px solid #ddd;font-size:11px}tr:nth-child(eve
 .ft{margin-top:26px;text-align:center;font-size:10px;color:#888;border-top:1px solid #eee;padding-top:12px}
 @media print{body{padding:12px}}
 </style></head><body>
-<div class="header"><img src="${LOGO_URL}" alt="אלוף המחשבים"><h1>הצעת מחיר</h1>
-<div class="meta"><div>תאריך: ${getTodayDate()}</div><div>שירות לקוחות: ${SUPPORT_PHONE}</div></div></div>
+<div class="header"><div class="hrow">
+  <div class="hdate">תאריך: ${getTodayDate()}</div>
+  <div class="hbrand">
+    <div class="htext">
+      <div class="hsupport">שירות לקוחות: ${SUPPORT_PHONE}</div>
+      <div class="hname">אלוף המחשבים</div>
+      <div class="hdoc">הצעת מחיר</div>
+    </div>
+    <img class="hlogo" src="${LOGO_URL}" alt="אלוף המחשבים">
+  </div>
+</div></div>
 ${cust}
 <table><thead><tr>
   <th>מוצר</th><th style="text-align:center">כמות</th>
   <th style="text-align:center">מחיר ליח׳ ללא מע"מ</th><th style="text-align:center">מחיר ליח׳ כולל מע"מ</th>
-  <th style="text-align:center">סה"כ ללא מע"מ</th><th style="text-align:center">סה"כ כולל מע"מ</th>
 </tr></thead><tbody>${rows}</tbody></table>
 <p class="vn">* מע"מ 18% כלול במחיר</p>
 <div class="sum">
