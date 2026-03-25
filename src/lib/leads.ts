@@ -87,7 +87,7 @@ export function sendLead(payload: LeadPayload): Promise<void> {
       payload: {
         name:    payload.name,
         phone:   payload.phone,
-        email:   payload.email,
+        email:   payload.email || 'null@null.co.il',
         message: content,
         ...(payload.item_id ? { item_id: payload.item_id } : {}),
       },

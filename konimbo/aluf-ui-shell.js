@@ -32,4 +32,27 @@
   // Also handle already-present elements
   document.querySelectorAll('link[href*="' + BLOCKED + '"], script[src*="' + BLOCKED + '"]')
     .forEach(function(el) { el.remove(); });
+
+  // Handle ticket submissions from the React app via postMessage
+  window.addEventListener('message', function(e) {
+    if (!e.data || typeof e.data !== 'object') return;
+    if (e.data.type !== 'FAQ_LEAD_SUBMISSION') return;
+
+    var d = e.data.payload;
+    var p = new URLSearchParams();
+    p.append('ticket[customer_name]', d.name);
+    p.append('ticket[customer_phone]', d.phone);
+    p.append('ticket[customer_email]', d.email);
+    p.append('ticket[item_id]', d.item_id || '8765261');
+    p.append('ticket[content]', d.message);
+    p.append('ticket[newsletter]', '0');
+
+    fetch('/tickets', { method: 'POST', body: p })
+      .then(function(res) {
+        if (res.ok && e.source) {
+          e.source.postMessage({ type: 'SUBMISSION_SUCCESS' }, e.origin || '*');
+        }
+      })
+      .catch(function(err) { console.error('[Aluf] Ticket submission error:', err); });
+  }, false);
 })();
