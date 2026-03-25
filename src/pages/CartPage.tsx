@@ -140,15 +140,15 @@ td{padding:7px 10px;border-bottom:1px solid #ddd;font-size:11px}tr:nth-child(eve
 @media print{body{padding:12px}}
 </style></head><body>
 <div class="header"><div class="hrow">
-  <div class="hdate">תאריך: ${getTodayDate()}</div>
   <div class="hbrand">
+    <img class="hlogo" src="${LOGO_URL}" alt="אלוף המחשבים">
     <div class="htext">
       <div class="hsupport">שירות לקוחות: ${SUPPORT_PHONE}</div>
       <div class="hname">אלוף המחשבים</div>
       <div class="hdoc">הצעת מחיר</div>
     </div>
-    <img class="hlogo" src="${LOGO_URL}" alt="אלוף המחשבים">
   </div>
+  <div class="hdate">תאריך: ${getTodayDate()}</div>
 </div></div>
 ${cust}
 <table><thead><tr>
