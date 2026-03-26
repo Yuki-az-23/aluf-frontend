@@ -47,7 +47,8 @@ export function TTSPlayer({ text, lang }: TTSPlayerProps) {
         aria-valuenow={progress}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={t('tts.player')}
+        aria-valuetext={`${progress}%`}
+        aria-label="Reading progress"
       >
         <div
           className="h-full rounded-full bg-primary transition-all duration-300"
