@@ -11,7 +11,7 @@ interface HeroBannerProps {
 }
 
 export function HeroBanner({ banners }: HeroBannerProps) {
-  const { t, dir } = useLang();
+  const { t, dir, lang } = useLang();
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -76,6 +76,10 @@ export function HeroBanner({ banners }: HeroBannerProps) {
     );
   }
 
+  const isHebrew = lang === 'he';
+  // Show localized overlay when NOT in Hebrew — banners are image-only in Hebrew
+  const showOverlay = !isHebrew;
+
   return (
     <section>
       <Carousel
@@ -89,7 +93,7 @@ export function HeroBanner({ banners }: HeroBannerProps) {
           <a
             key={i}
             href={slide.href || '#'}
-            className="block w-full"
+            className="block w-full relative group"
           >
             <img
               src={slide.image}
@@ -99,6 +103,14 @@ export function HeroBanner({ banners }: HeroBannerProps) {
               fetchPriority={i === 0 ? 'high' : 'auto'}
               decoding={i === 0 ? 'sync' : 'async'}
             />
+            {showOverlay && (
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end justify-center pb-6 md:pb-8">
+                <span className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white text-sm md:text-base font-bold px-5 py-2.5 rounded-lg shadow-lg transition-colors">
+                  <Icon name="storefront" className="text-base" />
+                  {t('hero.cta.shop')}
+                </span>
+              </div>
+            )}
           </a>
         ))}
       </Carousel>

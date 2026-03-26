@@ -729,5 +729,6 @@
   "tts.player": "Article reader",
   "tts.play": "Play article",
   "tts.pause": "Pause reading",
-  "tts.stop": "Stop reading"
+  "tts.stop": "Stop reading",
+  "item.qty": "Quantity"
 }

@@ -95,6 +95,7 @@ export function ItemPage() {
   const [addedToast, setAddedToast] = useState(false);
   const [openQa, setOpenQa] = useState<number | null>(null);
   const [specsExpanded, setSpecsExpanded] = useState(false);
+  const [qty, setQty] = useState(1);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [hoverZoom, setHoverZoom] = useState<{ mx: number; my: number; bgX: number; bgY: number } | null>(null);
   const relatedScrollRef = useRef<HTMLDivElement>(null);
@@ -167,7 +168,7 @@ export function ItemPage() {
 
   const handleAddToCart = async () => {
     setAdding(true);
-    await addToCart(itemDetail.id, 1, {
+    await addToCart(itemDetail.id, qty, {
       title: itemDetail.title,
       price: itemDetail.price,
       image: itemDetail.images[0],
@@ -181,7 +182,7 @@ export function ItemPage() {
 
   const handleBuyNow = async () => {
     setAdding(true);
-    await addToCart(itemDetail.id, 1, {
+    await addToCart(itemDetail.id, qty, {
       title: itemDetail.title,
       price: itemDetail.price,
       image: itemDetail.images[0],
@@ -287,8 +288,34 @@ export function ItemPage() {
                 </div>
               )}
 
+              {/* Quantity selector */}
+              <div className="flex items-center gap-3 mt-5">
+                <span className="text-sm font-medium text-text-muted">{t('item.qty')}</span>
+                <div className="flex items-center border border-border-light rounded-lg overflow-hidden">
+                  <button
+                    className="w-9 h-9 flex items-center justify-center text-text-muted hover:bg-primary/10 hover:text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    onClick={() => setQty(q => Math.max(1, q - 1))}
+                    disabled={qty <= 1}
+                    aria-label="Decrease quantity"
+                  >
+                    <Icon name="remove" className="text-base" />
+                  </button>
+                  <span className="w-10 h-9 flex items-center justify-center text-sm font-bold text-text-main bg-card-bg border-x border-border-light">
+                    {qty}
+                  </span>
+                  <button
+                    className="w-9 h-9 flex items-center justify-center text-text-muted hover:bg-primary/10 hover:text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    onClick={() => setQty(q => Math.min(99, q + 1))}
+                    disabled={qty >= 99}
+                    aria-label="Increase quantity"
+                  >
+                    <Icon name="add" className="text-base" />
+                  </button>
+                </div>
+              </div>
+
               {/* Add to cart + Buy now */}
-              <div className="grid grid-cols-2 gap-2 mt-5">
+              <div className="grid grid-cols-2 gap-2 mt-3">
                 <Button
                   variant="secondary"
                   size="md"

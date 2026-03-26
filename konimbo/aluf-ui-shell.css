@@ -32,6 +32,10 @@ body.aluf-failed > *:not(#aluf-root):not(script):not(noscript):not(link):not(sty
   line-height: 1.5;
   /* direction is set dynamically by React LangProvider (rtl for HE, ltr for EN/RU) */
   -webkit-text-size-adjust: 100%;
+  /* overflow-x: clip (not hidden!) so position:sticky in Header works.
+     'clip' doesn't create a new scroll container like 'hidden' does. */
+  overflow-x: clip !important;
+  overflow-y: visible !important;
 }
 #aluf-root *, #aluf-root *::before, #aluf-root *::after {
   box-sizing: border-box;
