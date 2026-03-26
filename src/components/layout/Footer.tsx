@@ -92,8 +92,8 @@ export function Footer() {
           </div>
 
           {/* Links */}
-          <div className={`flex-grow flex flex-col sm:flex-row ${dir === 'rtl' ? 'justify-end' : 'justify-start'} gap-10 md:gap-16`}>
-            <div>
+          <div className="flex-grow grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-10 md:gap-16">
+            <div className={dir === 'rtl' ? 'text-right' : ''}>
               <h3 className="text-text-main font-bold mb-4 text-base">{t('footer.departments')}</h3>
               <ul className="space-y-2 text-sm text-text-muted">
                 {deptLinks.map(({ key, href }) => (
@@ -101,7 +101,7 @@ export function Footer() {
                 ))}
               </ul>
             </div>
-            <div>
+            <div className={dir === 'rtl' ? 'text-right' : ''}>
               <h3 className="text-text-main font-bold mb-4 text-base">{t('footer.customerService')}</h3>
               <ul className="space-y-2 text-sm text-text-muted">
                 {serviceLinks.map(({ key, href, bold, external }) => (
@@ -117,7 +117,7 @@ export function Footer() {
                 ))}
               </ul>
             </div>
-            <div>
+            <div className="col-span-2 sm:col-span-1">
               <h3 className="text-text-main font-bold mb-4 text-base">{t('footer.contact')}</h3>
               <ul className="space-y-3 text-sm text-text-muted">
                 <li className="flex items-start gap-3">
