@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import Speech from 'speak-tts';
+import SpeakTTS from 'speak-tts';
+// speak-tts is a CJS module; Vite may wrap it as { default: class } — unwrap if needed
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Speech = ((SpeakTTS as any).default ?? SpeakTTS) as typeof SpeakTTS;
 
 const LANG_MAP: Record<string, string> = {
   he: 'he-IL',
@@ -8,7 +11,7 @@ const LANG_MAP: Record<string, string> = {
 };
 
 export function useTTS(text: string, lang: string) {
-  const speechRef = useRef<Speech | null>(null);
+  const speechRef = useRef<SpeakTTS | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
