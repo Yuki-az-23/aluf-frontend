@@ -536,7 +536,6 @@
   "careers.job.procurement": "Procurement",
   "careers.job.automationDev": "Automation Developer",
   "careers.job.productManager": "Product Manager",
-
   "filter.TDP מקסימלי": "Max TDP",
   "filter.DPI": "DPI",
   "filter.WATT": "Wattage",
@@ -726,5 +725,9 @@
   "account.nav.orders": "Orders",
   "account.nav.tickets": "Support",
   "account.nav.carts": "Saved Carts",
-  "account.nav.edit": "Change Password"
+  "account.nav.edit": "Change Password",
+  "tts.player": "Article reader",
+  "tts.play": "Play article",
+  "tts.pause": "Pause reading",
+  "tts.stop": "Stop reading"
 }

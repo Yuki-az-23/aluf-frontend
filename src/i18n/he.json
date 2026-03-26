@@ -581,5 +581,9 @@
   "account.nav.orders": "הזמנות",
   "account.nav.tickets": "פניות",
   "account.nav.carts": "עגלות שמורות",
-  "account.nav.edit": "שינוי סיסמה"
+  "account.nav.edit": "שינוי סיסמה",
+  "tts.player": "קורא מאמר",
+  "tts.play": "הפעל קריאה",
+  "tts.pause": "השהה קריאה",
+  "tts.stop": "עצור קריאה"
 }

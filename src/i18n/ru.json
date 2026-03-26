@@ -536,7 +536,6 @@
   "careers.job.procurement": "Закупки",
   "careers.job.automationDev": "Разработчик автоматизации",
   "careers.job.productManager": "Менеджер по продукту",
-
   "filter.TDP מקסימלי": "Макс. TDP",
   "filter.DPI": "DPI",
   "filter.WATT": "Мощность",
@@ -726,5 +725,9 @@
   "account.nav.orders": "Заказы",
   "account.nav.tickets": "Поддержка",
   "account.nav.carts": "Корзины",
-  "account.nav.edit": "Изменить пароль"
+  "account.nav.edit": "Изменить пароль",
+  "tts.player": "Читать статью",
+  "tts.play": "Воспроизвести",
+  "tts.pause": "Пауза",
+  "tts.stop": "Остановить"
 }
