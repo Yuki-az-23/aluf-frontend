@@ -83,7 +83,7 @@ export function SearchInput({ className }: SearchInputProps) {
   };
 
   return (
-    <div ref={wrapperRef} className={cn('relative group', className)}>
+    <div dir={dir} ref={wrapperRef} className={cn('relative group', className)}>
       <form onSubmit={handleSubmit}>
         <input
           type="text"

@@ -9,10 +9,10 @@ interface MainNavProps {
 }
 
 export function MainNav({ className }: MainNavProps) {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   const { open } = usePCBuilder();
   return (
-    <nav className={cn('items-center gap-1 border-t border-header-border py-1 overflow-x-auto no-scrollbar justify-center text-header-text', className)}>
+    <nav dir={dir} className={cn('items-center gap-1 border-t border-header-border py-1 overflow-x-auto no-scrollbar justify-center text-header-text', className)}>
       {mainNavItems.map(item => (
         <a
           key={item.labelKey}

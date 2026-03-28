@@ -12,14 +12,14 @@ import { useAuth } from '@/lib/AuthContext';
 const logoSrc = 'https://cdn.jsdelivr.net/gh/Yuki-az-23/aluf-frontend@master/src/assets/logo.png';
 
 export function Header() {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   const { cartCount } = useCart();
   const { loggedIn } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-header-bg/95 backdrop-blur-md border-b border-header-border shadow-md text-header-text">
+      <header dir={dir} className="sticky top-0 z-50 bg-header-bg/95 backdrop-blur-md border-b border-header-border shadow-md text-header-text">
         <Container>
           <div className="flex justify-between items-center h-20 gap-8">
             {/* Logo */}

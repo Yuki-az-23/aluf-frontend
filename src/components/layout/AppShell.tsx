@@ -11,11 +11,11 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   const [cookieVisible, setCookieVisible] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div dir={dir} className="min-h-screen flex flex-col">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-primary focus:text-white focus:p-2">
         {t('a11y.skipToContent')}
       </a>
