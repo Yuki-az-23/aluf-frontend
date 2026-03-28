@@ -24,7 +24,7 @@ const BUSINESS_SERVICES: { key: string; icon: string; source: LeadSource }[] = [
 ];
 
 export function ContactPage() {
-  const { t } = useLang();
+  const { t, dir } = useLang();
 
   const [tab, setTab]         = useState<'personal' | 'business'>('personal');
   const [service, setService] = useState('');
@@ -175,6 +175,7 @@ export function ContactPage() {
               {/* Fields */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <input
+                  dir={dir}
                   type="text" value={name} onChange={e => setName(e.target.value)}
                   placeholder={t('newsletter.namePlaceholder')}
                   className="px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg"
@@ -186,11 +187,13 @@ export function ContactPage() {
                 />
               </div>
               <input
+                dir="ltr"
                 type="email" value={email} onChange={e => setEmail(e.target.value)}
                 placeholder={t('newsletter.placeholder')}
                 className="w-full px-4 py-3 rounded-xl border border-border-light text-text-main text-sm focus:ring-2 focus:ring-primary focus:border-primary bg-input-bg"
               />
               <textarea
+                dir={dir}
                 value={message} onChange={e => setMessage(e.target.value)}
                 placeholder={t('contact.messagePlaceholder')}
                 rows={4}

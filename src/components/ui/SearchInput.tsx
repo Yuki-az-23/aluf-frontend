@@ -87,6 +87,7 @@ export function SearchInput({ className }: SearchInputProps) {
       <form onSubmit={handleSubmit}>
         <input
           type="text"
+          dir={dir}
           value={query}
           onChange={e => { setQuery(e.target.value); }}
           onFocus={() => suggestions.length > 0 && setOpen(true)}

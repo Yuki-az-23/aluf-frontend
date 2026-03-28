@@ -16,7 +16,7 @@ function sanitizeCouponCode(raw: string): string {
 
 export function CouponInput({ onApply }: CouponInputProps) {
   const [code, setCode] = useState('');
-  const { t } = useLang();
+  const { t, dir } = useLang();
 
   function handleApply() {
     const safe = sanitizeCouponCode(code);
@@ -26,6 +26,7 @@ export function CouponInput({ onApply }: CouponInputProps) {
   return (
     <div className="flex gap-2">
       <input
+        dir={dir}
         type="text"
         value={code}
         onChange={e => setCode(e.target.value)}

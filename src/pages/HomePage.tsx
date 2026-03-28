@@ -71,7 +71,7 @@ function parseBlogPosts(html: string): BlogPostItem[] {
 }
 
 export function HomePage() {
-  const { t } = useLang();
+  const { t, dir } = useLang();
   const { banners } = useStoreData();
   const { open: openPcBuilder } = usePCBuilder();
 
@@ -232,10 +232,10 @@ export function HomePage() {
             ) : (
               <form onSubmit={handleNewsletterSubmit} noValidate className="flex flex-col gap-3">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center">
-                  <input type="text" value={nlName} onChange={e => setNlName(e.target.value)}
+                  <input type="text" dir={dir} value={nlName} onChange={e => setNlName(e.target.value)}
                     placeholder={t('newsletter.namePlaceholder')}
                     className="flex-1 px-4 py-3 rounded-xl border border-primary/50 text-text-main text-sm ring-1 ring-primary/25 hover:ring-2 hover:ring-primary/45 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-input-bg" />
-                  <input type="email" value={nlEmail} onChange={e => setNlEmail(e.target.value)}
+                  <input type="email" dir="ltr" value={nlEmail} onChange={e => setNlEmail(e.target.value)}
                     placeholder={t('newsletter.placeholder')}
                     className="flex-1 px-4 py-3 rounded-xl border border-primary/50 text-text-main text-sm ring-1 ring-primary/25 hover:ring-2 hover:ring-primary/45 focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-input-bg" />
                   <input type="tel" value={nlPhone} onChange={e => setNlPhone(e.target.value)}

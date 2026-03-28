@@ -317,7 +317,7 @@ export function WorkshopPage() {
                   className="bg-card-bg border border-border-light rounded-2xl p-5 space-y-4 shadow-sm">
                   <div>
                     <label className="block text-sm font-medium text-text-main mb-1">{t('workshop.ticket.name')}</label>
-                    <input type="text" value={name} onChange={e => setName(e.target.value)}
+                    <input type="text" dir={dir} value={name} onChange={e => setName(e.target.value)}
                       className={inputCls} placeholder={t('workshop.ticket.name')} />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -374,7 +374,7 @@ export function WorkshopPage() {
                         </span>
                       )}
                     </div>
-                    <textarea rows={3} value={desc} onChange={e => setDesc(e.target.value)}
+                    <textarea rows={3} dir={dir} value={desc} onChange={e => setDesc(e.target.value)}
                       className={cn(inputCls, 'resize-none')} placeholder={t('workshop.ticket.desc.placeholder')} />
                   </div>
                   {submitError && <p className="text-red-500 text-sm text-center">{submitError}</p>}
